@@ -99,8 +99,6 @@ def workout_plans(request, userID):
         
         for plan in workout_plans:
             serialized_workout_plans.append(plan.serialize())
-
-        print(f"serialized_workout_plans: {serialized_workout_plans}")
         
         return JsonResponse(serialized_workout_plans, safe=False)
     

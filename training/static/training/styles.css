@@ -65,6 +65,15 @@ body {
 /* ------------------- */
 .page-title {
   margin: 10px;
+  display: flex;
+  align-items: center; 
+  justify-content: space-between; 
+}
+
+.title-container {
+  display: flex;
+  align-items: center; 
+  gap: 10px;
 }
 
 /* ------------------- */
@@ -79,6 +88,7 @@ body {
   border-radius: 10px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
   margin: 20px 10px;
+  position: relative;
   cursor: pointer; /* indicates that the container is clickable */
   color: black;
   transition: all 0.75s ease; /* this ensures smooth slide-in animations */
@@ -88,7 +98,10 @@ body {
   background-color: var(--emphasis);
   color: white;
   transform: scale(1.05);
+}
 
+.section-container.open .dropdown-arrow {
+  transform: rotate(180deg);
 }
 
 /* Section container animation for sliding in from the left */
@@ -122,4 +135,34 @@ body {
 
 .section-container:nth-child(even) {
   animation: slideInFromRight 0.5s forwards;
+}
+
+/* ------------------- */
+/* SECTION CONTENT */
+/* ------------------- */
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+            
+/* ------------------- */
+/* BUTTONS */
+/* ------------------- */
+
+button#create-workout-plan-button {
+  background-color: var(--emphasis);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
+  transition: 0.3s ease;
+  border: 1px solid white
+}
+
+button#create-workout-plan-button:hover {
+  background-color: var(--dark);
 }

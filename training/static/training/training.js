@@ -41,10 +41,11 @@ function addWorkoutPlans(workout_plans) {
         
         // populate the HTML of the div
         workout_planDiv.innerHTML = `
-            <div class="workout_plan-title" id="workout_plan-title-${workout_plan.id}">
+            <div class="section-title" id="workout_plan-title-${workout_plan.id}">
                 <h3>${workout_plan.title}</h3>
+                <div class="dropdown-arrow">▼</div>
             </div>
-            <div class="workout_plan-description" id="workout_plan-description-${workout_plan.id}"> 
+            <div class="section-description" id="workout_plan-description-${workout_plan.id}"> 
                 <p>${workout_plan.description}</p>
             </div>`;
         // append the new div to the DOM
@@ -61,7 +62,10 @@ function openWorkoutPlan(workout_plan) {
     const details_already_loaded = document.getElementById(`workout_plan-details-${workout_plan.id}`);
     if (details_already_loaded) {
         details_already_loaded.remove();
+        workout_planDiv.classList.remove('open');
         return;
+    } else {
+        workout_planDiv.classList.add('open');
     }
 
     // Create a bulleted list of the exercises in the workout plan
