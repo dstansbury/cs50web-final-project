@@ -1,0 +1,23 @@
+{% extends "training/layout.html" %}
+
+{% block body %}
+
+    <h2>Home page</h2>
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+    <div class="section-container" id="index-explainer">
+        Reasons to create an account.
+    </div>
+
+    <div class="section-container" id="index-login">
+        Login
+    </div>
+
+    <div class="home-section-container" id="index-register">
+        Register
+    </div>
+
+{% endblock %}

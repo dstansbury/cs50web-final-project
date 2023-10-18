@@ -1,0 +1,125 @@
+/* ------------------- */
+/* COLOR SCHEME */
+/* ------------------- */
+
+:root {
+  --dark: #4C5355;
+  --medium: #607D86; 
+  --light: #CBCDCB;
+  --emphasis: #C44B4F;
+  
+}
+
+/* ------------------- */
+/* UNIVERSAL PROPERTIES */
+/* ------------------- */
+
+/* Background color */
+body {
+  background-color: var(--medium);
+  color: white;
+}
+
+/* ------------------- */
+/* NAVBAR */
+/* ------------------- */
+/* Navbar color */
+.navbar,
+.nav-link {
+  background-color: var(--medium);
+  color: white;
+},
+
+.navbar-nav .nav-item .nav-link:hover {
+  background-color: var(--dark) !important;
+  color: white;
+}
+
+
+/* Custom Toggler Icon */
+.custom-toggler-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 24px;
+  width: 30px;
+  border: 1px solid white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.custom-toggler-icon > div {
+  height: 1.5px;
+  background-color: white;
+}
+
+/* ------------------- */
+/* PAGE CONTAINERS */
+/* ------------------- */
+.page-container {
+  margin: 0 10px;
+}
+
+/* ------------------- */
+/* PAGE TITLE CONTAINERS */
+/* ------------------- */
+.page-title {
+  margin: 10px;
+}
+
+/* ------------------- */
+/* SECTION CONTAINERS */
+/* ------------------- */
+
+/* Section Container appearance */
+.section-container {
+  background-color: var(--light);
+  border: 1px solid white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
+  margin: 20px 10px;
+  cursor: pointer; /* indicates that the container is clickable */
+  color: black;
+  transition: all 0.75s ease; /* this ensures smooth slide-in animations */
+}
+
+.section-container:hover {
+  background-color: var(--emphasis);
+  color: white;
+  transform: scale(1.05);
+
+}
+
+/* Section container animation for sliding in from the left */
+@keyframes slideInFromLeft {
+  from {
+      transform: translateX(-100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateX(0);
+      opacity: 1;
+  }
+}
+
+/* Section container animation for sliding in from the right */
+@keyframes slideInFromRight {
+  from {
+      transform: translateX(100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateX(0);
+      opacity: 1;
+  }
+}
+
+/* Apply slide-in animations to each section container based on their order */
+.section-container:nth-child(odd) {
+  animation: slideInFromLeft 0.5s forwards;
+}
+
+.section-container:nth-child(even) {
+  animation: slideInFromRight 0.5s forwards;
+}
