@@ -19,5 +19,11 @@ urlpatterns = [
     path("workout_plans/", views.no_user_workout_plans, name="no_user_workout_plans"),
     #actual path
     path("<int:userID>/workout_plans/", views.workout_plans, name="workout_plans"),
+
+    # EXERCISES
+    #error handling path
+    path("exercises/", views.no_user_exercises, name="no_user_exercises"),
+    #actual path
+    path("<int:userID>/exercises/", views.exercises, name="exercises"),
     
 ]

@@ -3,10 +3,12 @@
 /* ------------------- */
 
 :root {
+  --darkest: #000000;
   --dark: #4C5355;
   --medium: #607D86; 
   --light: #CBCDCB;
   --emphasis: #C44B4F;
+  --lightest: #FFFFFF;
   
 }
 
@@ -17,7 +19,7 @@
 /* Background color */
 body {
   background-color: var(--medium);
-  color: white;
+  color: var(--lightest);
 }
 
 /* ------------------- */
@@ -27,12 +29,12 @@ body {
 .navbar,
 .nav-link {
   background-color: var(--medium);
-  color: white;
+  color: var(--lightest);
 },
 
 .navbar-nav .nav-item .nav-link:hover {
   background-color: var(--dark) !important;
-  color: white;
+  color: var(--lightest);
 }
 
 
@@ -43,14 +45,14 @@ body {
   justify-content: space-between;
   height: 24px;
   width: 30px;
-  border: 1px solid white;
+  border: 1px solid var(--lightest);
   padding: 5px;
   border-radius: 5px;
 }
 
 .custom-toggler-icon > div {
   height: 1.5px;
-  background-color: white;
+  background-color: var(--lightest);
 }
 
 /* ------------------- */
@@ -83,22 +85,21 @@ body {
 /* Section Container appearance */
 .section-container {
   background-color: var(--light);
-  border: 1px solid white;
+  border: 1px solid var(--lightest);
   padding: 10px;
   border-radius: 10px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
   margin: 20px 10px;
   position: relative;
-  cursor: pointer; /* indicates that the container is clickable */
-  color: black;
+  color: var(--darkest);
   transition: all 0.75s ease; /* this ensures smooth slide-in animations */
 }
 
-.section-container:hover {
+/* .section-container:hover {
   background-color: var(--emphasis);
-  color: white;
-  transform: scale(1.05);
-}
+  color: var(--lightest); 
+  transform: scale(1.1);
+} */
 
 .section-container.open .dropdown-arrow {
   transform: rotate(180deg);
@@ -137,6 +138,11 @@ body {
   animation: slideInFromRight 0.5s forwards;
 }
 
+/* Disables slide in animation for the create exercise form */
+#create-exercise-form-container {
+  animation: none !important;
+}
+
 /* ------------------- */
 /* SECTION CONTENT */
 /* ------------------- */
@@ -151,18 +157,46 @@ body {
 /* BUTTONS */
 /* ------------------- */
 
-button#create-workout-plan-button {
+button.action-button {
   background-color: var(--emphasis);
   border: none;
   padding: 5px 10px;
   border-radius: 5px;
-  color: white;
-  cursor: pointer;
+  color: var(--lightest);
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
   transition: 0.3s ease;
-  border: 1px solid white
+  border: 1px solid var(--lightest)
 }
 
-button#create-workout-plan-button:hover {
-  background-color: var(--dark);
+button.action-button:hover {
+  /* background-color: var(--dark); */
+  transform: scale(1.05);
+}
+
+button.action-button-outline {
+  background-color: transparent;
+  border: 1px solid var(--emphasis);
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: var(--emphasis);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5);
+  transition: 0.3s ease;
+}
+
+button.action-button-outline:hover {
+  transform: scale(1.05);
+}
+
+/* this centers the add another exercise button */ 
+#new-workout-plan-add-exercise {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+
+/* positions action buttons on either side of their container */
+.action-buttons-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
