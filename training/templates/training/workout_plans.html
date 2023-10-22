@@ -3,7 +3,7 @@
 {% block body %}
 <div class="page-container" id="workout_plan-page-container">
     <div class="page-title" id="workout_plan-page-title">
-        <h2> {{ username }}'s Workout Plans </h2>
+        <h2> Hello {{ username }} </h2>
     </div>
 
     {% if message %}
@@ -12,6 +12,11 @@
         </div>
     {% endif %}
 
+    <!-- Space for instructions to the user-->
+    <div class="page-content" id="workout-instructions">
+        NEED TO DO THIS PART
+    </div>
+    
     <!--Form for creating a new workout plan-->
     <div class="page-content" id="create-workout-plan">
     </div>

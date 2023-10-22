@@ -32,52 +32,11 @@ HOME (INDEX)
 def index(request):
     if request.user.is_authenticated:
         userID = request.user.id
-        return HttpResponseRedirect(reverse("profile", args=(userID,)))
+        return HttpResponseRedirect(reverse("workout_plans", args=(userID,)))
     else:
         return render(request, "training/index.html")
 """
 END HOME (INDEX)
-"""
-
-""" 
-PROFILE
-"""
-def profile(request, userID):
-    # Check if the user is logged in, if not send to login page
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse("login"))
-    
-    # Security check
-    userOwned(request, userID)
-
-    # grab all the user's info from the DB and return them as JSON
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        #to be filled
-        #
-
-        # Return data in structured format
-        userProfileData = {
-            "blank": blank,
-            # to be filled
-        }
-        
-        return JsonResponse(userProfileData, safe=False)
-    
-    #If it's not an AJAX request, render the profile page
-    else:
-        return render(request, "training/profile.html", {
-            "userID": userID,
-            "username": request.user.username
-        })
-
-# Error path
-def no_user_profile(request):
-    # create an error message
-    messages.warning(request, 'Invalid profile access. Redirecting to the main page.')
-    # redirect to the index page with the message to display.
-    return HttpResponseRedirect('/') 
-"""
-END PROFILE
 """
 
 """
@@ -225,6 +184,48 @@ def no_user_exercises(request):
 END EXERCISES
 """
 
+
+""" 
+PROFILE
+"""
+def profile(request, userID):
+    # Check if the user is logged in, if not send to login page
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    
+    # Security check
+    userOwned(request, userID)
+
+    # grab all the user's info from the DB and return them as JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        #to be filled
+        #
+
+        # Return data in structured format
+        userProfileData = {
+            "blank": blank,
+            # to be filled
+        }
+        
+        return JsonResponse(userProfileData, safe=False)
+    
+    #If it's not an AJAX request, render the profile page
+    else:
+        return render(request, "training/profile.html", {
+            "userID": userID,
+            "username": request.user.username
+        })
+
+# Error path
+def no_user_profile(request):
+    # create an error message
+    messages.warning(request, 'Invalid profile access. Redirecting to the main page.')
+    # redirect to the index page with the message to display.
+    return HttpResponseRedirect('/') 
+"""
+END PROFILE
+"""
+
 """
 LOGIN
 """
@@ -239,7 +240,10 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("profile"))
+            return render(request, "training/workout_plans.html", {
+                "userID": userID,
+                "username": request.user.username
+            })
         else:
             return render(request, "login", {
                 "message": "Invalid username and/or password."

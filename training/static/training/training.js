@@ -19,23 +19,14 @@ document.addEventListener('DOMContentLoaded', function() {
 function close_section(sectionID) {
     let sectionElem = document.getElementById(sectionID);
 
-    sectionElem.remove();
-    console.log('Removed the section')
+    sectionElem.classList.add('exiting');
+    console.log('Added the animation class')
 
-    // console.log('sectionElem:', sectionElem)
-
-    // sectionElem.style.animation = 'none';
-    // sectionElem.classList.add('roll-up-animation');
-    // console.log('Added the animation class')
-
-    // // Add a section height to the element
-    // sectionElem.style.height = `${sectionElem.offsetHeight}px`;
-
-    // // Event listener for the end of the animation
-    // sectionElem.addEventListener('animationend', function() {
-    //     sectionElem.remove();
-    //     console.log('Removed the section')
-    // });
+    // Event listener for the end of the animation
+    sectionElem.addEventListener('animationend', function() {
+        sectionElem.remove();
+        console.log('Removed the section')
+    });
 
     // Show all section-containers to appear as a page refresh
     let sectionContainers = document.querySelectorAll('.section-container');
@@ -76,8 +67,8 @@ function addWorkoutPlans(workout_plans) {
     // create a new div for each workout_plan
     workout_plans.forEach(workout_plan => {
         const workout_planDiv = document.createElement('div');
-        workout_planDiv.className = 'section-container';
-        workout_planDiv.id = `workout_plan-${workout_plan.id}`;
+        workout_planDiv.className = 'section-container workout_plan-container entering';
+        workout_planDiv.id = `workout_plan-container-${workout_plan.id}`;
         workout_planDiv.onclick = () => openWorkoutPlan(workout_plan);
         
         // populate the HTML of the div
@@ -91,27 +82,32 @@ function addWorkoutPlans(workout_plans) {
             </div>`;
         // append the new div to the DOM
         document.querySelector('#existing-workout-plans').append(workout_planDiv);
+
+        // add an event listener for the animation end
+        workout_planDiv.addEventListener('animationend', function() {
+            workout_planDiv.classList.remove('entering');
+        });
     });
 }
 
 // Open full workout plan
 function openWorkoutPlan(workout_plan) {
     // Fetch the clicked workout plan's div
-    const workout_planDiv = document.getElementById(`workout_plan-${workout_plan.id}`);
+    const workout_planDiv = document.getElementById(`workout_plan-container-${workout_plan.id}`);
     
     // If the workout plan is already open, close it
     const details_already_loaded = document.getElementById(`workout_plan-details-${workout_plan.id}`);
     if (details_already_loaded) {
         details_already_loaded.remove();
-        workout_planDiv.classList.remove('open');
-        workout_planDiv.classList.add('closed');
+        workout_planDiv.classList.remove('expand');
+        workout_planDiv.classList.add('contract');
         // on animation end, remove the closed class
         workout_planDiv.addEventListener('animationend', function() {
-            workout_planDiv.classList.remove('closed');
+            workout_planDiv.classList.remove('contract');
         });
         return;
     } else {
-        workout_planDiv.classList.add('open');
+        workout_planDiv.classList.add('expand');
     }
 
     // Create a bulleted list of the exercises in the workout plan
@@ -133,6 +129,14 @@ function openWorkoutPlan(workout_plan) {
     `;
     // add the new div to the workout plan div
     workout_planDiv.append(workout_plan_detailsDiv);
+
+    // add a start workout button
+    const start_workout_button_container = document.createElement('div');
+    start_workout_button_container.className = 'action-buttons-container';
+    start_workout_button_container.id = `start-workout-button-container-${workout_plan.id}`;
+    start_workout_button_container.innerHTML = `
+        <button class="action-button" type="button" onclick="start_workout(${workout_plan.id})">Start Workout</button>`;
+    workout_planDiv.append(start_workout_button_container);
 }
 
 // Load
@@ -277,6 +281,18 @@ function remove_exercise_from_form() {
 async function open_create_workout_plan_form() {
     // hide the create workout plan button
     document.getElementById('create-workout-plan-button').style.display = 'none';
+
+    // hide all the workout plans
+    let workoutPlans = document.querySelectorAll('.workout_plan-container');
+    console.log('workoutPlans:', workoutPlans);
+    workoutPlans.forEach(workoutPlan => {
+        workoutPlan.classList.add('exiting');
+        // on animation end, remove the closed class
+        workoutPlan.addEventListener('animationend', function() {
+            workoutPlan.style.display='none';
+            workoutPlan.classList.remove('exiting');
+        });
+    });
     
     // check if fetchedExercises has any items in it
     // if not, the DB hasn't been called so we call it
@@ -291,8 +307,10 @@ async function open_create_workout_plan_form() {
 
     // create section container for the form
     const form_container = document.createElement('div');
-    form_container.className = 'section-container';
+    form_container.className = 'section-container entering';
     form_container.id = 'create-workout-plan-form-container';
+    // set the height of the form the the height of the section for the animation
+    // form_container.style.height = `${document.getElementById('create-workout-plan-form-container').offsetHeight}px`;
     form_container.innerHTML = `
         <div class="section-title" id="create_workout_plan_form_title">
             <h3>New Workout Plan</h3>
@@ -327,6 +345,11 @@ async function open_create_workout_plan_form() {
     // add the form to the DOM
     document.getElementById('create-workout-plan').append(form_container);
     document.getElementById('create-workout-plan-form-container').append(form);
+
+    // add an event listener for the animation end
+    form_container.addEventListener('animationend', function() {
+        form_container.classList.remove('exiting');
+    });
 
     // Set focus to the "Plan Title" input field
     document.getElementById('new-workout-plan-title').focus();
@@ -581,3 +604,4 @@ function closeExerciseForm() {
         container.style.display = 'block';
     });
 }
+

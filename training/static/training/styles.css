@@ -95,11 +95,11 @@ body {
   transition: all 0.75s ease;
 }
 
-.section-container.open .dropdown-arrow {
+.section-container.expand .dropdown-arrow {
   animation: spin 0.5s forwards;
 }
 
-.section-container.closed .dropdown-arrow {
+.section-container.contract .dropdown-arrow {
   animation: 0.5s reverseSpin forwards;
 }
 
@@ -114,82 +114,33 @@ body {
   transition: all 0.75s ease;
 }
 
-/* SLIDE IN ANIMATIONS */ 
-
-/* Section container animation for sliding in from the left */
-@keyframes slideInFromLeft {
-  from {
-      transform: translateX(-100%);
-      opacity: 0;
-  }
-  to {
-      transform: translateX(0);
-      opacity: 1;
-  }
-}
-
-/* Section container animation for sliding in from the right */
-@keyframes slideInFromRight {
-  from {
-      transform: translateX(100%);
-      opacity: 0;
-  }
-  to {
-      transform: translateX(0);
-      opacity: 1;
-  }
-}
-
 /* Apply slide-in animations to each section container based on their order */
-.section-container:nth-child(odd) {
+.section-container.entering:nth-child(odd) {
   animation: slideInFromLeft 0.5s forwards;
 }
 
-.section-container:nth-child(even) {
+.section-container.entering:nth-child(even) {
   animation: slideInFromRight 0.5s forwards;
 }
 
-/* Disables slide in animation for the create exercise form */
-/* #create-exercise-form-container {
-  animation: none !important;
-} */
-
-/* ROLL UP TO CLOSE ANIMATION */
-@keyframes rollUp {
-  0% {
-    height: 100%;
-    overflow: hidden;
-  }
-  100% {
-    height: 0;
-    overflow: hidden;
-  }
+/* Apply slide-out animations to each section container based on their order */
+.section-container.exiting:nth-child(odd) {
+  animation: slideOutToLeft 0.5s forwards;
 }
 
-.roll-up-animation {
-  animation: rollUp 3s forwards;
+.section-container.exiting:nth-child(even) {
+  animation: slideOutToRight 0.5s forwards;
 }
 
-/* Spin dropdown arrow animation on section open */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(180deg);
-  }
+/* Apply roll down animation to section container on open */
+.section-container.opening {
+  animation: sectionOpen 3s forwards;
 }
 
-/* Spin dropdown arrow animation on section close */
-@keyframes reverseSpin {
-  from {
-    transform: rotate(180deg);
-  }
-  to {
-    transform: rotate(0deg);
-  }
+/* Apply roll up animation to section container on close */
+.section-container.closing {
+  animation: sectionClose 3s forwards;
 }
-
 
 /* ------------------- */
 /* SECTION CONTENT */
@@ -248,3 +199,109 @@ button.action-button-outline:hover {
   justify-content: space-between;
   align-items: center;
 }
+
+
+/* ---------------------- */
+/* ANIMATION DEFINITIONS  */ 
+/* ---------------------- */
+
+/* Sections Slide In */ 
+
+/* Section container animation for sliding in from the left */
+@keyframes slideInFromLeft {
+  from {
+      transform: translateX(-100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateX(0);
+      opacity: 1;
+  }
+}
+
+/* Section container animation for sliding in from the right */
+@keyframes slideInFromRight {
+  from {
+      transform: translateX(100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateX(0);
+      opacity: 1;
+  }
+}
+
+/* Section container animation for sliding out to the left */
+@keyframes slideOutToLeft {
+  from {
+      transform: translateX(0);
+      opacity: 1;
+  }
+  to {
+      transform: translateX(-100%);
+      opacity: 0;
+  }
+}
+
+/* Section container animation for sliding out to the right */
+@keyframes slideOutToRight {
+  from {
+      transform: translateX(0);
+      opacity: 1;
+  }
+  to {
+      transform: translateX(100%);
+      opacity: 0;
+  }
+}
+
+/* Disables slide in animation for the create exercise form */
+/* #create-exercise-form-container {
+  animation: none !important;
+} */
+
+/* Section rolls down on open */
+@keyframes sectionOpen {
+  0% {
+    max-height: 1000px;
+    overflow: hidden;
+  }
+  100% {
+    max-height: 1000px;
+    overflow: hidden;
+  }
+}
+
+/* Section rolls up on close */
+@keyframes sectionClose {
+  0% {
+    max-height: 1000px;
+    overflow: hidden;
+  }
+  100% {
+    max-height: 1000px;
+    overflow: hidden;
+  }
+}
+
+/* Spin dropdown arrow on section expand */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+/* Spin dropdown arrow on section contract */
+@keyframes reverseSpin {
+  from {
+    transform: rotate(180deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+
