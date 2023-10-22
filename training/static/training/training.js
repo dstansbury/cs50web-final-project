@@ -12,6 +12,47 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // -------------------------- //
+// UNIVERSAL FUNCTIONS //
+// -------------------------- //
+
+// Close a section
+function close_section(sectionID) {
+    let sectionElem = document.getElementById(sectionID);
+
+    sectionElem.remove();
+    console.log('Removed the section')
+
+    // console.log('sectionElem:', sectionElem)
+
+    // sectionElem.style.animation = 'none';
+    // sectionElem.classList.add('roll-up-animation');
+    // console.log('Added the animation class')
+
+    // // Add a section height to the element
+    // sectionElem.style.height = `${sectionElem.offsetHeight}px`;
+
+    // // Event listener for the end of the animation
+    // sectionElem.addEventListener('animationend', function() {
+    //     sectionElem.remove();
+    //     console.log('Removed the section')
+    // });
+
+    // Show all section-containers to appear as a page refresh
+    let sectionContainers = document.querySelectorAll('.section-container');
+    sectionContainers.forEach(container => {
+        container.style.display = 'block';
+        console.log('re-added sections')
+    });
+
+    // Show all action buttons to appear as a page refresh
+    let actionButtons = document.querySelectorAll('.action-button'); 
+    actionButtons.forEach(button => {
+        button.style.display = 'block';
+        console.log('Showed the buttons')
+    });
+}
+
+// -------------------------- //
 // WORKOUT_PLANS //
 // -------------------------- //
 
@@ -63,6 +104,11 @@ function openWorkoutPlan(workout_plan) {
     if (details_already_loaded) {
         details_already_loaded.remove();
         workout_planDiv.classList.remove('open');
+        workout_planDiv.classList.add('closed');
+        // on animation end, remove the closed class
+        workout_planDiv.addEventListener('animationend', function() {
+            workout_planDiv.classList.remove('closed');
+        });
         return;
     } else {
         workout_planDiv.classList.add('open');
@@ -87,9 +133,6 @@ function openWorkoutPlan(workout_plan) {
     `;
     // add the new div to the workout plan div
     workout_planDiv.append(workout_plan_detailsDiv);
-
-    // TO DO: ADD A BUTTON TO CLOSE THE WORKOUT
-    // TO DO: ADD A BUTTON TO START THE WORKOUT
 }
 
 // Load
@@ -193,11 +236,11 @@ function generate_exercise_row() {
             ${exerciseDropdown}
             <div class="form-group col-md-3">
                 <label>Sets</label>
-                <input type="number" class="form-control" id="new-workout-plan-exercise-sets-${exercise_number}" placeholder="Number of sets">  
+                <input type="number" class="form-control" id="new-workout-plan-exercise-sets-${exercise_number}" min="1" step="1" placeholder="Number of sets">  
             </div>
             <div class="form-group col-md-3">
                 <label>Reps</label>
-                <input type="number" class="form-control" id="new-workout-plan-exercise-reps-${exercise_number}" placeholder="Number of reps per set">
+                <input type="number" class="form-control" id="new-workout-plan-exercise-reps-${exercise_number}" min="1" step="1" placeholder="Number of reps per set">
             </div>
         </div>
     `;
@@ -253,6 +296,7 @@ async function open_create_workout_plan_form() {
     form_container.innerHTML = `
         <div class="section-title" id="create_workout_plan_form_title">
             <h3>New Workout Plan</h3>
+            <a class="close-section" id="close_create_workout_plan_form" onclick="close_section('create-workout-plan-form-container')"><strong>Ｘ</strong></a>
         </div>`
 
     const form = document.createElement('form');
@@ -260,7 +304,7 @@ async function open_create_workout_plan_form() {
     form.innerHTML = `
         <div class="form-group">
             <label>Plan Title</label>
-            <input type="text" class="form-control" id="new-workout-plan-title" placeholder="New workout plan title">
+            <input type="text" class="form-control" id="new-workout-plan-title" required placeholder="New workout plan title">
             <small id="title-help" class="form-text text-muted">Choose a title that will help you find this workout again from a list.</small>
         </div>
         <div class="form-group">
@@ -271,8 +315,8 @@ async function open_create_workout_plan_form() {
             ${generate_exercise_row()}
         </div>
         <div class="action-buttons-container" id="new-workout-plan-actions">    
-            <button class="action-button-outline" onclick="add_exercise_to_form()">Add Exercise</button>
-            <button class="action-button-outline" onclick="remove_exercise_from_form()">Remove Exercise</button>
+            <button class="action-button-outline" type="button" onclick="add_exercise_to_form()">Add Exercise</button>
+            <button class="action-button-outline" type="button" onclick="remove_exercise_from_form()">Remove Exercise</button>
         </div>
         <br>
         <div class="action-buttons-container" id="new-workout-plan-save">
@@ -353,17 +397,16 @@ function save_workout_plan() {
             'X-Requested-With': 'XMLHttpRequest',
             'X-CSRFToken': csrf_token,
         }
+    }) // closing bracket for fetch was moved to here
+    .then(_ => {
+        // Reload page with new workout plan
+        window.location.reload();
     })
-        .catch(error => {
-            console.error('Error submitting new workout plan to DB:', error);
-            throw error;
-        })
-    
-    // Reload page with new workout plan
-    window.location.reload();
-
+    .catch(error => {
+        console.error('Error submitting new workout plan to DB:', error);
+        throw error;
+    });
 }
-
 
 // -------------------------- //
 // CREATE EXERCISE            //
@@ -382,6 +425,7 @@ function create_new_exercise_form() {
     form_container.innerHTML = `
         <div class="section-title" id="create_exercise_form_title">
             <h3>New Exercise</h3>
+            <div class="close-section" id="close_create_workout_plan_form" onclick="close_section('create-exercise-form-container')"><strong>Ｘ</strong></div>
         </div>
         <form id="create-exercise-form">
             <div class="form-group">
@@ -394,7 +438,6 @@ function create_new_exercise_form() {
             </div>
             <div class="action-buttons-container" id="new-exercise-actions">
                 <button type="button" class="action-button" onclick="save_new_exercise()">Save Exercise</button>
-                <button class="action-button-outline" onclick="closeExerciseForm()">Close</button>
             </div>
         </form>
     `;

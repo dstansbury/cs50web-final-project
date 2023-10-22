@@ -4,7 +4,6 @@
 <div class="page-container" id="workout_plan-page-container">
     <div class="page-title" id="workout_plan-page-title">
         <h2> {{ username }}'s Workout Plans </h2>
-        <button class="action-button" id="create-workout-plan-button" onclick="open_create_workout_plan_form()">Create Workout Plan</button>
     </div>
 
     {% if message %}
@@ -20,6 +19,15 @@
     <!-- Show all existing workout plans-->
     <div class="page-content" id="existing-workout-plans">
     </div>
+
+    <!-- Main page action-->
+    <div class="page-content" id="main-page-action">
+        <div class="section-container-transparent" id="workout-plans-main-action">
+            <button class="action-button" id="create-workout-plan-button" onclick="open_create_workout_plan_form()">Create Workout Plan
+            </button>
+        </div>
+    </div>
+        
     
 </div>
 {% endblock %}
