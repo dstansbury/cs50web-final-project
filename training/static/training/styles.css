@@ -93,6 +93,11 @@ body {
   position: relative;
   color: var(--darkest);
   transition: all 0.75s ease;
+  cursor: pointer;
+}
+
+.section-container h4 {
+  margin: 0;
 }
 
 .section-container.expand .dropdown-arrow {
@@ -103,15 +108,13 @@ body {
   animation: 0.5s reverseSpin forwards;
 }
 
-/* Section Container appearance */
-.section-container-transparent {
-  background-color: transparent;
-  border: none;
-  padding: 10px;
-  border-radius: 10px;
-  margin: 20px 10px;
-  position: relative;
-  transition: all 0.75s ease;
+/* Action Section Container appearance */
+.section-container.action {
+  background-color: var(--emphasis);
+  color: var(--lightest);
+  display: flex;
+  justify-content: center;
+  align-items: center;  
 }
 
 /* Apply slide-in animations to each section container based on their order */
@@ -130,16 +133,6 @@ body {
 
 .section-container.exiting:nth-child(even) {
   animation: slideOutToRight 0.5s forwards;
-}
-
-/* Apply roll down animation to section container on open */
-.section-container.opening {
-  animation: sectionOpen 3s forwards;
-}
-
-/* Apply roll up animation to section container on close */
-.section-container.closing {
-  animation: sectionClose 3s forwards;
 }
 
 /* ------------------- */
@@ -260,30 +253,6 @@ button.action-button-outline:hover {
   animation: none !important;
 } */
 
-/* Section rolls down on open */
-@keyframes sectionOpen {
-  0% {
-    max-height: 1000px;
-    overflow: hidden;
-  }
-  100% {
-    max-height: 1000px;
-    overflow: hidden;
-  }
-}
-
-/* Section rolls up on close */
-@keyframes sectionClose {
-  0% {
-    max-height: 1000px;
-    overflow: hidden;
-  }
-  100% {
-    max-height: 1000px;
-    overflow: hidden;
-  }
-}
-
 /* Spin dropdown arrow on section expand */
 @keyframes spin {
   0% {
@@ -304,4 +273,7 @@ button.action-button-outline:hover {
   }
 }
 
+a {
+  color: var(--emphasis);
+}
 

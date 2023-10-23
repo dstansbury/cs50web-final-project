@@ -2,23 +2,30 @@
 
 {% block body %}
 
-    <h2>Login</h2>
+<div class="page-container" id="workout_plan-page-container">
+    <div class="page-title" id="register-page-title">
+        <h2> Register </h2>
+    </div>
 
     {% if message %}
         <div>{{ message }}</div>
     {% endif %}
 
-    <form action="{% url 'login' %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <input autofocus class="form-control" type="text" name="username" placeholder="Username">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
-        </div>
-        <input class="btn btn-primary" type="submit" value="Login">
-    </form>
+    <div class = "section-container" id="login-form">
+        <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="password" name="password" placeholder="Password">
+            </div>
+            <input class="button action-button" type="submit" value="Login">
+        </form>
+    </div>
 
-    Don't have an account? <a href="{% url 'register' %}">Register here.</a>
-
+    <div class="section-container" id="register-new-account">
+        Don't have an account? <a href="{% url 'register' %}">Register here.</a>
+    </div>
+</div>
 {% endblock %}

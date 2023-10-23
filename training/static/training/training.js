@@ -12,38 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // -------------------------- //
-// UNIVERSAL FUNCTIONS //
-// -------------------------- //
-
-// Close a section
-function close_section(sectionID) {
-    let sectionElem = document.getElementById(sectionID);
-
-    sectionElem.classList.add('exiting');
-    console.log('Added the animation class')
-
-    // Event listener for the end of the animation
-    sectionElem.addEventListener('animationend', function() {
-        sectionElem.remove();
-        console.log('Removed the section')
-    });
-
-    // Show all section-containers to appear as a page refresh
-    let sectionContainers = document.querySelectorAll('.section-container');
-    sectionContainers.forEach(container => {
-        container.style.display = 'block';
-        console.log('re-added sections')
-    });
-
-    // Show all action buttons to appear as a page refresh
-    let actionButtons = document.querySelectorAll('.action-button'); 
-    actionButtons.forEach(button => {
-        button.style.display = 'block';
-        console.log('Showed the buttons')
-    });
-}
-
-// -------------------------- //
 // WORKOUT_PLANS //
 // -------------------------- //
 
@@ -74,11 +42,8 @@ function addWorkoutPlans(workout_plans) {
         // populate the HTML of the div
         workout_planDiv.innerHTML = `
             <div class="section-title" id="workout_plan-title-${workout_plan.id}">
-                <h3>${workout_plan.title}</h3>
+                <h4>${workout_plan.title}</h4>
                 <div class="dropdown-arrow">▼</div>
-            </div>
-            <div class="section-description" id="workout_plan-description-${workout_plan.id}"> 
-                <p>${workout_plan.description}</p>
             </div>`;
         // append the new div to the DOM
         document.querySelector('#existing-workout-plans').append(workout_planDiv);
@@ -123,20 +88,26 @@ function openWorkoutPlan(workout_plan) {
     workout_plan_detailsDiv.className = 'workout_plan-details';
     workout_plan_detailsDiv.id = `workout_plan-details-${workout_plan.id}`;
     workout_plan_detailsDiv.innerHTML = `
+        <div class="section-description" id="workout_plan-description-${workout_plan.id}"> 
+            <p>${workout_plan.description}</p>
+        </div>    
+        <div class="exercise-list" id="workout_plan-exercise-list-${workout_plan.id}">
         <ul>
             ${list_items}
         </ul>
+        </div>
     `;
     // add the new div to the workout plan div
     workout_planDiv.append(workout_plan_detailsDiv);
 
     // add a start workout button
-    const start_workout_button_container = document.createElement('div');
-    start_workout_button_container.className = 'action-buttons-container';
-    start_workout_button_container.id = `start-workout-button-container-${workout_plan.id}`;
-    start_workout_button_container.innerHTML = `
-        <button class="action-button" type="button" onclick="start_workout(${workout_plan.id})">Start Workout</button>`;
-    workout_planDiv.append(start_workout_button_container);
+    const start_workout_action = document.createElement('div');
+    start_workout_action.className = 'section-container action';
+    start_workout_action.id = `start-workout-action-${workout_plan.id}`;
+    start_workout_action.onclick = "start_workout(workout_plan.id)";
+    start_workout_action.innerHTML = `
+        <h4>Start Workout</h4>`;
+    workout_plan_detailsDiv.append(start_workout_action);
 }
 
 // Load
@@ -167,20 +138,23 @@ let exercise_number = 1;
 // last selected dropdown menu for adding new exercise to
 let lastSelectedDropdown = '';
 
-// Hide all section containers
-function hide_section_containers() {
-    let sectionContainers = document.querySelectorAll('.section-container');
-    sectionContainers.forEach(container => {
-        container.style.display = 'none';
+// Hide a section containers
+function hide_section(section) {
+    section.classList.add('exiting');
+    // add listener for end of animation
+    section.addEventListener('animationend', function() {
+        section.classList.remove('exiting');
+        section.style.display = 'none';
     });
 }
 
-// Show all section containers
-function show_section_containers() {
-    // Show all section-containers to appear as a page refresh
-    let sectionContainers = document.querySelectorAll('.section-container');
-    sectionContainers.forEach(container => {
-        container.style.display = 'block';
+// Show a section container
+function show_section(section) {
+    section.style.display = 'block';
+    section.classList.add('entering');
+    // add listener for end of animation
+    section.addEventListener('animationend', function() {
+        section.classList.remove('entering');
     });
 }
 
@@ -314,7 +288,7 @@ async function open_create_workout_plan_form() {
     form_container.innerHTML = `
         <div class="section-title" id="create_workout_plan_form_title">
             <h3>New Workout Plan</h3>
-            <a class="close-section" id="close_create_workout_plan_form" onclick="close_section('create-workout-plan-form-container')"><strong>Ｘ</strong></a>
+            <a class="close-section" id="close_create_workout_plan_form" onclick="close_create_workout_plan_form()"><strong>Ｘ</strong></a>
         </div>`
 
     const form = document.createElement('form');
@@ -431,6 +405,22 @@ function save_workout_plan() {
     });
 }
 
+// CLOSE THE CREATE WORKOUT PLAN FORM
+function close_create_workout_plan_form() {
+    workout_plan_form = document.getElementById('create-workout-plan-form-container');
+    console.log('workout_plan_form:', workout_plan_form);
+    hide_section(workout_plan_form);
+
+    // show all the workout plan containers
+    let workoutPlans = document.querySelectorAll('.workout_plan-container');
+    workoutPlans.forEach(workoutPlan => {
+        show_section(workoutPlan);
+    });
+
+    // show the create workout plan button
+    show_section(document.getElementById('create-workout-plan-button'));
+}
+
 // -------------------------- //
 // CREATE EXERCISE            //
 // -------------------------- //
@@ -439,8 +429,12 @@ function save_workout_plan() {
 
 // Create a new exercise form
 function create_new_exercise_form() {
-    hide_section_containers()
-
+    // hide each of the workout plan containers
+    let workoutPlans = document.querySelectorAll('.workout_plan-container');
+    workoutPlans.forEach(workoutPlan => {
+        hide_section(workoutPlan);
+    });
+    
     // Create the new exercise form
     const form_container = document.createElement('div');
     form_container.className = 'section-container';

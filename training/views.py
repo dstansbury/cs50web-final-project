@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.db.models.query import QuerySet
 from django.views.decorators.http import require_POST
 from django.utils import timezone
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, redirect, HttpResponseRedirect, HttpResponse
 
 from .models import Exercise, User, BodyWeight, WorkoutPlan, Workout, ExerciseInWorkoutPlan, ExerciseInWorkout, TrainingSet, BrokenSet, PersonalBest
 """ 
@@ -240,10 +240,7 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return render(request, "training/workout_plans.html", {
-                "userID": userID,
-                "username": request.user.username
-            })
+            return redirect(workout_plans(request, user.id))
         else:
             return render(request, "login", {
                 "message": "Invalid username and/or password."
