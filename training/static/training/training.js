@@ -12,6 +12,60 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // -------------------------- //
+// Helping functions for create workout plan //
+// -------------------------- //
+
+// Global variable for workout plans fetched from the DB
+// So we only need to call once
+let fetchedWorkoutPlans =[];
+
+// Global variable for exercises fetched from the DB
+let fetchedExercises = [];
+
+// Global variable for exercise number so exercise rows can be uniquely identified
+let exercise_number = 1;
+
+// last selected dropdown menu for adding new exercise to
+let lastSelectedDropdown = '';
+
+// Hide a section
+function hide_section(section) {
+    return new Promise(resolve => {
+        section.classList.add('exiting');
+        
+        // Listener for end of animation
+        function animationEndCallback() {
+            console.log('animation end callback. Section:', section)
+            section.classList.remove('exiting');
+            console.log('after exiting removed. Section:', section)
+            section.style.display = 'none';
+            console.log('after display none. Section:', section)
+            section.removeEventListener('animationend', animationEndCallback);
+            resolve();
+        }
+        
+        section.addEventListener('animationend', animationEndCallback);
+    });
+}
+
+
+// Show a section container
+function show_section(section) {
+    console.log('show_section function. Section:', section)
+    section.style.display = 'block';
+    console.log('after display block. Section:', section)
+    section.classList.add('entering');
+    console.log('after entering added. Section:', section)
+    
+    // add listener for end of animation
+    section.addEventListener('animationend', function animationEndCallback() {
+        section.classList.remove('entering');
+        console.log('after entering removed. Section:', section)
+        section.removeEventListener('animationend', animationEndCallback);
+    });
+}
+
+// -------------------------- //
 // WORKOUT_PLANS //
 // -------------------------- //
 
@@ -21,7 +75,7 @@ function fetchWorkoutPlans(userID) {
     return fetch(`/${userID}/workout_plans`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => response.json())
         .then(workout_plans => {
-            console.log('Fetched workout plans:', workout_plans);
+            fetchedWorkoutPlans = workout_plans;
             return workout_plans;
         })
         .catch(error => {
@@ -30,7 +84,7 @@ function fetchWorkoutPlans(userID) {
         });
 }
 
-// Add
+// Add workout plans
 function addWorkoutPlans(workout_plans) {
     // create a new div for each workout_plan
     workout_plans.forEach(workout_plan => {
@@ -52,6 +106,27 @@ function addWorkoutPlans(workout_plans) {
         workout_planDiv.addEventListener('animationend', function() {
             workout_planDiv.classList.remove('entering');
         });
+    });
+}
+
+// Add create workout plan action
+function addCreateWorkoutPlanAction() {
+    // create a new div for the create workout plan action
+    const create_workout_plan_action = document.createElement('div');
+    create_workout_plan_action.className = 'section-container action entering';
+    create_workout_plan_action.id = 'create-workout-plan-action';
+    create_workout_plan_action.onclick = () => open_create_workout_plan_form();
+    create_workout_plan_action.innerHTML = `
+        <h4>
+            Create Workout Plan
+        </h4>
+    `;
+    // append it to the DOM
+    document.querySelector('#main-page-action').appendChild(create_workout_plan_action);
+
+    // add event listener to remove animation class
+    create_workout_plan_action.addEventListener('animationend', function() {
+        create_workout_plan_action.classList.remove('entering');
     });
 }
 
@@ -110,53 +185,21 @@ function openWorkoutPlan(workout_plan) {
     workout_plan_detailsDiv.append(start_workout_action);
 }
 
-// Load
-function load_workout_plans(userID) {
-    fetchWorkoutPlans(userID)
-        .then(addWorkoutPlans)
-        .catch(error => {
-            console.error('Error loading workout_plans:', error);
-            throw error;
-        });
+// Load workout plans page
+async function load_workout_plans(userID) {
+    try {
+        await fetchWorkoutPlans(userID);
+        console.log('fetchedWorkoutPlans in load function:', fetchedWorkoutPlans);
+        addWorkoutPlans(fetchedWorkoutPlans);
+        addCreateWorkoutPlanAction();
+    } catch (error) {
+        console.error('Error loading workout_plans:', error);
+    }
 }
 
 // -------------------------- //
 // CREATE WORKOUT PLAN
 // -------------------------- //
-
-// -------------------------- //
-// Helping functions for create workout plan //
-// -------------------------- //
-
-// Global variable for exercises fetched from the DB
-// So we only need to call once
-let fetchedExercises = [];
-
-// Global variable for exercise number so exercise rows can be uniquely identified
-let exercise_number = 1;
-
-// last selected dropdown menu for adding new exercise to
-let lastSelectedDropdown = '';
-
-// Hide a section containers
-function hide_section(section) {
-    section.classList.add('exiting');
-    // add listener for end of animation
-    section.addEventListener('animationend', function() {
-        section.classList.remove('exiting');
-        section.style.display = 'none';
-    });
-}
-
-// Show a section container
-function show_section(section) {
-    section.style.display = 'block';
-    section.classList.add('entering');
-    // add listener for end of animation
-    section.addEventListener('animationend', function() {
-        section.classList.remove('entering');
-    });
-}
 
 // FETCH FROM DB // 
 
@@ -210,15 +253,18 @@ function generate_exercise_dropdown() {
 function generate_exercise_row() {
     const exerciseDropdown = generate_exercise_dropdown();
     const row = `
-        <div class="form-row" id="new-workout-plan-exercise-${exercise_number}">
-            ${exerciseDropdown}
-            <div class="form-group col-md-3">
-                <label>Sets</label>
-                <input type="number" class="form-control" id="new-workout-plan-exercise-sets-${exercise_number}" min="1" step="1" placeholder="Number of sets">  
-            </div>
-            <div class="form-group col-md-3">
-                <label>Reps</label>
-                <input type="number" class="form-control" id="new-workout-plan-exercise-reps-${exercise_number}" min="1" step="1" placeholder="Number of reps per set">
+        <div id="new-workout-plan-exercise-${exercise_number}">
+            <hr>
+            <div class="form-row" id="new-workout-plan-exercise-name-${exercise_number}">
+                ${exerciseDropdown}
+                <div class="form-group col-md-3">
+                    <label>Sets</label>
+                    <input type="number" class="form-control" id="new-workout-plan-exercise-sets-${exercise_number}" min="1" step="1" placeholder="Number of sets">  
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Reps</label>
+                    <input type="number" class="form-control" id="new-workout-plan-exercise-reps-${exercise_number}" min="1" step="1" placeholder="Number of reps per set">
+                </div>
             </div>
         </div>
     `;
@@ -253,20 +299,19 @@ function remove_exercise_from_form() {
 
 // Main function for creating a new workout plan //
 async function open_create_workout_plan_form() {
-    // hide the create workout plan button
-    document.getElementById('create-workout-plan-button').style.display = 'none';
 
-    // hide all the workout plans
+    // hide all the workout plans and the create workout button
+    let promises=[];
+    let createWorkoutPlanAction = document.getElementById('create-workout-plan-action');
     let workoutPlans = document.querySelectorAll('.workout_plan-container');
     console.log('workoutPlans:', workoutPlans);
     workoutPlans.forEach(workoutPlan => {
-        workoutPlan.classList.add('exiting');
-        // on animation end, remove the closed class
-        workoutPlan.addEventListener('animationend', function() {
-            workoutPlan.style.display='none';
-            workoutPlan.classList.remove('exiting');
+        promises.push(hide_section(workoutPlan));
         });
-    });
+    promises.push(hide_section(createWorkoutPlanAction))
+
+    // wait for all the promises to resolve
+    await Promise.all(promises);
     
     // check if fetchedExercises has any items in it
     // if not, the DB hasn't been called so we call it
@@ -278,70 +323,88 @@ async function open_create_workout_plan_form() {
             return;
         }
     }
+    // Check if the section container already exists
+    // If yes, show it
+    let workout_plan_form = document.getElementById('create-workout-plan-form-container');
+    if (workout_plan_form) {
+        show_section(workout_plan_form);
+        return;
+    }
+    // if no, create it
+    else {
+        // create section container for the form
+        const form_container = document.createElement('div');
+        form_container.className = 'section-container entering';
+        form_container.id = 'create-workout-plan-form-container';
+        form_container.innerHTML = `
+            <div class="section-title" id="create_workout_plan_form_title">
+                <h3>New Workout Plan</h3>
+                <a class="close-section" id="close_create_workout_plan_form" onclick="close_create_workout_plan_form()"><strong>Ｘ</strong></a>
+            </div>`
 
-    // create section container for the form
-    const form_container = document.createElement('div');
-    form_container.className = 'section-container entering';
-    form_container.id = 'create-workout-plan-form-container';
-    // set the height of the form the the height of the section for the animation
-    // form_container.style.height = `${document.getElementById('create-workout-plan-form-container').offsetHeight}px`;
-    form_container.innerHTML = `
-        <div class="section-title" id="create_workout_plan_form_title">
-            <h3>New Workout Plan</h3>
-            <a class="close-section" id="close_create_workout_plan_form" onclick="close_create_workout_plan_form()"><strong>Ｘ</strong></a>
-        </div>`
+        // create the form
+        const form = document.createElement('form');
+        form.id = 'create-workout-plan-form';
+        form.innerHTML = `
+            <div class="form-group">
+                <label>Plan Title</label>
+                <input type="text" class="form-control" id="new-workout-plan-title" required placeholder="New workout plan title">
+                <small id="title-help" class="form-text text-muted">Choose a title that will help you find this workout again from a list.</small>
+            </div>
+            <div class="form-group">
+                <label>Plan Description</label>
+                <input type="textarea" class="form-control" id="new-workout-plan-description" placeholder="Plan description">
+            </div>
+            <div class="form-exercises" id="new-workout-plan-exercises">
+                ${generate_exercise_row()}
+            </div>
+            <div class="action-buttons-container" id="new-workout-plan-actions">    
+                <a href="#" onclick="event.preventDefault(); add_exercise_to_form()">Add Exercise</a>
+                <a href="#" onclick="event.preventDefault(); remove_exercise_from_form()">Remove Exercise</a>
+            </div>
+            <div class="section-container action" id="new-workout-plan-save" onclick=submit_workout_plan_form()>
+                <h4>Save Plan</h4>
+            </div>
+        `;
 
-    const form = document.createElement('form');
-    form.id = 'create-workout-plan-form';
-    form.innerHTML = `
-        <div class="form-group">
-            <label>Plan Title</label>
-            <input type="text" class="form-control" id="new-workout-plan-title" required placeholder="New workout plan title">
-            <small id="title-help" class="form-text text-muted">Choose a title that will help you find this workout again from a list.</small>
-        </div>
-        <div class="form-group">
-            <label>Plan Description</label>
-            <input type="textarea" class="form-control" id="new-workout-plan-description" placeholder="Plan description">
-        </div>
-        <div class="form-exercises" id="new-workout-plan-exercises">
-            ${generate_exercise_row()}
-        </div>
-        <div class="action-buttons-container" id="new-workout-plan-actions">    
-            <button class="action-button-outline" type="button" onclick="add_exercise_to_form()">Add Exercise</button>
-            <button class="action-button-outline" type="button" onclick="remove_exercise_from_form()">Remove Exercise</button>
-        </div>
-        <br>
-        <div class="action-buttons-container" id="new-workout-plan-save">
-            <button class="action-button" type="submit">Save Plan</button>
-        </div>
-    `;
+        // add the form to the DOM
+        document.getElementById('create-workout-plan').append(form_container);
+        document.getElementById('create-workout-plan-form-container').append(form);
 
-    // add the form to the DOM
-    document.getElementById('create-workout-plan').append(form_container);
-    document.getElementById('create-workout-plan-form-container').append(form);
+        // add an event listener for the animation end
+        form_container.addEventListener('animationend', function animationEndCallback() {
+            form_container.classList.remove('exiting');
+            form_container.removeEventListener('animationend', animationEndCallback);
+        });
 
-    // add an event listener for the animation end
-    form_container.addEventListener('animationend', function() {
-        form_container.classList.remove('exiting');
-    });
+        // Set focus to the "Plan Title" input field
+        document.getElementById('new-workout-plan-title').focus();
 
-    // Set focus to the "Plan Title" input field
-    document.getElementById('new-workout-plan-title').focus();
-
-    // add event listener for if use selects add new exercise in dropdown
-    document.getElementById('new-workout-plan-exercises').addEventListener('change', function(event) {
-        if(event.target.id.startsWith('new-workout-plan-exercise-name') && event.target.value === 'add-new-exercise') {
-            lastSelectedDropdown = event.target;
-            console.log('lastSelectedDropdown:', lastSelectedDropdown)
-            create_new_exercise_form();
+        // add event listener for if use selects add new exercise in dropdown
+        document.getElementById('new-workout-plan-exercises').addEventListener('change', function(event) {
+            if(event.target.id.startsWith('new-workout-plan-exercise-name') && event.target.value === 'add-new-exercise') {
+                lastSelectedDropdown = event.target;
+                console.log('lastSelectedDropdown:', lastSelectedDropdown)
+                create_new_exercise_form();
+            }
+        });
+        
+        // add a submit event listener for the whole form
+        let formElement =  document.getElementById('create-workout-plan-form')
+        function formSubmitCallback(event) {
+            event.preventDefault();
+            save_workout_plan();
+            formElement.removeEventListener('submit', formSubmitCallback);
         }
-    });
-    
-    // add a submit event listener for the whole form
-    document.getElementById('create-workout-plan-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        save_workout_plan();
-    });
+        formElement.addEventListener('submit', formSubmitCallback);
+
+        }
+        
+}
+
+// Submit the workout plan form
+function submit_workout_plan_form() {
+    document.getElementById('create-workout-plan-form').submit();
 }
 
 // SAVE THE NEW WORKOUT PLAN TO THE DB
@@ -406,10 +469,10 @@ function save_workout_plan() {
 }
 
 // CLOSE THE CREATE WORKOUT PLAN FORM
-function close_create_workout_plan_form() {
-    workout_plan_form = document.getElementById('create-workout-plan-form-container');
+async function close_create_workout_plan_form() {
+    let workout_plan_form = document.getElementById('create-workout-plan-form-container');
     console.log('workout_plan_form:', workout_plan_form);
-    hide_section(workout_plan_form);
+    await hide_section(workout_plan_form);
 
     // show all the workout plan containers
     let workoutPlans = document.querySelectorAll('.workout_plan-container');
@@ -418,7 +481,8 @@ function close_create_workout_plan_form() {
     });
 
     // show the create workout plan button
-    show_section(document.getElementById('create-workout-plan-button'));
+    let createWorkoutPlanButton = document.getElementById('create-workout-plan-action');    
+    show_section(createWorkoutPlanButton);
 }
 
 // -------------------------- //
