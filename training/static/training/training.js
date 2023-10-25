@@ -501,7 +501,7 @@ async function create_new_exercise_form() {
     form_container.innerHTML = `
         <div class="section-title" id="create_exercise_form_title">
             <h3>New Exercise</h3>
-            <div class="close-section" id="close_create_workout_plan_form" onclick="close_section('create-exercise-form-container')"><strong>Ｘ</strong></div>
+            <div class="close-section" id="close_create_workout_plan_form" onclick="closeExerciseForm()"><strong>Ｘ</strong></div>
         </div>
         <form id="create-exercise-form">
             <div class="form-group">
@@ -654,13 +654,12 @@ function update_exercises_front_end(newExercise) {
 // CLOSE THE EXERCISE FORM
 
 // Button action for closing the exercise form without saving
-function closeExerciseForm() {
-    document.getElementById('create-exercise-form-container').remove();
+async function closeExerciseForm() {
+    let exerciseForm = document.getElementById('create-exercise-form-container');
+    await hide_section(exerciseForm);
 
-    // Show all section-containers to appear as a page refresh
-    let sectionContainers = document.querySelectorAll('.section-container');
-    sectionContainers.forEach(container => {
-        container.style.display = 'block';
-    });
+    // Show the create_workout_plan form again
+    let createWorkoutPlanForm = document.getElementById('create-workout-plan-form-container'); 
+    show_section(createWorkoutPlanForm);
 }
 
