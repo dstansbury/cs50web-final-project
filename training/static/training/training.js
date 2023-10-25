@@ -470,15 +470,8 @@ async function close_create_workout_plan_form() {
     console.log('workout_plan_form:', workout_plan_form);
     await hide_section(workout_plan_form);
 
-    // show all the workout plan containers
-    let workoutPlans = document.querySelectorAll('.workout_plan-container');
-    workoutPlans.forEach(workoutPlan => {
-        show_section(workoutPlan);
-    });
-
-    // show the create workout plan button
-    let createWorkoutPlanButton = document.getElementById('create-workout-plan-action');    
-    show_section(createWorkoutPlanButton);
+    // reload page
+    window.location.reload();
 }
 
 // -------------------------- //
