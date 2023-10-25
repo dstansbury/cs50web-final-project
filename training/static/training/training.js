@@ -512,9 +512,10 @@ async function create_new_exercise_form() {
                 <label>Exercise Description</label>
                 <textarea class="form-control" id="new-exercise-description" placeholder="Exercise description"></textarea>
             </div>
-            <div class="action-buttons-container" id="new-exercise-actions">
-                <button type="button" class="action-button" onclick="save_new_exercise()">Save Exercise</button>
+            <div class="section-container action" id="new-exercise-save" onclick=save_new_exercise()>
+                <h4>Save Exercise</h4>
             </div>
+                
         </form>
     `;
 
