@@ -35,11 +35,8 @@ function hide_section(section) {
         
         // Listener for end of animation
         function animationEndCallback() {
-            console.log('animation end callback. Section:', section)
             section.classList.remove('exiting');
-            console.log('after exiting removed. Section:', section)
             section.style.display = 'none';
-            console.log('after display none. Section:', section)
             section.removeEventListener('animationend', animationEndCallback);
             resolve();
         }
@@ -51,14 +48,13 @@ function hide_section(section) {
 
 // Show a section container
 function show_section(section) {
-    console.log('show_section function. Section:', section)
     section.style.display = 'block';
-    console.log('after display block. Section:', section)
+    console.log('section:', section)
     section.classList.add('entering');
-    console.log('after entering added. Section:', section)
     
     // add listener for end of animation
     section.addEventListener('animationend', function animationEndCallback() {
+        console.log('animation end callback. Section:', section)
         section.classList.remove('entering');
         console.log('after entering removed. Section:', section)
         section.removeEventListener('animationend', animationEndCallback);
@@ -113,7 +109,7 @@ function addWorkoutPlans(workout_plans) {
 function addCreateWorkoutPlanAction() {
     // create a new div for the create workout plan action
     const create_workout_plan_action = document.createElement('div');
-    create_workout_plan_action.className = 'section-container action entering';
+    create_workout_plan_action.className = 'section-container workout_plan-container action entering';
     create_workout_plan_action.id = 'create-workout-plan-action';
     create_workout_plan_action.onclick = () => open_create_workout_plan_form();
     create_workout_plan_action.innerHTML = `
@@ -373,7 +369,7 @@ async function open_create_workout_plan_form() {
 
         // add an event listener for the animation end
         form_container.addEventListener('animationend', function animationEndCallback() {
-            form_container.classList.remove('exiting');
+            form_container.classList.remove('entering');
             form_container.removeEventListener('animationend', animationEndCallback);
         });
 
@@ -492,16 +488,22 @@ async function close_create_workout_plan_form() {
 // OPEN THE NEW EXERCISE FORM
 
 // Create a new exercise form
-function create_new_exercise_form() {
-    // hide each of the workout plan containers
+async function create_new_exercise_form() {
+    // hide each of the workout plan containers if they are open
     let workoutPlans = document.querySelectorAll('.workout_plan-container');
     workoutPlans.forEach(workoutPlan => {
         hide_section(workoutPlan);
     });
-    
+
+    // hide the create new workout plan form if it is open
+    let workout_plan_form = document.getElementById('create-workout-plan-form-container');
+    if (workout_plan_form) {
+        await hide_section(workout_plan_form);
+    }
+
     // Create the new exercise form
     const form_container = document.createElement('div');
-    form_container.className = 'section-container';
+    form_container.className = 'section-container entering';
     form_container.id = 'create-exercise-form-container';
     form_container.innerHTML = `
         <div class="section-title" id="create_exercise_form_title">
@@ -524,7 +526,7 @@ function create_new_exercise_form() {
     `;
 
     // Add the form to the DOM
-    document.getElementById('workout_plan-page-container').append(form_container);
+    document.getElementById('add-exercise').appendChild(form_container);
     
     setTimeout(() => {
         // Set focus to the "Exercise Name" input field
@@ -533,6 +535,12 @@ function create_new_exercise_form() {
             newExerciseNameInput.focus();
         }
     }, 0);
+
+    // Add an event listener for the animation end
+    form_container.addEventListener('animationend', function animationEndCallback() {
+        form_container.classList.remove('entering');
+        form_container.removeEventListener('animationend', animationEndCallback);
+    });
 }
 
 // SAVE THE EXERCISE FORM DATA IN THE DB
