@@ -49,14 +49,11 @@ function hide_section(section) {
 // Show a section container
 function show_section(section) {
     section.style.display = 'block';
-    console.log('section:', section)
     section.classList.add('entering');
     
     // add listener for end of animation
     section.addEventListener('animationend', function animationEndCallback() {
-        console.log('animation end callback. Section:', section)
         section.classList.remove('entering');
-        console.log('after entering removed. Section:', section)
         section.removeEventListener('animationend', animationEndCallback);
     });
 }
@@ -185,7 +182,6 @@ function openWorkoutPlan(workout_plan) {
 async function load_workout_plans(userID) {
     try {
         await fetchWorkoutPlans(userID);
-        console.log('fetchedWorkoutPlans in load function:', fetchedWorkoutPlans);
         addWorkoutPlans(fetchedWorkoutPlans);
         addCreateWorkoutPlanAction();
     } catch (error) {
@@ -204,7 +200,6 @@ function fetch_user_exercises(userID) {
     return fetch(`/${userID}/exercises`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => response.json())
         .then(exercises => {
-            console.log('Fetched exercises:', exercises);
             // store the fetched exercises in the global variable
             fetchedExercises = exercises;
             return exercises;
@@ -225,7 +220,7 @@ function generate_exercise_dropdown() {
     let dropdown = `
         <div class="form-group col-md-6">
             <label>Exercise</label>
-            <select class="form-control" id="new-workout-plan-exercise-name-${exercise_number}">
+            <select class="form-control" id="new-exercise-name ${exercise_number}">
             <option value="" disabled selected>Select exercise from list</option>
             `;
     
@@ -249,17 +244,17 @@ function generate_exercise_dropdown() {
 function generate_exercise_row() {
     const exerciseDropdown = generate_exercise_dropdown();
     const row = `
-        <div id="new-workout-plan-exercise-${exercise_number}">
+        <div id="new-exercise-${exercise_number}">
             <hr>
-            <div class="form-row" id="new-workout-plan-exercise-name-${exercise_number}">
+            <div class="form-row" id="new-exercise-name ${exercise_number}">
                 ${exerciseDropdown}
                 <div class="form-group col-md-3">
                     <label>Sets</label>
-                    <input type="number" class="form-control" id="new-workout-plan-exercise-sets-${exercise_number}" min="1" step="1" placeholder="Number of sets">  
+                    <input type="number" class="form-control" id="new-exercise-sets-${exercise_number}" min="1" step="1" placeholder="Number of sets">  
                 </div>
                 <div class="form-group col-md-3">
                     <label>Reps</label>
-                    <input type="number" class="form-control" id="new-workout-plan-exercise-reps-${exercise_number}" min="1" step="1" placeholder="Number of reps per set">
+                    <input type="number" class="form-control" id="new-exercise-reps-${exercise_number}" min="1" step="1" placeholder="Number of reps per set">
                 </div>
             </div>
         </div>
@@ -276,7 +271,7 @@ function generate_exercise_row() {
 function add_exercise_to_form() {
     const newRow = generate_exercise_row();
     // add the new form row to the DOM
-    document.getElementById('new-workout-plan-exercises').insertAdjacentHTML('beforeend', newRow);
+    document.getElementById('new-exercises').insertAdjacentHTML('beforeend', newRow);
 }
 
 // REMOVE AN EXERCISE
@@ -286,7 +281,7 @@ function remove_exercise_from_form() {
     // check if there is more than one exercise row
     if (exercise_number > 2) {
         // remove the last exercise row from the DOM
-        document.getElementById(`new-workout-plan-exercise-${exercise_number - 1}`).remove();
+        document.getElementById(`new-exercise-${exercise_number - 1}`).remove();
         exercise_number -= 1;
     }
 }
@@ -300,7 +295,6 @@ async function open_create_workout_plan_form() {
     let promises=[];
     let createWorkoutPlanAction = document.getElementById('create-workout-plan-action');
     let workoutPlans = document.querySelectorAll('.workout_plan-container');
-    console.log('workoutPlans:', workoutPlans);
     workoutPlans.forEach(workoutPlan => {
         promises.push(hide_section(workoutPlan));
         });
@@ -351,7 +345,7 @@ async function open_create_workout_plan_form() {
                 <label>Plan Description</label>
                 <input type="textarea" class="form-control" id="new-workout-plan-description" placeholder="Plan description">
             </div>
-            <div class="form-exercises" id="new-workout-plan-exercises">
+            <div class="form-exercises" id="new-exercises">
                 ${generate_exercise_row()}
             </div>
             <div class="action-buttons-container" id="new-workout-plan-actions">    
@@ -377,10 +371,9 @@ async function open_create_workout_plan_form() {
         document.getElementById('new-workout-plan-title').focus();
 
         // add event listener for if use selects add new exercise in dropdown
-        document.getElementById('new-workout-plan-exercises').addEventListener('change', function(event) {
-            if(event.target.id.startsWith('new-workout-plan-exercise-name') && event.target.value === 'add-new-exercise') {
+        document.getElementById('new-exercises').addEventListener('change', function(event) {
+            if(event.target.id.startsWith('new-exercise-name') && event.target.value === 'add-new-exercise') {
                 lastSelectedDropdown = event.target;
-                console.log('lastSelectedDropdown:', lastSelectedDropdown)
                 create_new_exercise_form();
             }
         });
@@ -415,13 +408,13 @@ function save_workout_plan() {
     // Loop through each exercise row in the form
     for (let i = 1; i < exercise_number; i++) {
         // Get the exercise ID from the dropdown menu
-        const exerciseID = document.getElementById(`new-workout-plan-exercise-name-${i}`).value;
+        const exerciseID = document.getElementById(`new-exercise-name ${i}`).value;
         // Get the exercise name
-        const exerciseName = document.getElementById(`new-workout-plan-exercise-name-${i}`).options[document.getElementById(`new-workout-plan-exercise-name-${i}`).selectedIndex].text;
+        const exerciseName = document.getElementById(`new-exercise-name ${i}`).options[document.getElementById(`new-exercise-name-${i}`).selectedIndex].text;
         // Get the number of sets from the form
-        const setsInWorkout = document.getElementById(`new-workout-plan-exercise-sets-${i}`).value;
+        const setsInWorkout = document.getElementById(`new-exercise-sets-${i}`).value;
         // Get the number of reps per set from the form
-        const repsPerSet = document.getElementById(`new-workout-plan-exercise-reps-${i}`).value;
+        const repsPerSet = document.getElementById(`new-exercise-reps-${i}`).value;
         // Create an object for the exercise
         const exercise = {
             "id": exerciseID,
@@ -467,7 +460,6 @@ function save_workout_plan() {
 // CLOSE THE CREATE WORKOUT PLAN FORM
 async function close_create_workout_plan_form() {
     let workout_plan_form = document.getElementById('create-workout-plan-form-container');
-    console.log('workout_plan_form:', workout_plan_form);
     await hide_section(workout_plan_form);
 
     // reload page
@@ -552,6 +544,25 @@ function save_new_exercise() {
         "user_id": userID
     }
 
+    // Check the user has not entered a blank exercise name
+    if (!newExercise.name || newExercise.name.trim() === '') {
+        alert('Exercise name cannot be blank');
+        return;
+    }
+
+    // Check the user has not entered 'Add new exercise' as the exercise name
+    if (newExercise.name.toLowerCase() === 'add new exercise') {
+        alert('Cannot add "Add new exercise" as an exercise name');
+        return;
+    }
+
+    // Check the user hasn't added an exercise that already exists
+    let existingExercise = fetchedExercises.find(exercise => exercise.name.toLowerCase() === newExercise.name.toLowerCase());
+    if (existingExercise) {
+        alert('Exercise already exists');
+        return;
+    }
+
     // Get the CSRF token from the meta tag
     const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
 
@@ -569,7 +580,10 @@ function save_new_exercise() {
             console.error('Error submitting new exercise to DB:', error);
             throw error;
         })
-    
+
+    // Add the new exercise to the global variable
+    fetchedExercises.push(newExercise);
+
     // Call the update front end function
     update_exercises_front_end(newExercise);
 }
@@ -578,36 +592,13 @@ function save_new_exercise() {
 
 // Update the front end with the new exercise
 function update_exercises_front_end(newExercise) {
-    // Check the user has not entered a blank exercise name
-    if (!newExercise.name || newExercise.name.trim() === '') {
-        alert('Invalid exercise name');
-        return;
-    }
-    
-    // Check the user has not entered 'Add new exercise' as the exercise name
-    if (newExercise.name === 'Add new exercise') {
-        alert('Invalid exercise name');
-        return;
-    }
-
-    // Check the user hasn't added an exercise that already exists
-    let existingExercise = fetchedExercises.find(exercise => exercise.name.toLowerCase() === newExercise.name.toLowerCase());
-    if (existingExercise) {
-        alert('Exercise already exists');
-        return;
-    }
-
-    // Add the new exercise to the global variable
-    fetchedExercises.push(newExercise);
 
     // Grab all the current entries before we regenerate the dropdown menus
     let currentEntries = [];
-    let dropdowns = document.querySelectorAll('[id^="new-workout-plan-exercise-name"]');
+    let dropdowns = document.querySelectorAll('select[id^="new-exercise-name"]');
     dropdowns.forEach(dropdown => {
         currentEntries.push(dropdown.value);
     });
-
-    console.log('currentEntries:', currentEntries);
     
     // Clear all the dropdown menus
     dropdowns.forEach(dropdown => {
@@ -623,7 +614,10 @@ function update_exercises_front_end(newExercise) {
     });
 
     // Remove the new exercise form
-    document.getElementById('create-exercise-form-container').remove();
+    let createExerciseForm = document.getElementById('create-exercise-form-container');
+    hide_section(createExerciseForm);
+    // and remove it so that it is created fresh next time.
+    createExerciseForm.remove();
 
     // Add the previously entered entries back into the dropdown menus
     dropdowns.forEach((dropdown, index) => {
@@ -641,7 +635,7 @@ function update_exercises_front_end(newExercise) {
     let options = lastSelectedDropdown.options;
     for(let i = 0; i < options.length; i++) {
         if(options[i].text === newExercise.name) {
-            lastSelectedDropdown.value = options[i].value;
+            options[i].selected=true;
             break;
         }
     }
@@ -649,7 +643,9 @@ function update_exercises_front_end(newExercise) {
     // Set focus to the last selected dropdown menu
     lastSelectedDropdown.focus();
 
-    show_section_containers();
+    // reshow the create workout plan form
+    let createWorkoutPlanForm = document.getElementById('create-workout-plan-form-container');
+    show_section(createWorkoutPlanForm);
 }
 
 // CLOSE THE EXERCISE FORM

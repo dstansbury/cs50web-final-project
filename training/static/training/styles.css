@@ -92,7 +92,7 @@ body {
   margin: 20px 10px;
   position: relative;
   color: var(--darkest);
-  transition: all 0.75s ease;
+  transition: all 0.25s ease;
   cursor: pointer;
 }
 
@@ -101,11 +101,11 @@ body {
 }
 
 .section-container.expand .dropdown-arrow {
-  animation: spin 0.5s forwards;
+  animation: spin 0.25s forwards;
 }
 
 .section-container.contract .dropdown-arrow {
-  animation: 0.5s reverseSpin forwards;
+  animation: 0.25s reverseSpin forwards;
 }
 
 /* Action Section Container appearance */
@@ -119,20 +119,20 @@ body {
 
 /* Apply slide-in animations to each section container based on their order */
 .section-container.entering:nth-child(odd) {
-  animation: slideInFromLeft 0.5s forwards;
+  animation: slideInFromLeft 0.25s forwards;
 }
 
 .section-container.entering:nth-child(even) {
-  animation: slideInFromRight 0.5s forwards;
+  animation: slideInFromRight 0.25s forwards;
 }
 
 /* Apply slide-out animations to each section container based on their order */
 .section-container.exiting:nth-child(odd) {
-  animation: slideOutToLeft 0.5s forwards;
+  animation: slideOutToLeft 0.25s forwards;
 }
 
 .section-container.exiting:nth-child(even) {
-  animation: slideOutToRight 0.5s forwards;
+  animation: slideOutToRight 0.25s forwards;
 }
 
 /* ------------------- */
