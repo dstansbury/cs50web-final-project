@@ -40,8 +40,12 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">Home Page</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Log In</a>
                     </li>
+                    
                 {% endif %}
               </ul>
             </div>
@@ -63,7 +67,8 @@
         </script>
         
         <!-- Custom JS for this app-->
-        <script src="{% static 'training/training.js' %}"></script>
+        <script type="module" src="{% static 'training/training.js' %}"></script>
+        <script type="module" src="{% static 'training/workout.js' %}"></script>
         
     {% endblock %}
     </body>
