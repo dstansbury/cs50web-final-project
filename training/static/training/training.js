@@ -2,7 +2,7 @@
 // Imports                    //
 // -------------------------- //
 
-import { load_workout_plans } from "./workout.js";
+import { load_workout_plans } from "./workoutPlans.js";
 
 // -------------------------- //
 // EVENT LISTENERS //
@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // ADD FUNCTION
     }
 });
+
 
 // -------------------------- //
 // Helping functions for create workout plan //
@@ -49,7 +50,6 @@ function hide_section(section) {
     });
 }
 
-
 // Show a section container
 function show_section(section) {
     section.style.display = 'block';
@@ -61,6 +61,10 @@ function show_section(section) {
         section.removeEventListener('animationend', animationEndCallback);
     });
 }
+
+// -------------------------- //
+// Close forms                //
+// -------------------------- //
 
 // CLOSE THE CREATE WORKOUT PLAN FORM
 async function close_create_workout_plan_form() {
@@ -78,31 +82,15 @@ async function closeExerciseForm() {
     let exerciseForm = document.getElementById('create-exercise-form-container');
     await hide_section(exerciseForm);
 
+    // THIS SHOULDN'T LIVE HERE
     // Show the create_workout_plan form again
     let createWorkoutPlanForm = document.getElementById('create-workout-plan-form-container'); 
     show_section(createWorkoutPlanForm);
 }
 
-// -------------------------- //
-// CREATE WORKOUT PLAN
-// -------------------------- //
-
-// FETCH FROM DB // 
-
-// Get user's exercises from the DB so we can populate into form
-function fetch_user_exercises(userID) {
-    return fetch(`/${userID}/exercises`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(response => response.json())
-        .then(exercises => {
-            // store the fetched exercises in the global variable
-            fetchedExercises = exercises;
-            return exercises;
-        })
-        .catch(error => {
-            console.error('Error fetching exercises:', error);
-            throw error;
-        });
-}
+// ------------------------------ //
+// EXERCISES IN WORKOUT PLAN FORM //
+// ------------------------------ //
 
 // CREATE DROPDOWN MENU OF EXERCISES //
 
@@ -163,6 +151,7 @@ function generate_exercise_row() {
 
 // Adds a new exercise to the create workout plan form
 function add_exercise_to_form() {
+    console.log('adding exercise to form');
     const newRow = generate_exercise_row();
     // add the new form row to the DOM
     document.getElementById('new-exercises').insertAdjacentHTML('beforeend', newRow);
@@ -172,6 +161,7 @@ function add_exercise_to_form() {
 
 // Removes an exercise from the plan form
 function remove_exercise_from_form() {
+    console.log('removing exercise from form')
     // check if there is more than one exercise row
     if (exercise_number > 2) {
         // remove the last exercise row from the DOM
@@ -179,6 +169,27 @@ function remove_exercise_from_form() {
         exercise_number -= 1;
     }
 }
+
+// FETCH EXERCISES FROM DB // 
+
+// Get user's exercises from the DB so we can populate into form
+function fetch_user_exercises(userID) {
+    return fetch(`/${userID}/exercises`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(response => response.json())
+        .then(exercises => {
+            // store the fetched exercises in the global variable
+            fetchedExercises = exercises;
+            return exercises;
+        })
+        .catch(error => {
+            console.error('Error fetching exercises:', error);
+            throw error;
+        });
+}
+
+// -------------------------- //
+// SUBMIT AND SAVE WORKOUT PLAN FORM //
+// -------------------------- //
 
 // SUBMIT THE WORKOUT PLAN FORM //
 
@@ -238,7 +249,10 @@ function save_workout_plan(plan) {
     });
 }
 
-// OPEN THE WORKOUT PLAN FORM //   
+
+// -------------------------- //
+// OPEN THE CREATE WORKOUT PLAN FORM //
+// -------------------------- //   
 
 // Main function for creating a new workout plan //
 async function open_create_workout_plan_form() {
@@ -281,7 +295,7 @@ async function open_create_workout_plan_form() {
         form_container.innerHTML = `
             <div class="section-title" id="create_workout_plan_form_title">
                 <h3>New Workout Plan</h3>
-                <a class="close-section" id="close_create_workout_plan_form" onclick="close_create_workout_plan_form()"><strong>Ｘ</strong></a>
+                <a class="close-section" id="close_create_workout_plan_form"><strong>Ｘ</strong></a>
             </div>`
 
         // create the form
@@ -301,10 +315,10 @@ async function open_create_workout_plan_form() {
                 ${generate_exercise_row()}
             </div>
             <div class="action-buttons-container" id="new-workout-plan-actions">    
-                <a href="#" onclick="event.preventDefault(); add_exercise_to_form()">Add Exercise</a>
-                <a href="#" onclick="event.preventDefault(); remove_exercise_from_form()">Remove Exercise</a>
+                <button type="button" class="action-button-outline" id="add-exercise-button" >Add Exercise</button>
+                <button type="button" class="action-button-outline" id="remove-exercise-button">Remove Exercise</button>
             </div>
-            <div class="section-container action" id="new-workout-plan-save" role="button" onclick=submit_plan()>
+            <div class="section-container action" id="new-workout-plan-save" role="button">
                 <h4>Save Plan</h4>
             </div>
         `;
@@ -322,6 +336,18 @@ async function open_create_workout_plan_form() {
         // Set focus to the "Plan Title" input field
         document.getElementById('new-workout-plan-title').focus();
 
+        // Add event listener for adding exercise
+        const addExerciseToFormBtn = document.getElementById('add-exercise-button');
+        if (addExerciseToFormBtn) {
+            addExerciseToFormBtn.addEventListener('click', add_exercise_to_form);
+        }
+
+        // Add event listener for removing exercise
+        const removeExerciseFromFormBtn = document.getElementById('remove-exercise-button');
+        if (removeExerciseFromFormBtn) {
+            removeExerciseFromFormBtn.addEventListener('click', remove_exercise_from_form);
+        }
+
         // add event listener for if use selects add new exercise in dropdown
         document.getElementById('new-exercises').addEventListener('change', function(event) {
             if(event.target.id.startsWith('new-exercise-name') && event.target.value === 'add-new-exercise') {
@@ -329,6 +355,32 @@ async function open_create_workout_plan_form() {
                 create_new_exercise_form();
             }
         });
+        
+        // Add event listener for the close button
+        const closeCreateWorkoutFormBtn = document.getElementById('close_create_workout_plan_form');
+        if (closeCreateWorkoutFormBtn) {
+            closeCreateWorkoutFormBtn.addEventListener('click', close_create_workout_plan_form);
+        }
+
+        // Add event listener for the submit button
+        const submitWorkoutPlanBtn = document.getElementById('new-workout-plan-save');
+        if (submitWorkoutPlanBtn) {
+            submitWorkoutPlanBtn.addEventListener('click', submit_plan);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 // -------------------------- //
 // CREATE EXERCISE            //
@@ -357,7 +409,7 @@ async function create_new_exercise_form() {
     form_container.innerHTML = `
         <div class="section-title" id="create_exercise_form_title">
             <h3>New Exercise</h3>
-            <div class="close-section" id="close_create_exercise_form" onclick="closeExerciseForm()"><strong>Ｘ</strong></div>
+            <div class="close-section" id="close_create_exercise_form"><strong>Ｘ</strong></div>
         </div>
         <form id="create-exercise-form">
             <div class="form-group">
@@ -391,6 +443,12 @@ async function create_new_exercise_form() {
         form_container.classList.remove('entering');
         form_container.removeEventListener('animationend', animationEndCallback);
     });
+
+    // Add event listener for the close button
+    const closeExerciseFormBtn = document.getElementById('close_create_exercise_form');
+    if (closeExerciseFormBtn) {
+        closeExerciseFormBtn.addEventListener('click', closeExerciseForm);
+    }
 }
 
 // SAVE THE EXERCISE FORM DATA IN THE DB
@@ -512,8 +570,6 @@ function update_exercises_front_end(newExercise) {
     show_section(createWorkoutPlanForm);
 }
 
-}
-}
 
 // -------------------------- //
 // EXPORTS                    //
