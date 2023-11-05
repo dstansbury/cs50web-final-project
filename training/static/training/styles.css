@@ -114,7 +114,9 @@ body {
   color: var(--lightest);
   display: flex;
   justify-content: center;
-  align-items: center;  
+  align-items: center;
+  margin-left: 0px; 
+  margin-right: 0px;  
 }
 
 /* Apply slide-in animations to each section container based on their order */
