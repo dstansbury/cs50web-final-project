@@ -45,8 +45,8 @@ function addWorkoutPlans(workout_plans) {
     // create a new div for each workout_plan
     workout_plans.forEach(workout_plan => {
         const workout_planDiv = document.createElement('div');
-        workout_planDiv.className = 'section-container workout_plan-container entering';
-        workout_planDiv.id = `workout_plan-container-${workout_plan.id}`;
+        workout_planDiv.className = 'section-container entering';
+        workout_planDiv.id = `workout-plan-container-${workout_plan.id}`;
         workout_planDiv.onclick = () => openWorkoutPlan(workout_plan);
         
         // populate the HTML of the div
@@ -69,7 +69,7 @@ function addWorkoutPlans(workout_plans) {
 function addCreateWorkoutPlanAction() {
     // create a new div for the create workout plan action
     const create_workout_plan_action = document.createElement('div');
-    create_workout_plan_action.className = 'section-container workout_plan-container action entering';
+    create_workout_plan_action.className = 'section-container action entering';
     create_workout_plan_action.id = 'create-workout-plan-action';
     create_workout_plan_action.onclick = () => open_create_workout_plan_form();
     create_workout_plan_action.innerHTML = `
@@ -89,7 +89,7 @@ function addCreateWorkoutPlanAction() {
 // Open full workout plan
 function openWorkoutPlan(workout_plan) {
     // Fetch the clicked workout plan's div
-    const workout_planDiv = document.getElementById(`workout_plan-container-${workout_plan.id}`);
+    const workout_planDiv = document.getElementById(`workout-plan-container-${workout_plan.id}`);
     
     // If the workout plan is already open, close it
     const details_already_loaded = document.getElementById(`workout_plan-details-${workout_plan.id}`);
