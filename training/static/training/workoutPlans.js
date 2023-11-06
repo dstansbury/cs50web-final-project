@@ -143,6 +143,17 @@ function openWorkoutPlan(workout_plan) {
     // add the new div to the workout plan div
     workout_plan_detailsDiv.append(workout_plan_actionsDiv);
 
+    // add event listeners to the edit and delete buttons
+    const editPlanBtn = document.getElementById('edit-workout-plan');
+    if (editPlanBtn) {
+        editPlanBtn.addEventListener('click', add_exercise_to_form);
+    }
+
+    const deletePlanBtn = document.getElementById(`delete-workout-plan-${workout_plan.id}`);
+    if (deletePlanBtn) {
+        deletePlanBtn.addEventListener('click', () => delete_plan(workout_plan.id));
+    }
+
     // add a start workout button
     const start_workout_action = document.createElement('div');
     start_workout_action.className = 'section-container action';
@@ -170,6 +181,39 @@ async function load_workout_plans(userID) {
         console.error('Error loading workout_plans:', error);
     }
 }
+// ----------- //
+// Delete plan //
+// ----------- //
+
+// Actual delete workout plan
+function delete_plan(workout_plan_id) {
+    // Get the CSRF token from the meta tag
+    const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+    
+    // fetch relevant posts from the DB based on the url
+    fetch(`../workout_plans`, {
+        method: 'DELETE',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrf_token, 
+        },
+        body: JSON.stringify({ 'workout_plan_id': workout_plan_id }),
+        })
+
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
+            // remove the workout plan from the DOM
+            document.getElementById(`workout-plan-container-${workout_plan_id}`).remove();
+        })
+        .catch(error => {
+            console.error('Error deleting workout plan:', error);
+            throw error;
+        });
+
+}
+
     
 // -------------------------- //
 // EXPORTS                    //

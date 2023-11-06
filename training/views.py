@@ -68,6 +68,7 @@ def workout_plans(request, userID):
                 "userID": userID,
                 "username": request.user.username
             })
+    # If it's a post request, put the new plan in the DB
     elif request.method == "POST":
         try:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -107,7 +108,32 @@ def workout_plans(request, userID):
         except Exception as e:
             print(f"error is {e}")
             return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)
+    
+    # If method is delete, delete the workout plan from the DB
+    elif request.method == "DELETE":
+        try:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                
+                # Get the data from the request
+                data = json.loads(request.body)
 
+                # Check essential data is there
+                if 'workout_plan_id' not in data:
+                    return JsonResponse({"error": "Missing workout plan id."}, status=400)
+                
+                # Get the workout plan instance
+                workout_plan_instance = WorkoutPlan.objects.get(id=data.get("workout_plan_id"))
+                
+                # Delete the workout plan instance
+                workout_plan_instance.delete()
+
+                # Return a success HTTP response
+                return JsonResponse({"message": "Workout Plan successfully deleted."}, status=201) 
+        
+        except Exception as e:
+            print(f"error is {e}")
+            return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)
+    
     # create an error message
     messages.warning(request, 'Invalid workout plan access. Redirecting to the main page.')
     # redirect to the index page with the message to display.
