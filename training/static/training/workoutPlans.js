@@ -1,8 +1,9 @@
 // -------------------------- //
-// Imports                    //
+// IMPORTS                    //
 // -------------------------- //
 
 import { open_create_workout_plan_form } from './training.js';
+import { start_workout } from './workouts.js';
 
 // -------------------------- //
 // EVENT LISTENERS            //
@@ -45,7 +46,7 @@ function addWorkoutPlans(workout_plans) {
     // create a new div for each workout_plan
     workout_plans.forEach(workout_plan => {
         const workout_planDiv = document.createElement('div');
-        workout_planDiv.className = 'section-container entering';
+        workout_planDiv.className = 'section-container workout-plan-container entering';
         workout_planDiv.id = `workout-plan-container-${workout_plan.id}`;
         workout_planDiv.onclick = () => openWorkoutPlan(workout_plan);
         
@@ -69,7 +70,7 @@ function addWorkoutPlans(workout_plans) {
 function addCreateWorkoutPlanAction() {
     // create a new div for the create workout plan action
     const create_workout_plan_action = document.createElement('div');
-    create_workout_plan_action.className = 'section-container action entering';
+    create_workout_plan_action.className = 'section-container workout-plan-container action entering';
     create_workout_plan_action.id = 'create-workout-plan-action';
     create_workout_plan_action.onclick = () => open_create_workout_plan_form();
     create_workout_plan_action.innerHTML = `
@@ -131,17 +132,28 @@ function openWorkoutPlan(workout_plan) {
     // add the new div to the workout plan div
     workout_planDiv.append(workout_plan_detailsDiv);
 
+    // create a new Div to house edit / delete workout plans
+    const workout_plan_actionsDiv = document.createElement('div');
+    workout_plan_actionsDiv.className = 'action-buttons-container';
+    workout_plan_actionsDiv.id = `workout-plan-actions-${workout_plan.id}`;
+    workout_plan_actionsDiv.innerHTML = `  
+                <button type="button" class="action-button-outline" id="edit-workout-plan-${workout_plan.id}">Edit Plan</button>
+                <button type="button" class="action-button-outline" id="delete-workout-plan-${workout_plan.id}">Delete Plan</button>
+    `;
+    // add the new div to the workout plan div
+    workout_plan_detailsDiv.append(workout_plan_actionsDiv);
+
     // add a start workout button
     const start_workout_action = document.createElement('div');
     start_workout_action.className = 'section-container action';
     start_workout_action.id = `start-workout-action-${workout_plan.id}`;
     start_workout_action.role = 'button';
-    start_workout_action.onclick = "start_workout(workout_plan.id)";
+    start_workout_action.onclick = () => start_workout(workout_plan.id);
     start_workout_action.innerHTML = `
         <h4>Start Workout</h4>`;
+    // add the start workout button to the workout plan div
     workout_plan_detailsDiv.append(start_workout_action);
 }
-
 
 
 // -------------------------- //
@@ -160,7 +172,7 @@ async function load_workout_plans(userID) {
 }
     
 // -------------------------- //
-// Exports                    //
+// EXPORTS                    //
 // -------------------------- //
 
 export { load_workout_plans };

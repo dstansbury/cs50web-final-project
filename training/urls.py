@@ -15,5 +15,9 @@ urlpatterns = [
     # EXERCISES
     #actual path
     path("<int:userID>/exercises/", views.exercises, name="exercises"),
+
+    # WORKOUTS
+    #actual path
+    path("<int:userID>/workouts/<int:workout_plan_id>", views.workouts, name="workouts"),
     
 ]

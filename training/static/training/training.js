@@ -62,8 +62,32 @@ function show_section(section) {
     });
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // -------------------------- //
-// Close forms                //
+// CREATE WORKOUT PLAN FORM   //
+// STARTS HERE                //
+// -------------------------- //
+
+// -------------------------- //
+// CLOSE FORMS                //
 // -------------------------- //
 
 // CLOSE THE CREATE WORKOUT PLAN FORM
@@ -260,7 +284,7 @@ async function open_create_workout_plan_form() {
     // hide all the workout plans and the create workout button
     let promises=[];
     let createWorkoutPlanAction = document.getElementById('create-workout-plan-action');
-    let workoutPlans = document.querySelectorAll('.workout_plan-container');
+    let workoutPlans = document.querySelectorAll('.workout-plan-container');
     workoutPlans.forEach(workoutPlan => {
         promises.push(hide_section(workoutPlan));
         });
@@ -382,8 +406,35 @@ async function open_create_workout_plan_form() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // -------------------------- //
-// CREATE EXERCISE            //
+// CREATE EXERCISE FORM       //
+// STARTS HERE                //
 // -------------------------- //
 
 // OPEN THE NEW EXERCISE FORM
@@ -391,7 +442,7 @@ async function open_create_workout_plan_form() {
 // Create a new exercise form
 async function create_new_exercise_form() {
     // hide each of the workout plan containers if they are open
-    let workoutPlans = document.querySelectorAll('.workout_plan-container');
+    let workoutPlans = document.querySelectorAll('.workout-plan-container');
     workoutPlans.forEach(workoutPlan => {
         hide_section(workoutPlan);
     });
@@ -420,7 +471,7 @@ async function create_new_exercise_form() {
                 <label>Exercise Description</label>
                 <textarea class="form-control" id="new-exercise-description" placeholder="Exercise description"></textarea>
             </div>
-            <div class="section-container action" id="new-exercise-save" role="button" onclick=save_new_exercise()>
+            <div class="section-container action" id="new-exercise-save" role="button">
                 <h4>Save Exercise</h4>
             </div>
                 
@@ -448,6 +499,12 @@ async function create_new_exercise_form() {
     const closeExerciseFormBtn = document.getElementById('close_create_exercise_form');
     if (closeExerciseFormBtn) {
         closeExerciseFormBtn.addEventListener('click', closeExerciseForm);
+    }
+
+    // Add event listener for saving the new exercise
+    const saveNewExerciseBtn = document.getElementById('new-exercise-save');
+    if (saveNewExerciseBtn) {
+        saveNewExerciseBtn.addEventListener('click', save_new_exercise);
     }
 }
 

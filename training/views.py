@@ -175,6 +175,11 @@ def exercises(request, userID):
 END EXERCISES
 """
 
+"""
+WORKOUTS
+"""
+def workouts(request, userID, workout_plan_id):
+    pass
 
 """
 LOGIN
