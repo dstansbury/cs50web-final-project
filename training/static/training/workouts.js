@@ -16,7 +16,6 @@ function start_workout(workout_plan_id) {
     window.location.href = `${userID}/workouts/${workout_plan_id}`;
 }
 
-
 //---------------//
 // EXPORTS       //
 //---------------//

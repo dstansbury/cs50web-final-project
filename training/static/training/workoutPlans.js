@@ -75,7 +75,7 @@ function addCreateWorkoutPlanAction() {
     create_workout_plan_action.onclick = () => open_create_workout_plan_form();
     create_workout_plan_action.innerHTML = `
         <h4>
-            Create Workout Plan
+            Create New Plan
         </h4>
     `;
     // append it to the DOM
@@ -144,9 +144,9 @@ function openWorkoutPlan(workout_plan) {
     workout_plan_detailsDiv.append(workout_plan_actionsDiv);
 
     // add event listeners to the edit and delete buttons
-    const editPlanBtn = document.getElementById('edit-workout-plan');
+    const editPlanBtn = document.getElementById(`edit-workout-plan-${workout_plan.id}`);
     if (editPlanBtn) {
-        editPlanBtn.addEventListener('click', add_exercise_to_form);
+        editPlanBtn.addEventListener('click', () => edit_workout_plan(workout_plan.id));
     }
 
     const deletePlanBtn = document.getElementById(`delete-workout-plan-${workout_plan.id}`);
@@ -185,7 +185,7 @@ async function load_workout_plans(userID) {
 // Delete plan //
 // ----------- //
 
-// Actual delete workout plan
+// Delete workout plan
 function delete_plan(workout_plan_id) {
     // Get the CSRF token from the meta tag
     const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
@@ -212,6 +212,69 @@ function delete_plan(workout_plan_id) {
             throw error;
         });
 
+}
+
+// ----------//
+// Edit plan //
+// --------- //
+
+// Edit workout plan
+async function edit_workout_plan(workout_plan_id) {
+    console.log('fetchedWorkoutPlans: ', fetchedWorkoutPlans)
+    // Get the workout plan's info from the global variable
+    const workout_plan = fetchedWorkoutPlans.find(workout_plan => workout_plan.id === workout_plan_id); 
+    console.log('workout_plan: ', workout_plan)
+
+    // Open the create workout plan form
+    await open_create_workout_plan_form();
+
+    // Prepopulate it with all the workout plan information
+    document.getElementById('create_workout_plan_form_title').innerHTML = '<h3>Edit Workout Plan</h3>';
+    document.getElementById('new-workout-plan-title').value = workout_plan.title;
+    document.getElementById('new-workout-plan-description').value = workout_plan.description;
+    
+    // Open the number of exercise rows needed
+    const num_exercises = workout_plan.exercises_in_plan.length;
+    console.log('num_exercises: ', num_exercises)
+    
+    await add_exercise_rows(num_exercises);
+    console.log('finished adding exercise rows')
+
+    // Populate the exercise rows with the correct information
+    for (let i = 1; i <= num_exercises; i++) {
+        const exercise_row = document.getElementById(`new-exercise-${i}`);
+        console.log('exercise_row: ', exercise_row)
+        const exerciseNameDropdown = document.getElementById(`new-exercise-name-${i}`);
+        console.log('exerciseNameDropdown: ', exerciseNameDropdown)
+        const exerciseSetsInput = document.getElementById(`new-exercise-sets-${i}`);
+        console.log('exerciseSetsInput: ', exerciseSetsInput)
+        const exerciseRepsInput = document.getElementById(`new-exercise-reps-${i}`);
+        console.log('exerciseRepsInput: ', exerciseRepsInput)
+        // Set the value for the dropdown
+        Array.from(exerciseNameDropdown.options).forEach(option => {
+            console.log('option.value: ', option.value)
+            console.log('workout_plan.exercises_in_plan[i - 1].id: ', workout_plan.exercises_in_plan[i - 1].id)
+            if (option.value === workout_plan.exercises_in_plan[i - 1].id) {
+                option.selected = true;
+                }
+        });
+    
+        // Set values for sets and reps inputs
+        exerciseSetsInput.value = workout_plan.exercises_in_plan[i - 1].sets_in_workout;
+        exerciseRepsInput.value = workout_plan.exercises_in_plan[i - 1].reps_per_set;
+    }
+
+}
+
+// ------------------------------ //
+// Add exercise rows in edit form //
+// ------------------------------ //
+
+function add_exercise_rows(num_exercises) {
+    // set i to 1 because the first row is already open
+    for (let i = 1; i < num_exercises; i++) {
+        document.getElementById('add-exercise-btn').click();
+    }
 }
 
     

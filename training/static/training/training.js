@@ -152,7 +152,7 @@ function generate_exercise_row() {
     const row = `
         <div id="new-exercise-${exercise_number}">
             <hr>
-            <div class="form-row" id="new-exercise-name-${exercise_number}">
+            <div class="form-row" id="new-exercise-row-${exercise_number}">
                 ${exerciseDropdown}
                 <div class="form-group col-md-3">
                     <label>Sets</label>
