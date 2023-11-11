@@ -217,6 +217,7 @@ function fetch_user_exercises(userID) {
 // SUBMIT THE WORKOUT PLAN FORM //
 
 function submit_plan() {
+    console.log('submit plan is called')
     let planDetails = {
         "title" : document.getElementById('new-workout-plan-title').value,
         "description" : document.getElementById('new-workout-plan-description').value,
@@ -224,16 +225,18 @@ function submit_plan() {
     let exercises = [];
     // loop through exercise rows and create an array for each exercise
     for (let i = 1; i < exercise_number; i++){
-        let exercise = {
-            "exerciseName" : document.getElementById(`new-exercise-name-${i}`).value,
-            "exerciseSets" : document.getElementById(`new-exercise-sets-${i}`).value,
-            "exerciseReps" : document.getElementById(`new-exercise-reps-${i}`).value
-    }
-        exercises.push(exercise);
+    let exerciseDropdown = document.getElementById(`new-exercise-name-${i}`);
+    let selectedOptionText = exerciseDropdown.options[exerciseDropdown.selectedIndex].text;
+    let exercise = {
+        "exerciseName": selectedOptionText,
+        "exerciseSets": document.getElementById(`new-exercise-sets-${i}`).value,
+        "exerciseReps": document.getElementById(`new-exercise-reps-${i}`).value
+        }
+    exercises.push(exercise);
     planDetails.exercises = exercises;
     console.log("plan details: ", planDetails);
     save_workout_plan(planDetails);
-}
+    }
         
 }
 
@@ -248,6 +251,12 @@ function save_workout_plan(plan) {
         "user_id": userID,
         "exercises_in_plan": plan.exercises,
     }
+
+    if (plan.id) {
+        newWorkoutPlan.id = plan.id;
+    }
+
+    console.log('new workout plan: ', newWorkoutPlan);
 
     // Get the CSRF token from the meta tag
     const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
@@ -264,7 +273,7 @@ function save_workout_plan(plan) {
     }) // closing bracket for fetch was moved to here
     .then(_ => {
         // Reload page with new workout plan
-        window.location.reload();
+        //window.location.reload();
     })
     .catch(error => {
         console.error('Error submitting new workout plan to DB:', error);
@@ -388,6 +397,8 @@ async function open_create_workout_plan_form() {
         // Add event listener for the submit button
         const submitWorkoutPlanBtn = document.getElementById('new-workout-plan-save');
         if (submitWorkoutPlanBtn) {
+            console.log('event listener for submit plan is called')
+            submitWorkoutPlanBtn.removeEventListener('click', submit_plan);
             submitWorkoutPlanBtn.addEventListener('click', submit_plan);
         }
     }
@@ -584,7 +595,7 @@ function update_exercises_front_end(newExercise) {
     });
 
     // Regenerate the dropdown menus
-    exerciseDropdown = generate_exercise_dropdown();
+    const exerciseDropdown = generate_exercise_dropdown();
 
     // Add the newly generated dropdown menus to the DOM
     dropdowns.forEach(dropdown => {
@@ -631,5 +642,5 @@ function update_exercises_front_end(newExercise) {
 // EXPORTS                    //
 // -------------------------- //
 
-export { open_create_workout_plan_form, add_exercise_to_form };
+export { open_create_workout_plan_form, add_exercise_to_form, submit_plan, save_workout_plan };
 

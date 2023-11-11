@@ -2,7 +2,7 @@
 // IMPORTS                    //
 // -------------------------- //
 
-import { open_create_workout_plan_form, add_exercise_to_form } from './training.js';
+import { open_create_workout_plan_form, add_exercise_to_form, submit_plan, save_workout_plan } from './training.js';
 import { start_workout } from './workouts.js';
 
 // -------------------------- //
@@ -236,6 +236,16 @@ async function edit_workout_plan(workout_plan_id) {
     
     await add_exercise_rows(num_exercises);
 
+    // change the Save Plan button to an Update Plan button
+    await document.getElementById('new-workout-plan-save').removeEventListener('click', submit_plan);
+    document.getElementById('new-workout-plan-save').id = 'update-workout-plan-save';
+    const update_workout_plan_button = document.getElementById('update-workout-plan-save');
+    update_workout_plan_button.innerHTML = '<h4>Update Plan</h4>';
+    if (update_workout_plan_button) {
+        update_workout_plan_button.removeEventListener('click', () => update_workout_plan(workout_plan_id, num_exercises));
+        update_workout_plan_button.addEventListener('click', () => update_workout_plan(workout_plan_id, num_exercises));
+    };
+
     // Populate the exercise rows with the correct information
     for (let i = 1; i <= num_exercises; i++) {
         const exercise_row = document.getElementById(`new-exercise-${i}`);
@@ -267,7 +277,100 @@ async function add_exercise_rows(num_exercises) {
     }
 }
 
-    
+// -------------------------- //
+// Update workout plan        //
+// -------------------------- //
+
+// this is not done up front so as to avoid needing to change the add and remove exercise button logic
+
+async function update_workout_plan(workout_plan_id, num_exercises) {
+
+    // change the div Ids to 'edit' not new so we can submit the form correctly
+    document.getElementById('new-workout-plan-title').id = 'edit-workout-plan-title';
+    document.getElementById('new-workout-plan-description').id = 'edit-workout-plan-description';
+
+    // loop through exercise rows and update each of the div IDs
+    for (let i = 1; i <= num_exercises; i++) {
+        document.getElementById(`new-exercise-${i}`).id = `edit-exercise-${i}`;
+        document.getElementById(`new-exercise-name-${i}`).id = `edit-exercise-name-${i}`;
+        document.getElementById(`new-exercise-sets-${i}`).id = `edit-exercise-sets-${i}`;
+        document.getElementById(`new-exercise-reps-${i}`).id = `edit-exercise-reps-${i}`;
+    }
+
+    // submit the form
+    await submit_updated_plan(workout_plan_id, num_exercises);
+
+    // reset the form
+    reset_create_workout_plan_form();
+}
+
+// -------------------------- //
+// Submit updated plan //
+// -------------------------- //
+
+function submit_updated_plan(workout_plan_id, num_exercises) {
+    let planDetails = {
+        "id" : workout_plan_id,
+        "title" : document.getElementById('edit-workout-plan-title').value,
+        "description" : document.getElementById('edit-workout-plan-description').value,
+    };
+    let exercises = [];
+    // loop through exercise rows and create an array for each exercise
+    for (let i = 1; i <= num_exercises; i++){
+        let exercise = {
+            "exerciseName" : document.getElementById(`edit-exercise-name-${i}`).value,
+            "exerciseSets" : document.getElementById(`edit-exercise-sets-${i}`).value,
+            "exerciseReps" : document.getElementById(`edit-exercise-reps-${i}`).value
+    }
+        exercises.push(exercise);
+    planDetails.exercises = exercises;
+    console.log("plan details: ", planDetails);
+    save_workout_plan(planDetails);
+    }
+}
+
+// -------------------------- //
+// Submit updated plan to DB  //
+// -------------------------- //
+
+function save_updated_plan(planDetails) {
+    console.log('updating workout plan');
+
+}
+
+// -------------------------- //
+// Reset create workout plan form //
+// -------------------------- //
+
+// turns all the div IDs back to new from edit
+// and sets the button back to save plan
+// and clears the form
+
+function reset_create_workout_plan_form() {
+    // turn all div IDs back to new from edit
+    document.getElementById('edit-workout-plan-title').id = 'new-workout-plan-title';
+    document.getElementById('edit-workout-plan-description').id = 'new-workout-plan-description';
+
+    // loop through exercise rows and update each of the div IDs
+    for (let i = 1; i <= num_exercises; i++) {
+        document.getElementById(`edit-exercise-${i}`).id = `new-exercise-${i}`;
+        document.getElementById(`edit-exercise-name-${i}`).id = `new-exercise-name-${i}`;
+        document.getElementById(`edit-exercise-sets-${i}`).id = `new-exercise-sets-${i}`;
+        document.getElementById(`edit-exercise-reps-${i}`).id = `new-exercise-reps-${i}`;
+    }
+
+    // change the Update Plan button back to Save Plan
+    document.getElementById('update-workout-plan-save').removeEventListener('click', update_workout_plan);
+    document.getElementById('update-workout-plan-save').id = 'new-workout-plan-save';
+    const save_workout_plan_button = document.getElementById('new-workout-plan-save');
+    save_workout_plan_button.innerHTML = '<h4>Save Plan</h4>';
+    if (save_workout_plan_button) {
+        save_workout_plan_button.removeEventListener('click', () => submit_plan());
+        save_workout_plan_button.addEventListener('click', () => submit_plan());
+    };
+
+}
+
 // -------------------------- //
 // EXPORTS                    //
 // -------------------------- //
