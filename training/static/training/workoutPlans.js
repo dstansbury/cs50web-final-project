@@ -2,7 +2,7 @@
 // IMPORTS                    //
 // -------------------------- //
 
-import { open_create_workout_plan_form } from './training.js';
+import { open_create_workout_plan_form, add_exercise_to_form } from './training.js';
 import { start_workout } from './workouts.js';
 
 // -------------------------- //
@@ -220,10 +220,8 @@ function delete_plan(workout_plan_id) {
 
 // Edit workout plan
 async function edit_workout_plan(workout_plan_id) {
-    console.log('fetchedWorkoutPlans: ', fetchedWorkoutPlans)
     // Get the workout plan's info from the global variable
     const workout_plan = fetchedWorkoutPlans.find(workout_plan => workout_plan.id === workout_plan_id); 
-    console.log('workout_plan: ', workout_plan)
 
     // Open the create workout plan form
     await open_create_workout_plan_form();
@@ -235,26 +233,18 @@ async function edit_workout_plan(workout_plan_id) {
     
     // Open the number of exercise rows needed
     const num_exercises = workout_plan.exercises_in_plan.length;
-    console.log('num_exercises: ', num_exercises)
     
     await add_exercise_rows(num_exercises);
-    console.log('finished adding exercise rows')
 
     // Populate the exercise rows with the correct information
     for (let i = 1; i <= num_exercises; i++) {
         const exercise_row = document.getElementById(`new-exercise-${i}`);
-        console.log('exercise_row: ', exercise_row)
         const exerciseNameDropdown = document.getElementById(`new-exercise-name-${i}`);
-        console.log('exerciseNameDropdown: ', exerciseNameDropdown)
         const exerciseSetsInput = document.getElementById(`new-exercise-sets-${i}`);
-        console.log('exerciseSetsInput: ', exerciseSetsInput)
         const exerciseRepsInput = document.getElementById(`new-exercise-reps-${i}`);
-        console.log('exerciseRepsInput: ', exerciseRepsInput)
         // Set the value for the dropdown
         Array.from(exerciseNameDropdown.options).forEach(option => {
-            console.log('option.value: ', option.value)
-            console.log('workout_plan.exercises_in_plan[i - 1].id: ', workout_plan.exercises_in_plan[i - 1].id)
-            if (option.value === workout_plan.exercises_in_plan[i - 1].id) {
+            if (option.textContent === workout_plan.exercises_in_plan[i - 1].name) {
                 option.selected = true;
                 }
         });
@@ -270,10 +260,10 @@ async function edit_workout_plan(workout_plan_id) {
 // Add exercise rows in edit form //
 // ------------------------------ //
 
-function add_exercise_rows(num_exercises) {
+async function add_exercise_rows(num_exercises) {
     // set i to 1 because the first row is already open
     for (let i = 1; i < num_exercises; i++) {
-        document.getElementById('add-exercise-btn').click();
+        await add_exercise_to_form();
     }
 }
 

@@ -175,7 +175,6 @@ function generate_exercise_row() {
 
 // Adds a new exercise to the create workout plan form
 function add_exercise_to_form() {
-    console.log('adding exercise to form');
     const newRow = generate_exercise_row();
     // add the new form row to the DOM
     document.getElementById('new-exercises').insertAdjacentHTML('beforeend', newRow);
@@ -632,4 +631,5 @@ function update_exercises_front_end(newExercise) {
 // EXPORTS                    //
 // -------------------------- //
 
-export { open_create_workout_plan_form };
+export { open_create_workout_plan_form, add_exercise_to_form };
+
