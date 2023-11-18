@@ -79,28 +79,30 @@ def workout_plans(request, userID):
                 # Check essential data is there
                 if not data.get("title") or not data.get("user_id") or not data.get("exercises_in_plan"):
                     return JsonResponse({"error": "Missing necessary fields."}, status=400)
-                
-                user_instance = User.objects.get(id=data.get("user_id"))
             
-            new_workout_plan = WorkoutPlan(
-                title=data.get("title"),
-                description=data.get("description"),
-                plan_user=user_instance,
-            )
-            new_workout_plan.save()
-            print(f"new workout plan saved: {new_workout_plan}")
-
-            for exercise_data in data.get("exercises_in_plan"):
-                exercise_instance = Exercise.objects.get(id=exercise_data.get("id"))
-                
-                new_exercise_in_workout_plan = ExerciseInWorkoutPlan(
-                    exercise=exercise_instance,
-                    workout_plan=new_workout_plan,
-                    sets_in_workout=exercise_data.get("sets_in_workout"),
-                    reps_per_set=exercise_data.get("reps_per_set"),
+                # Create the new workout plan
+                new_workout_plan = WorkoutPlan(
+                    title=data.get("title"),
+                    description=data.get("description"),
+                    plan_user=User.objects.get(id=data.get("user_id")),
                 )
-                new_exercise_in_workout_plan.save()
-                print(f"new exercise in workout plan saved: {new_exercise_in_workout_plan}")
+                # Save the new workout plan
+                new_workout_plan.save()
+                print(f"new workout plan saved: {new_workout_plan}")
+
+                exercises_in_plan = data.get("exercises_in_plan")
+                print(f"exercises_in_plan is {exercises_in_plan}")
+                for exercise_data in exercises_in_plan:
+                    
+                    new_exercise_in_workout_plan = ExerciseInWorkoutPlan(
+                        workout_plan=new_workout_plan,
+                        sets_in_workout=exercise_data.get("exerciseSets"),
+                        reps_per_set=exercise_data.get("exerciseReps"),
+                        exercise=Exercise.objects.get(id=exercise_data.get("exerciseID")),
+                        )
+                    print(f"new_exercise_in_workout_plan is {new_exercise_in_workout_plan}")
+                    new_exercise_in_workout_plan.save()
+                    print(f"new exercise in workout plan saved: {new_exercise_in_workout_plan}")
 
                 # Return a success HTTP response
                 return JsonResponse({"message": "Workout Plan successfully created."}, status=201) 

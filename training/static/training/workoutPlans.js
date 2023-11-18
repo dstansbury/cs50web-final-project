@@ -325,7 +325,8 @@ function submit_updated_plan(workout_plan_id, num_exercises) {
         exercises.push(exercise);
     planDetails.exercises = exercises;
     console.log("plan details: ", planDetails);
-    save_workout_plan(planDetails);
+    console.log('UPDATING THE PLAN')
+    //save_workout_plan(planDetails);
     }
 }
 

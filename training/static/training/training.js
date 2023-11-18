@@ -225,35 +225,28 @@ function submit_plan() {
     let exercises = [];
     // loop through exercise rows and create an array for each exercise
     for (let i = 1; i < exercise_number; i++){
-    let exerciseDropdown = document.getElementById(`new-exercise-name-${i}`);
-    let selectedOptionText = exerciseDropdown.options[exerciseDropdown.selectedIndex].text;
-    let exercise = {
-        "exerciseName": selectedOptionText,
-        "exerciseSets": document.getElementById(`new-exercise-sets-${i}`).value,
-        "exerciseReps": document.getElementById(`new-exercise-reps-${i}`).value
+        let exerciseDropdown = document.getElementById(`new-exercise-name-${i}`);
+        let selectedOptionText = exerciseDropdown.options[exerciseDropdown.selectedIndex].text;
+        let exercise = {
+            "exerciseID": exerciseDropdown.value,
+            "exerciseName": selectedOptionText,
+            "exerciseSets": document.getElementById(`new-exercise-sets-${i}`).value,
+            "exerciseReps": document.getElementById(`new-exercise-reps-${i}`).value
+            }
+        exercises.push(exercise);
+        planDetails.exercises = exercises;
         }
-    exercises.push(exercise);
-    planDetails.exercises = exercises;
-    console.log("plan details: ", planDetails);
     save_workout_plan(planDetails);
-    }
-        
 }
 
 // SAVE THE NEW WORKOUT PLAN TO THE DB
 function save_workout_plan(plan) {
-    console.log('saving workout plan');
-
     // Create the new workout plan object
     const newWorkoutPlan = {
         "title": plan.title,
         "description": plan.description,
         "user_id": userID,
         "exercises_in_plan": plan.exercises,
-    }
-
-    if (plan.id) {
-        newWorkoutPlan.id = plan.id;
     }
 
     console.log('new workout plan: ', newWorkoutPlan);
@@ -643,4 +636,8 @@ function update_exercises_front_end(newExercise) {
 // -------------------------- //
 
 export { open_create_workout_plan_form, add_exercise_to_form, submit_plan, save_workout_plan };
+
+
+
+
 
