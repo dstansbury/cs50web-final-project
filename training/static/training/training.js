@@ -266,7 +266,7 @@ function save_workout_plan(plan) {
     }) // closing bracket for fetch was moved to here
     .then(_ => {
         // Reload page with new workout plan
-        //window.location.reload();
+        window.location.reload();
     })
     .catch(error => {
         console.error('Error submitting new workout plan to DB:', error);
@@ -514,7 +514,7 @@ async function create_new_exercise_form() {
 // SAVE THE EXERCISE FORM DATA IN THE DB
 
 // Save the new exercise 
-function save_new_exercise() {
+async function save_new_exercise() {
     // Get the new exercise data from the form
     const exerciseName = document.getElementById('new-exercise-name').value;
     const exerciseDescription = document.getElementById('new-exercise-description').value;
@@ -549,7 +549,7 @@ function save_new_exercise() {
     const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
 
     // POST the new exercise to the DB
-    fetch(`/${userID}/exercises/`, {
+    await fetch(`/${userID}/exercises/`, {
         method: 'POST',
         body: JSON.stringify(newExercise),
         headers: {
@@ -563,8 +563,9 @@ function save_new_exercise() {
             throw error;
         })
 
-    // Add the new exercise to the global variable
-    fetchedExercises.push(newExercise);
+    // Fetch exercises from DB again so we can update the front end
+    await fetch_user_exercises(userID);
+    console.log("added new exercise. fetchedExercises: ", fetchedExercises)
 
     // Call the update front end function
     update_exercises_front_end(newExercise);
