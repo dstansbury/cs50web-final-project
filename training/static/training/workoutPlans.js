@@ -3,7 +3,7 @@
 // -------------------------- //
 
 import { open_create_workout_plan_form, add_exercise_to_form, submit_plan, hide_section } from './training.js';
-import { start_workout } from './workouts.js';
+import { start_workout } from './workout.js';
 
 // -------------------------- //
 // EVENT LISTENERS            //
@@ -46,7 +46,7 @@ function addWorkoutPlans(workout_plans) {
     // create a new div for each workout_plan
     workout_plans.forEach(workout_plan => {
         const workout_planDiv = document.createElement('div');
-        workout_planDiv.className = 'section-container workout-plan-container entering';
+        workout_planDiv.className = 'section-container entering';
         workout_planDiv.id = `workout-plan-container-${workout_plan.id}`;
         workout_planDiv.onclick = () => openWorkoutPlan(workout_plan);
         
@@ -89,14 +89,13 @@ function addCreateWorkoutPlanAction() {
 
 // Close full workout plan
 function closeWorkoutPlan(workout_plan) {
-    console.log('closeWorkoutPlan called on: ', workout_plan)
 
     // Get the div that was clicked
     let parentDiv = document.getElementById(`${workout_plan.id}`);
     
     // If the workout plan is already open, close it
     let plan_details = parentDiv.querySelectorAll("[id^='workout_plan-details-']");
-    console.log('acting on this div: ', plan_details)
+
     // If details exist, remove them
     if (plan_details.length > 0) {
         plan_details.forEach(detail => {

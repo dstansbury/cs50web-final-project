@@ -256,7 +256,31 @@ END EXERCISES
 WORKOUTS
 """
 def workouts(request, userID, workout_plan_id):
-    pass
+    # Check if the user is logged in, if not send to login page
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    
+    # Security check
+    userOwned(request, userID)
+
+    if request.method == "GET":
+        # grab the workout plan info from the DB and return them as JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            workout_plan = WorkoutPlan.objects.get(id=workout_plan_id)
+
+            serialized_workout_plan = workout_plan.serialize()
+
+            print(f"serialized_workout_plan: {serialized_workout_plan}")
+            
+            return JsonResponse(serialized_workout_plan, safe=False)
+        
+        #If it's not an AJAX request, render the workout plans page
+        else:
+            return render(request, "training/workout.html", {
+                "userID": userID,
+                "username": request.user.username,
+                "workout_plan_id": workout_plan_id
+            })
 
 """
 LOGIN
