@@ -634,7 +634,7 @@ function update_exercises_front_end(newExercise) {
 // EXPORTS                    //
 // -------------------------- //
 
-export { open_create_workout_plan_form, add_exercise_to_form, submit_plan, save_workout_plan };
+export { open_create_workout_plan_form, add_exercise_to_form, submit_plan, save_workout_plan, hide_section, show_section };
 
 
 

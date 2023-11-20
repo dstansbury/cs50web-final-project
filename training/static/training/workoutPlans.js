@@ -2,7 +2,7 @@
 // IMPORTS                    //
 // -------------------------- //
 
-import { open_create_workout_plan_form, add_exercise_to_form, submit_plan, save_workout_plan } from './training.js';
+import { open_create_workout_plan_form, add_exercise_to_form, submit_plan, hide_section } from './training.js';
 import { start_workout } from './workouts.js';
 
 // -------------------------- //
@@ -87,6 +87,31 @@ function addCreateWorkoutPlanAction() {
     });
 }
 
+// Close full workout plan
+function closeWorkoutPlan(workout_plan) {
+    console.log('closeWorkoutPlan called on: ', workout_plan)
+
+    // Get the div that was clicked
+    let parentDiv = document.getElementById(`${workout_plan.id}`);
+    
+    // If the workout plan is already open, close it
+    let plan_details = parentDiv.querySelectorAll("[id^='workout_plan-details-']");
+    console.log('acting on this div: ', plan_details)
+    // If details exist, remove them
+    if (plan_details.length > 0) {
+        plan_details.forEach(detail => {
+            detail.remove(); // Remove each detail element
+        });
+        parentDiv.classList.remove('expand');
+        parentDiv.classList.add('contract');
+    }
+    // on animation end, remove the closed class
+    parentDiv.addEventListener('animationend', function() {
+        parentDiv.classList.remove('contract');
+    });
+    return;
+}
+
 // Open full workout plan
 function openWorkoutPlan(workout_plan) {
     // Fetch the clicked workout plan's div
@@ -104,6 +129,12 @@ function openWorkoutPlan(workout_plan) {
         });
         return;
     } else {
+        // get all other expanded sections and close them
+        const expanded_sections = document.querySelectorAll('.expand');
+        console.log('expanded_sections: ', expanded_sections)
+        expanded_sections.forEach(section => {
+            closeWorkoutPlan(section);
+        });
         workout_planDiv.classList.add('expand');
     }
 
@@ -307,8 +338,13 @@ async function update_workout_plan(workout_plan_id) {
     // submit the form
     await submit_updated_plan(workout_plan_id, num_exercises);
 
+    // exit animation for the section
+    await hide_section(document.getElementById('create-workout-plan-form-container'))
     // reset the form
     reset_create_workout_plan_form(num_exercises);
+
+    // reload the page
+    window.location.reload();
 }
 
 // -------------------------- //
