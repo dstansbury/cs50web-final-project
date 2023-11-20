@@ -283,11 +283,18 @@ async function add_exercise_rows(num_exercises) {
 
 // this is not done up front so as to avoid needing to change the add and remove exercise button logic
 
-async function update_workout_plan(workout_plan_id, num_exercises) {
+async function update_workout_plan(workout_plan_id) {
 
     // change the div Ids to 'edit' not new so we can submit the form correctly
     document.getElementById('new-workout-plan-title').id = 'edit-workout-plan-title';
     document.getElementById('new-workout-plan-description').id = 'edit-workout-plan-description';
+
+    // user may have deleted or added exercises, so we need a new count of exercises on the page
+    const exerciseDivs = document.querySelectorAll("div[id^='new-exercise-row-']");
+    console.log('exerciseDivs: ', exerciseDivs)
+
+    let num_exercises = exerciseDivs.length;
+    console.log('num_exercises: ', num_exercises)  
 
     // loop through exercise rows and update each of the div IDs
     for (let i = 1; i <= num_exercises; i++) {
@@ -301,33 +308,35 @@ async function update_workout_plan(workout_plan_id, num_exercises) {
     await submit_updated_plan(workout_plan_id, num_exercises);
 
     // reset the form
-    reset_create_workout_plan_form();
+    reset_create_workout_plan_form(num_exercises);
 }
 
 // -------------------------- //
 // Submit updated plan //
 // -------------------------- //
 
+// sets up the planDetails object to be sent to the DB
 function submit_updated_plan(workout_plan_id, num_exercises) {
     let planDetails = {
-        "id" : workout_plan_id,
-        "title" : document.getElementById('edit-workout-plan-title').value,
-        "description" : document.getElementById('edit-workout-plan-description').value,
+        "workout_id" : workout_plan_id,
+        "workout_title" : document.getElementById('edit-workout-plan-title').value,
+        "workout_description" : document.getElementById('edit-workout-plan-description').value,
     };
     let exercises = [];
     // loop through exercise rows and create an array for each exercise
     for (let i = 1; i <= num_exercises; i++){
         let exercise = {
-            "exerciseName" : document.getElementById(`edit-exercise-name-${i}`).value,
-            "exerciseSets" : document.getElementById(`edit-exercise-sets-${i}`).value,
-            "exerciseReps" : document.getElementById(`edit-exercise-reps-${i}`).value
-    }
-        exercises.push(exercise);
+            "exerciseID": document.getElementById(`edit-exercise-name-${i}`).value,
+            "exerciseName": document.getElementById(`edit-exercise-name-${i}`).options[document.getElementById(`edit-exercise-name-${i}`).selectedIndex].text,
+            "exerciseSets": document.getElementById(`edit-exercise-sets-${i}`).value,
+            "exerciseReps": document.getElementById(`edit-exercise-reps-${i}`).value
+            }
+            exercises.push(exercise);
+        }
+    // add the exercises to the planDetails object
     planDetails.exercises = exercises;
-    console.log("plan details: ", planDetails);
-    console.log('UPDATING THE PLAN')
-    //save_workout_plan(planDetails);
-    }
+    // call the save updated plan function
+    save_updated_plan(planDetails);
 }
 
 // -------------------------- //
@@ -335,7 +344,31 @@ function submit_updated_plan(workout_plan_id, num_exercises) {
 // -------------------------- //
 
 function save_updated_plan(planDetails) {
-    console.log('updating workout plan');
+    console.log('save_updated_plan plan is called');
+    console.log('planDetails: ', planDetails);
+
+    try {
+        // Get the CSRF token from the meta tag
+        const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+
+        // submit updated plan to the DB with a PUT request
+        fetch(`/${userID}/workout_plans/`, {
+            method: 'PATCH',
+            body: JSON.stringify(planDetails),
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrf_token, 
+            },
+        });
+
+        // give success message on front end 
+        console.log("Plan updated successfully");
+    }
+    catch (error) {
+        console.error('Error saving updated plan:', error);
+        throw error;
+    }
 
 }
 
@@ -347,7 +380,7 @@ function save_updated_plan(planDetails) {
 // and sets the button back to save plan
 // and clears the form
 
-function reset_create_workout_plan_form() {
+function reset_create_workout_plan_form(num_exercises) {
     // turn all div IDs back to new from edit
     document.getElementById('edit-workout-plan-title').id = 'new-workout-plan-title';
     document.getElementById('edit-workout-plan-description').id = 'new-workout-plan-description';

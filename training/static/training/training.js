@@ -249,8 +249,6 @@ function save_workout_plan(plan) {
         "exercises_in_plan": plan.exercises,
     }
 
-    console.log('new workout plan: ', newWorkoutPlan);
-
     // Get the CSRF token from the meta tag
     const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
 
@@ -263,7 +261,7 @@ function save_workout_plan(plan) {
             'X-Requested-With': 'XMLHttpRequest',
             'X-CSRFToken': csrf_token,
         }
-    }) // closing bracket for fetch was moved to here
+    })
     .then(_ => {
         // Reload page with new workout plan
         window.location.reload();

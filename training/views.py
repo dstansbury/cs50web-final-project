@@ -91,7 +91,6 @@ def workout_plans(request, userID):
                 print(f"new workout plan saved: {new_workout_plan}")
 
                 exercises_in_plan = data.get("exercises_in_plan")
-                print(f"exercises_in_plan is {exercises_in_plan}")
                 for exercise_data in exercises_in_plan:
                     
                     new_exercise_in_workout_plan = ExerciseInWorkoutPlan(
@@ -111,6 +110,56 @@ def workout_plans(request, userID):
             print(f"error is {e}")
             return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)
     
+    # If method is PUT, update the workout plan
+    elif request.method == "PATCH":
+        try:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                
+                # Get the data from the request
+                data = json.loads(request.body)
+
+                print(f"data is {data}")
+
+                # Check essential data is there
+                if not data.get("workout_id"):
+                    return JsonResponse({"error": "Missing necessary fields."}, status=400)
+                
+                # Get the workout plan instance
+                updated_workout_plan = WorkoutPlan.objects.get(id=int(data.get("workout_id")))
+                print(f"successfully got workout plan instance: {updated_workout_plan}")
+                
+                # Update the workout instance
+                updated_workout_plan.title = data.get("workout_title")
+                updated_workout_plan.description = data.get("workout_description")
+                updated_workout_plan.save()
+
+                # Clear existing exercises in the workout plan
+                ExerciseInWorkoutPlan.objects.filter(workout_plan=updated_workout_plan).delete()
+
+                # Add the new exercises
+                exercises_in_plan = data.get("exercises")
+                print(f"exercises_in_plan is {exercises_in_plan}")
+                for exercise_data in exercises_in_plan:
+                    if exercise_data.get("exerciseID") == "":
+                        print(f"No exercise ID received. Continuing...")
+                        continue
+                    else:
+                        new_exercise_in_workout_plan = ExerciseInWorkoutPlan(
+                            workout_plan=updated_workout_plan,
+                            sets_in_workout=exercise_data.get("exerciseSets"),
+                            reps_per_set=exercise_data.get("exerciseReps"),
+                            exercise=Exercise.objects.get(id=exercise_data.get("exerciseID")),
+                            )
+                    
+                        new_exercise_in_workout_plan.save()
+                        print(f"new exercise in workout plan saved: {new_exercise_in_workout_plan}")
+
+                # Return a success HTTP response
+                return JsonResponse({"message": "Workout plan successfully updated."}, status=201) 
+        except Exception as e:
+            print(f"error is {e}")
+            return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)
+
     # If method is delete, delete the workout plan from the DB
     elif request.method == "DELETE":
         try:
@@ -198,7 +247,7 @@ def exercises(request, userID):
         except Exception as e:
             print(f"error is {e}")
             return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)
-
+            
 """
 END EXERCISES
 """
