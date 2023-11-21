@@ -115,14 +115,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left: 0px; 
-  margin-right: 0px;  
-}
-
-/* Tweak for the main create workout plan action */ 
-#create-workout-plan-action {
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 10px; 
+  margin-right: 10px;  
 }
 
 /* Apply slide-in animations to each section container based on their order */
