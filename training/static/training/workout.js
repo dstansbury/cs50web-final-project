@@ -50,9 +50,9 @@ function createWorkout(workout_plan) {
     // loops through the exercises and creates a div for each
     workout_plan.exercises_in_plan.forEach(exercise =>{
         // Set up the section div for the exercise
-        const exerciseDiv = document.createElement('div')
-        exerciseDiv.className="section-container entering"
-        exerciseDiv.id = `exercise-${exercise.id}-in-workout-${workout_plan.id}`
+        const exerciseContainer = document.createElement('div')
+        exerciseContainer.className="section-container entering"
+        exerciseContainer.id = `exercise-${exercise.id}-in-workout-${workout_plan.id}`
 
         // div for exercise name
         const exerciseNameDiv = document.createElement('div')
@@ -99,8 +99,28 @@ function createWorkout(workout_plan) {
             exerciseDiv.id=`exercise-in-workout-${exercise.id}`
             exerciseDiv.innerHTML=`
                                 <hr>
-                                <div class="form-row">
+                                <div class="set-number" id="set-number-exercise-${exercise.id}">
                                     <strong> Set ${i} </strong>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label>Reps completed</label>
+                                        <input type="number" class="form-control" id="set-${i}-rep-count-exercise-${exercise.id}" min="1" step="1" placeholder="Enter Reps">  
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Weight</label>
+                                        <input type="number" class="form-control" id="set-${i}-weight-exercise-${exercise.id}" min="1" step="0.01" placeholder="Enter Weight">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Units</label>
+                                        <select class="form-control" id="set-${i}-units-exercise-${exercise.id}">
+                                           <option value="" selected>Kg</option>
+                                           <option value="">Lbs</option> 
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="action-buttons-container" id="broken-set-button-container">    
+                                    <button type="button" class="action-button-outline" id="broken-set-button set-${i}-exercise-${exercise.id}" >Broken Set</button>
                                 </div>
                                `
             // add the exercise info to the expanded exercise div
@@ -115,13 +135,13 @@ function createWorkout(workout_plan) {
         exerciseInfoExpanded.insertBefore(exerciseDescriptionDiv,exerciseInfoExpanded.firstChild)
 
         // Assemble the exerciseDiv
-        exerciseDiv.appendChild(exerciseNameDiv)
-        exerciseDiv.appendChild(exerciseSetsAndRepsCount)
-        exerciseDiv.appendChild(exerciseInfoExpanded)
+        exerciseContainer.appendChild(exerciseNameDiv)
+        exerciseContainer.appendChild(exerciseSetsAndRepsCount)
+        exerciseContainer.appendChild(exerciseInfoExpanded)
         
 
         // Add the final div to the DOM
-        document.querySelector("#workout-plan").append(exerciseDiv);
+        document.querySelector("#workout-plan").append(exerciseContainer);
     });
 
     // Add the end workout button
