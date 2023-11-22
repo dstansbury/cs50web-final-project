@@ -265,6 +265,28 @@ function end_workout(workout_plan_id){
 }
 
 // -------------------------- //
+// Broken set button          //
+// -------------------------- //
+function brokenSetButton(i, exerciseID) {
+    const broken_set_action_container = document.createElement('div');
+    broken_set_action_container.className = 'action-buttons-container broken-set';
+    
+    const broken_set_action = document.createElement('button');
+    broken_set_action.className = 'action-button-outline';
+    broken_set_action.id = `broken-set-button set-${i}-exercise-${exerciseID}`
+    broken_set_action.onclick = () => broken_set(i, exerciseID)
+    broken_set_action.innerHTML=`Broken Set`
+
+    broken_set_action_container.appendChild(broken_set_action)
+    
+    return broken_set_action_container
+}
+
+function broken_set(i, exerciseID){
+    console.log('broken set button pressed');
+}
+
+// -------------------------- //
 // Exercise Div               //
 // -------------------------- //
 
@@ -294,10 +316,8 @@ function createExerciseDiv(i, exercise) {
                                 </select>
                             </div>
                         </div>
-                        <div class="action-buttons-container" id="broken-set-button-container">    
-                            <button type="button" class="action-button-outline" id="broken-set-button set-${i}-exercise-${exercise.id}" >Broken Set</button>
-                        </div>
                         `
+    exerciseDiv.appendChild(brokenSetButton(i, exercise.id))
     return exerciseDiv
 }
 // -------------------------- //
