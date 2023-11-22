@@ -270,20 +270,32 @@ function end_workout(workout_plan_id){
 function brokenSetButton(i, exerciseID) {
     const broken_set_action_container = document.createElement('div');
     broken_set_action_container.className = 'action-buttons-container broken-set';
+    broken_set_action_container.id = `broken-set-action-container-set-${i}-exercise-${exerciseID}`;
     
     const broken_set_action = document.createElement('button');
     broken_set_action.className = 'action-button-outline';
-    broken_set_action.id = `broken-set-button set-${i}-exercise-${exerciseID}`
+    broken_set_action.id = `broken-set-button-set-${i}-exercise-${exerciseID}`;
     broken_set_action.onclick = () => broken_set(i, exerciseID)
     broken_set_action.innerHTML=`Broken Set`
 
     broken_set_action_container.appendChild(broken_set_action)
-    
+
     return broken_set_action_container
 }
 
 function broken_set(i, exerciseID){
-    console.log('broken set button pressed');
+    let j = `${i}.1`
+    const brokenSetDiv = document.createElement('div')
+    brokenSetDiv.className = 'broken-set'
+    brokenSetDiv.id = `broken-set-${j}-exercise-${exerciseID}`
+    let brokenSetInfo = createExerciseDiv(j, exerciseID)
+    brokenSetDiv.appendChild(brokenSetInfo) 
+
+    const setDiv = document.getElementById(`set-${i}-exercise-${exerciseID}`)
+    const brokenSetButtonToReplace = document.getElementById(`broken-set-action-container-set-${i}-exercise-${exerciseID}`)
+    console.log('setDiv: ', setDiv)
+    console.log('brokenSetButtonToReplace: ', brokenSetButtonToReplace)
+    setDiv.parentElement.replaceChild(brokenSetDiv, brokenSetButtonToReplace)
 }
 
 // -------------------------- //
@@ -296,24 +308,24 @@ function createExerciseDiv(i, exercise) {
     exerciseDiv.id=`exercise-in-workout-${exercise.id}`
     exerciseDiv.innerHTML=`
                         <hr>
-                        <div class="set-number" id="set-number-exercise-${exercise.id}">
+                        <div class="set-number" id="set-${i}-exercise-${exercise.id}">
                             <strong> Set ${i} </strong>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <label>Reps completed</label>
-                                <input type="number" class="form-control" id="set-${i}-rep-count-exercise-${exercise.id}" min="1" step="1" placeholder="Enter Reps">  
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label>Weight</label>
-                                <input type="number" class="form-control" id="set-${i}-weight-exercise-${exercise.id}" min="1" step="0.01" placeholder="Enter Weight">
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label>Units</label>
-                                <select class="form-control" id="set-${i}-units-exercise-${exercise.id}">
-                                    <option value="" selected>Kg</option>
-                                    <option value="">Lbs</option> 
-                                </select>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label>Reps completed</label>
+                                    <input type="number" class="form-control" id="set-${i}-rep-count-exercise-${exercise.id}" min="1" step="1" placeholder="Enter Reps">  
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Weight</label>
+                                    <input type="number" class="form-control" id="set-${i}-weight-exercise-${exercise.id}" min="1" step="0.01" placeholder="Enter Weight">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label>Units</label>
+                                    <select class="form-control" id="set-${i}-units-exercise-${exercise.id}">
+                                        <option value="" selected>Kg</option>
+                                        <option value="">Lbs</option> 
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         `
