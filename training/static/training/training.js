@@ -13,10 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector("#workout_plan-page-container")) {
         load_workout_plans(userID);
     }
-    // Workout page
-    if (document.querySelector("#workout-page-container")) {
-        // ADD FUNCTION
-    }
 });
 
 

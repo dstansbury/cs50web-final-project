@@ -5,7 +5,7 @@
 :root {
   --darkest: #000000;
   --dark: #4C5355;
-  --medium: #607D86; 
+  --medium: #607D86;
   --light: #CBCDCB;
   --emphasis: #C44B4F;
   --lightest: #FFFFFF;
@@ -117,6 +117,18 @@ body {
   align-items: center;
   margin-left: 10px; 
   margin-right: 10px;  
+}
+
+/* Secondary Action Section Container appearance */
+.section-container.secondary-action {
+  background-color: var(--lightest);
+  color: var(--emphasis);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px; 
+  margin-right: 10px;
+  border: 1px solid var(--lightest);  
 }
 
 /* Apply slide-in animations to each section container based on their order */
