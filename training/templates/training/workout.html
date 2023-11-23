@@ -14,20 +14,26 @@
     {% endif %}
     
     <!--Form for adding new exercises-->
-    <div class="page-content" id="add-exercise">
+    <div class="page-content" id="exercise-adjustments">
     </div>
 
-    <!-- Show all workout details-->
-    <div class="page-content" id="workout-plan">
-    </div>
+    <!-- Full workout elements -->
+    <div class="page-content" id="workout-elements">
+        
+        <!-- Show all workout details-->
+        <div class="page-content" id="workout-plan">
+        </div>
 
-    <!-- Secondary page action-->
-    <div class="page-content" id="secondary-page-action">
+        <!-- Secondary page action-->
+        <div class="page-content" id="secondary-page-action">
+        </div>
+
+        <!-- Main page action-->
+        <div class="page-content" id="main-page-action">
+        </div>
+    
     </div>
     
-    <!-- Main page action-->
-    <div class="page-content" id="main-page-action">
-    </div>
         
     
 </div>
@@ -38,6 +44,7 @@
     <script>
         var workout_plan_id = "{{ workout_plan_id }}";
     </script>
+    <script type="module" src="{% static 'training/exercises.js' %}"></script>
     <script type="module" src="{% static 'training/workout.js' %}"></script>
 {% endblock %}
 ```

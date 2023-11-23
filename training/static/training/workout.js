@@ -2,6 +2,8 @@
 // IMPORTS       //
 //---------------//
 
+import { swap_exercise } from "./exercises.js";
+
 // -------------------------- //
 // EVENT LISTENERS //
 // -------------------------- //
@@ -23,49 +25,60 @@ function removeEntering(sectionDiv){
     });
 }
 
-function expand_exercise(sectionDiv, exerciseID){
+async function expand_exercise(sectionDiv, exerciseID){
     // if the section is already expanded, close it
-    console.log('checking if the section is open')
     if (sectionDiv.classList.contains('expand')) {
-        contract_exercise(sectionDiv, exerciseID);
+        contract_exercise(sectionDiv);
         return;
     }
 
     // close any other expanded sections
-    console.log('looking for other sections to close')
     const expandedSections = document.querySelectorAll('.expand');
-    expandedSections.forEach(expandedSection => {
-        contract_exercise(expandedSection, exerciseID);
+    console.log('found these expanded sections: ', expandedSections)
+    await expandedSections.forEach(expandedSection => {
+        console.log('HANDLING THIS SECTION ', expandedSection.id)
+        contract_exercise(expandedSection);
     });
 
     // add the animation class
-    console.log('adding the expand class')
     sectionDiv.classList.add('expand');
 
     // Get the exerciseInfoExpanded div we want to show
     const divToShow = document.querySelector(`#expanded-exercise-${exerciseID}`)
-    console.log('div to show: ', divToShow)
 
     // show the expanded exercise information
     divToShow.style.display = 'block';
+
+    // focus on the title section of the div
+    const titleDiv = document.querySelector(`#exercise-in-workout-name-${exerciseID}`)
+    titleDiv.focus();
 }
 
-function contract_exercise(sectionDiv, exerciseID){
-    console.log('inside the contract function. sectionDiv: ', sectionDiv)
+function contract_exercise(sectionDiv){
+    console.log('inside the contract function. Handling sectionDiv: ', sectionDiv)
     // if expand is in the class list, remove it
     console.log('checking if the section is expanded')
     sectionDiv.classList.remove('expand');
 
     // add the animation class
-    console.log('adding the contract class')
+    console.log('adding the contract class to', sectionDiv)
     sectionDiv.classList.add('contract');
 
     // hide the expanded exercise information
-    const divToHide = document.querySelector(`#expanded-exercise-${exerciseID}`)
+    let divToHide = null;
+    const children = sectionDiv.querySelectorAll('div'); 
+    for (let div of children) {
+        if (div.id.startsWith('expanded-exercise-')) {
+            divToHide = div;
+            break; // Break the loop once the div is found
+        }
+    }
+
     divToHide.style.display = 'none';
 
     // remove the animation class on animation completion
     sectionDiv.addEventListener('animationend', function() {
+        console.log('removing the contract class from ', sectionDiv)
         sectionDiv.classList.remove('contract');
     });
 }
@@ -151,7 +164,7 @@ function createWorkout(workout_plan) {
         const exerciseActionsDiv = document.createElement('div')
         exerciseActionsDiv.className = `action-buttons-container`
         exerciseActionsDiv.id = `exercise-in-workout-actions-${exercise.id}`
-        exerciseActionsDiv.appendChild(swapExerciseButton(exercise.id))
+        exerciseActionsDiv.appendChild(swapExerciseButton(exercise))
         exerciseActionsDiv.appendChild(viewExerciseHistoryButton(exercise.id))
 
         // divs for sets
@@ -199,17 +212,13 @@ function createWorkout(workout_plan) {
 // -------------------------- //
 // Swap exercise button       //
 // -------------------------- //
-function swapExerciseButton(exerciseID) {
+function swapExerciseButton(exercise) {
     const swap_exercise_action = document.createElement('button');
     swap_exercise_action.className = 'action-button-outline';
-    swap_exercise_action.id = `swap-exercise-button-${exerciseID}`
-    swap_exercise_action.onclick = () => swap_exercise(exerciseID)
+    swap_exercise_action.id = `swap-exercise-button-${exercise.id}`
+    swap_exercise_action.onclick = () => swap_exercise(exercise)
     swap_exercise_action.innerHTML=`Swap Exercise`
     return swap_exercise_action
-}
-
-function swap_exercise(exerciseID) {
-    console.log('swap exercise button pressed');
 }
 
 // -------------------------- //
