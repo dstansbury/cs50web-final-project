@@ -158,6 +158,10 @@ body {
   justify-content: space-between;
   align-items: center;
 }
+
+#swap-exercise-form {
+  margin: 15px;
+}
             
 /* ------------------- */
 /* BUTTONS */

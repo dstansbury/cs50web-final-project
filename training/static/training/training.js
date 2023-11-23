@@ -32,10 +32,12 @@ let lastSelectedDropdown = '';
 // Hide a section
 function hide_section(section) {
     return new Promise(resolve => {
+        console.log('hiding section: ', section)
         section.classList.add('exiting');
         
         // Listener for end of animation
         function animationEndCallback() {
+            console.log('inside animationEndCallback')
             section.classList.remove('exiting');
             section.style.display = 'none';
             section.removeEventListener('animationend', animationEndCallback);

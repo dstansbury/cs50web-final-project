@@ -34,9 +34,7 @@ async function expand_exercise(sectionDiv, exerciseID){
 
     // close any other expanded sections
     const expandedSections = document.querySelectorAll('.expand');
-    console.log('found these expanded sections: ', expandedSections)
     await expandedSections.forEach(expandedSection => {
-        console.log('HANDLING THIS SECTION ', expandedSection.id)
         contract_exercise(expandedSection);
     });
 
@@ -55,13 +53,10 @@ async function expand_exercise(sectionDiv, exerciseID){
 }
 
 function contract_exercise(sectionDiv){
-    console.log('inside the contract function. Handling sectionDiv: ', sectionDiv)
     // if expand is in the class list, remove it
-    console.log('checking if the section is expanded')
     sectionDiv.classList.remove('expand');
 
     // add the animation class
-    console.log('adding the contract class to', sectionDiv)
     sectionDiv.classList.add('contract');
 
     // hide the expanded exercise information
@@ -78,7 +73,6 @@ function contract_exercise(sectionDiv){
 
     // remove the animation class on animation completion
     sectionDiv.addEventListener('animationend', function() {
-        console.log('removing the contract class from ', sectionDiv)
         sectionDiv.classList.remove('contract');
     });
 }
