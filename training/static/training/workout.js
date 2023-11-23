@@ -110,88 +110,9 @@ function createWorkout(workout_plan) {
     // Divs to hold the details of the exercises in the workout
     // loops through the exercises and creates a div for each
     workout_plan.exercises_in_plan.forEach(exercise =>{
-        // Set up the section div for the exercise
-        const exerciseContainer = document.createElement('div')
-        exerciseContainer.className="section-container entering"
-        exerciseContainer.id = `exercise-${exercise.id}-in-workout-${workout_plan.id}`
-        
-        // div for exercise name
-        const exerciseNameDiv = document.createElement('div')
-        exerciseNameDiv.className = `section-title`
-        exerciseNameDiv.id = `exercise-in-workout-name-${exercise.id}`
-        exerciseNameDiv.innerHTML=`
-                                    <h4>${exercise.name}</h4>
-                                    <div role="button" class="dropdown-arrow" id="dropdown-arrow-${exercise.id}">▼</div>
-                                    `
+        create_exercise_in_workout(exercise)
+    })
 
-        // div for sets and reps count
-        const exerciseSetsAndRepsCount = document.createElement('div')
-        exerciseSetsAndRepsCount.className = 'sets-and-reps-count'
-        exerciseSetsAndRepsCount.id = `sets-and-reps-count-${exercise.id}`
-        exerciseSetsAndRepsCount.innerHTML =`
-                                            <p>${exercise.sets_in_workout} x ${exercise.reps_per_set} reps </p>
-                                            `
-        // div for expanded exercise information
-        const exerciseInfoExpanded = document.createElement('div')
-        exerciseInfoExpanded.className = 'expanded-exercise'
-        exerciseInfoExpanded.id = `expanded-exercise-${exercise.id}`
-        
-        // div for exercise description
-        const exerciseDescriptionDiv = document.createElement('div')
-        exerciseDescriptionDiv.className = `exercise-in-workout-description`
-        exerciseDescriptionDiv.id = `exercise-in-workout-description-${exercise.id}`
-        
-        // most plans won't have a description so need to handle gracefully
-        let exerciseDescription = '';
-        if (!exercise.description) {
-            // Assign an empty string if description is not available
-            exerciseDescription = 'DESCRIPTION GOES HERE';
-        } else {
-            // Assign the actual description if available
-            exerciseDescription = exercise.description;
-        }
-        exerciseDescriptionDiv.innerHTML=`
-                                         <p>${exerciseDescription}</p>
-                                         `
-
-        // div for exercise-level actions
-        const exerciseActionsDiv = document.createElement('div')
-        exerciseActionsDiv.className = `action-buttons-container`
-        exerciseActionsDiv.id = `exercise-in-workout-actions-${exercise.id}`
-        exerciseActionsDiv.appendChild(swapExerciseButton(exercise))
-        exerciseActionsDiv.appendChild(viewExerciseHistoryButton(exercise.id))
-
-        // divs for sets
-        for (let i = 1; i <= exercise.sets_in_workout; i++){
-            let exerciseDiv = createExerciseDiv(i, exercise)
-            // add the exercise info to the expanded exercise div
-            exerciseInfoExpanded.appendChild(exerciseDiv)
-        }
-
-        // Finished assembling expanded exercise div
-        exerciseInfoExpanded.insertBefore(exerciseActionsDiv, exerciseInfoExpanded.firstChild)
-        exerciseInfoExpanded.insertBefore(exerciseDescriptionDiv,exerciseInfoExpanded.firstChild)
-        // Hide the expanded exercise div
-        exerciseInfoExpanded.style.display = 'none';
-
-        // Assemble the exerciseDiv
-        exerciseContainer.appendChild(exerciseNameDiv)
-        exerciseContainer.appendChild(exerciseSetsAndRepsCount)
-        exerciseContainer.appendChild(exerciseInfoExpanded)
-        
-        // Add the final div to the DOM
-        document.querySelector("#workout-plan").append(exerciseContainer);
-
-        // add event listner for the dropdown-arrow
-        let dropDownArrow = document.getElementById(`dropdown-arrow-${exercise.id}`);
-        let exerciseToExpand = document.getElementById(`exercise-${exercise.id}-in-workout-${workout_plan.id}`);
-        dropDownArrow.addEventListener('click', function() {
-                expand_exercise(exerciseToExpand, exercise.id);
-        });
-
-        // Remove the entering class after the animation has finished
-        removeEntering(exerciseContainer)
-    });
     // Add the add exercise button
     document.querySelector('#secondary-page-action').appendChild(addExerciseButton())
     //Remove the entering class after the animation has finished
@@ -291,7 +212,7 @@ function broken_set(i, exerciseID){
     const brokenSetDiv = document.createElement('div')
     brokenSetDiv.className = 'broken-set'
     brokenSetDiv.id = `broken-set-${j}-exercise-${exerciseID}`
-    let brokenSetInfo = createExerciseDiv(j, exerciseID)
+    let brokenSetInfo = createExerciseDetailsDiv(j, exerciseID)
     brokenSetDiv.appendChild(brokenSetInfo) 
 
     const setDiv = document.getElementById(`set-${i}-exercise-${exerciseID}`)
@@ -302,14 +223,103 @@ function broken_set(i, exerciseID){
 }
 
 // -------------------------- //
-// Exercise Div               //
+// Exercise in workout        //
 // -------------------------- //
 
-function createExerciseDiv(i, exercise) {
-    const exerciseDiv = document.createElement('div')
-    exerciseDiv.className = 'form-group'
-    exerciseDiv.id=`exercise-in-workout-${exercise.id}`
-    exerciseDiv.innerHTML=`
+function create_exercise_in_workout(exercise) {
+    // Set up the section div for the exercise
+    const exerciseContainer = document.createElement('div')
+    exerciseContainer.className="section-container entering"
+    exerciseContainer.id = `exercise-${exercise.id}-in-workout`
+    
+    // div for exercise name
+    const exerciseNameDiv = document.createElement('div')
+    exerciseNameDiv.className = `section-title`
+    exerciseNameDiv.id = `exercise-in-workout-name-${exercise.id}`
+    exerciseNameDiv.innerHTML=`
+                                <h4>${exercise.name}</h4>
+                                <div role="button" class="dropdown-arrow" id="dropdown-arrow-${exercise.id}">▼</div>
+                                `
+
+    // div for sets and reps count
+    const exerciseSetsAndRepsCount = document.createElement('div')
+    exerciseSetsAndRepsCount.className = 'sets-and-reps-count'
+    exerciseSetsAndRepsCount.id = `sets-and-reps-count-${exercise.id}`
+    exerciseSetsAndRepsCount.innerHTML =`
+                                        <p>${exercise.sets_in_workout} x ${exercise.reps_per_set} reps </p>
+                                        `
+    // div for expanded exercise information
+    const exerciseInfoExpanded = document.createElement('div')
+    exerciseInfoExpanded.className = 'expanded-exercise'
+    exerciseInfoExpanded.id = `expanded-exercise-${exercise.id}`
+    
+    // div for exercise description
+    const exerciseDescriptionDiv = document.createElement('div')
+    exerciseDescriptionDiv.className = `exercise-in-workout-description`
+    exerciseDescriptionDiv.id = `exercise-in-workout-description-${exercise.id}`
+    
+    // most plans won't have a description so need to handle gracefully
+    let exerciseDescription = '';
+    if (!exercise.description) {
+        // Assign an empty string if description is not available
+        exerciseDescription = 'DESCRIPTION GOES HERE';
+    } else {
+        // Assign the actual description if available
+        exerciseDescription = exercise.description;
+    }
+    exerciseDescriptionDiv.innerHTML=`
+                                     <p>${exerciseDescription}</p>
+                                     `
+
+    // div for exercise-level actions
+    const exerciseActionsDiv = document.createElement('div')
+    exerciseActionsDiv.className = `action-buttons-container`
+    exerciseActionsDiv.id = `exercise-in-workout-actions-${exercise.id}`
+    exerciseActionsDiv.appendChild(swapExerciseButton(exercise))
+    exerciseActionsDiv.appendChild(viewExerciseHistoryButton(exercise.id))
+
+    // divs for sets
+    for (let i = 1; i <= exercise.sets_in_workout; i++){
+        let exerciseDiv = createExerciseDetailsDiv(i, exercise)
+        // add the exercise info to the expanded exercise div
+        exerciseInfoExpanded.appendChild(exerciseDiv)
+    }
+
+    // Finished assembling expanded exercise div
+    exerciseInfoExpanded.insertBefore(exerciseActionsDiv, exerciseInfoExpanded.firstChild)
+    exerciseInfoExpanded.insertBefore(exerciseDescriptionDiv,exerciseInfoExpanded.firstChild)
+    // Hide the expanded exercise div
+    exerciseInfoExpanded.style.display = 'none';
+
+    // Assemble the exerciseDiv
+    exerciseContainer.appendChild(exerciseNameDiv)
+    exerciseContainer.appendChild(exerciseSetsAndRepsCount)
+    exerciseContainer.appendChild(exerciseInfoExpanded)
+    
+    // THIS IS WHERE THE PROBLEM IS
+    // Add the final div to the DOM
+    document.querySelector("#workout-plan").append(exerciseContainer);
+
+    // add event listner for the dropdown-arrow
+    let dropDownArrow = document.getElementById(`dropdown-arrow-${exercise.id}`);
+    let exerciseToExpand = document.getElementById(`exercise-${exercise.id}-in-workout`);
+    dropDownArrow.addEventListener('click', function() {
+            expand_exercise(exerciseToExpand, exercise.id);
+    });
+
+    // Remove the entering class after the animation has finished
+    removeEntering(exerciseContainer)
+};
+
+// -------------------------- //
+// Exercise Details Div       //
+// -------------------------- //
+
+function createExerciseDetailsDiv(i, exercise) {
+    const exerciseDetailsDiv = document.createElement('div')
+    exerciseDetailsDiv.className = 'form-group'
+    exerciseDetailsDiv.id=`exercise-in-workout-${exercise.id}`
+    exerciseDetailsDiv.innerHTML=`
                         <hr>
                         <div class="set-number" id="set-${i}-exercise-${exercise.id}">
                             <strong> Set ${i} </strong>
@@ -332,8 +342,8 @@ function createExerciseDiv(i, exercise) {
                             </div>
                         </div>
                         `
-    exerciseDiv.appendChild(brokenSetButton(i, exercise.id))
-    return exerciseDiv
+    exerciseDetailsDiv.appendChild(brokenSetButton(i, exercise.id))
+    return exerciseDetailsDiv
 }
 // -------------------------- //
 // LOAD WORKOUT //  
@@ -362,4 +372,4 @@ function start_workout(workout_plan_id) {
 // EXPORTS       //
 //---------------//
 
-export { start_workout };
+export { start_workout, createExerciseDetailsDiv, create_exercise_in_workout };

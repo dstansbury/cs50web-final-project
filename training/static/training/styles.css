@@ -162,6 +162,10 @@ body {
 #swap-exercise-form {
   margin: 15px;
 }
+
+#swap-exercise-dropdown {
+  margin-top: 10px;
+}
             
 /* ------------------- */
 /* BUTTONS */
