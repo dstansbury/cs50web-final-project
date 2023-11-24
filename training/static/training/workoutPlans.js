@@ -185,15 +185,23 @@ function openWorkoutPlan(workout_plan) {
     }
 
     // add a start workout button
+    const start_workout_action_container = document.createElement('div');
+    start_workout_action_container.className = 'action-buttons-divider start-workout';
+    start_workout_action_container.id = `start-workout-action-container-${workout_plan.id}`;
+    start_workout_action_container.innerHTML=`<hr>`
+    
     const start_workout_action = document.createElement('div');
     start_workout_action.className = 'section-container action';
     start_workout_action.id = `start-workout-action-${workout_plan.id}`;
     start_workout_action.role = 'button';
     start_workout_action.onclick = () => start_workout(workout_plan.id);
-    start_workout_action.innerHTML = `
-        <h4>Start Workout</h4>`;
+    start_workout_action.innerHTML = `   
+    <h4>Start Workout</h4>`;
+
+    start_workout_action_container.append(start_workout_action);
+
     // add the start workout button to the workout plan div
-    workout_plan_detailsDiv.append(start_workout_action);
+    workout_plan_detailsDiv.append(start_workout_action_container);
 }
 
 

@@ -3,7 +3,7 @@
 // -------------------------- //
 
 import { show_section, hide_section } from "./training.js";
-import { create_exercise_in_workout, addDropdownArrowListener, removeEntering } from "./workout.js";
+import { create_exercise_in_workout, addExpandListener, removeEntering } from "./workout.js";
 import { load_workout_plans } from "./workoutPlans.js";
 
 // -------------------------- //
@@ -179,7 +179,7 @@ async function submit_swap_exercise_form(exercise, all_exercises) {
     await exercise_to_swap_out_div.replaceWith(exercise_to_swap_in_div);
 
     // add event listner for the dropdown-arrow
-    addDropdownArrowListener(exercise_to_swap_in);
+    addExpandListener(exercise_to_swap_in);
 
     // Remove the entering class after the animation has finished
     removeEntering(exercise_to_swap_in_div);
@@ -313,23 +313,11 @@ async function submit_add_exercise_form(all_exercises) {
     // create the div for the exercise to add in
     let exercise_to_add_div = await create_exercise_in_workout(exercise_to_add);
     
-    // add the exercise to the DOM above the two workout action buttons
-    // Find the third from last child position
-    let workoutElements = document.querySelector('#workout-elements');
-    let position = workoutElements.children.length - 2;
-    console.log('position: ', position);
-
-    // if position is less than 0, then the workout is empty
-    // so add the exercise to the top of the workout
-    if (position < 0) {
-        position = 0;
-    }
-    
-    // otherwise, add it before the two workout action buttons
-    workoutElements.insertBefore(exercise_to_add_div, workoutElements.children[position]);
+    // add the exercise
+    document.querySelector('#workout-plan').appendChild(exercise_to_add_div)
 
     // add event listner for the dropdown-arrow
-    addDropdownArrowListener(exercise_to_add);
+    addExpandListener(exercise_to_add);
 
     // Remove the entering class after the animation has finished
     removeEntering(exercise_to_add_div);

@@ -32,12 +32,10 @@ let lastSelectedDropdown = '';
 // Hide a section
 function hide_section(section) {
     return new Promise(resolve => {
-        console.log('hiding section: ', section)
         section.classList.add('exiting');
         
         // Listener for end of animation
         function animationEndCallback() {
-            console.log('inside animationEndCallback')
             section.classList.remove('exiting');
             section.style.display = 'none';
             section.removeEventListener('animationend', animationEndCallback);
@@ -386,7 +384,6 @@ async function open_create_workout_plan_form() {
         // Add event listener for the submit button
         const submitWorkoutPlanBtn = document.getElementById('new-workout-plan-save');
         if (submitWorkoutPlanBtn) {
-            console.log('event listener for submit plan is called')
             submitWorkoutPlanBtn.removeEventListener('click', submit_plan);
             submitWorkoutPlanBtn.addEventListener('click', submit_plan);
         }

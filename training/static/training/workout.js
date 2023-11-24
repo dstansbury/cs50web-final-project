@@ -3,6 +3,7 @@
 //---------------//
 
 import { swap_exercise, add_exercise } from "./exercises.js";
+import { hide_section, show_section } from "./training.js";
 
 // -------------------------- //
 // EVENT LISTENERS //
@@ -38,6 +39,10 @@ async function expand_exercise(sectionDiv, exerciseID){
         contract_exercise(expandedSection);
     });
 
+    // hide the move up and move down buttons
+    const moveExerciseButtonsDiv = document.querySelector(`#move-exercise-buttons-${exerciseID}`)
+    moveExerciseButtonsDiv.style.display = 'none';
+
     // add the animation class
     sectionDiv.classList.add('expand');
 
@@ -59,6 +64,10 @@ function contract_exercise(sectionDiv){
     // add the animation class
     sectionDiv.classList.add('contract');
 
+    // show the move up and move down buttons
+    const moveExerciseButtonsDiv = sectionDiv.querySelector('.move-exercise')
+    moveExerciseButtonsDiv.style.display = 'flex';
+
     // hide the expanded exercise information
     let divToHide = null;
     const children = sectionDiv.querySelectorAll('div'); 
@@ -76,6 +85,26 @@ function contract_exercise(sectionDiv){
         sectionDiv.classList.remove('contract');
     });
 }
+
+// move a div up in the DOM
+async function moveUp(sectionDiv) {
+    
+    const parentDiv = sectionDiv.parentNode;
+    
+    const aboveDiv = sectionDiv.previousElementSibling;
+    
+    if (aboveDiv) {
+        // Apply exit animations and wait for them to complete
+        await Promise.all([hide_section(sectionDiv), hide_section(aboveDiv)]);
+
+        // Swap the positions
+        parentDiv.insertBefore(sectionDiv, aboveDiv);
+
+        // Apply enter animations
+        await Promise.all([show_section(sectionDiv), show_section(aboveDiv)]);
+    }
+}
+
 
 //--------------------//
 // Fetch workout plan //
@@ -116,11 +145,11 @@ function createWorkout(workout_plan) {
         document.querySelector("#workout-plan").append(exerciseContainer);
 
         // add event listner for the dropdown-arrow
-        addDropdownArrowListener(exercise);
+        addExpandListener(exercise);
 
         // Remove the entering class after the animation has finished
         removeEntering(exerciseContainer)
-        })
+    })
 
     // Add the add exercise button
     document.querySelector('#secondary-page-action').appendChild(addExerciseButton())
@@ -131,6 +160,12 @@ function createWorkout(workout_plan) {
     document.querySelector('#main-page-action').appendChild(endWorkoutButton())
     // Removed the entering class after the animation has finished
     removeEntering(document.querySelector('#main-page-action'))
+
+    // hide the move up and move down buttons if there is only one exercise
+    if (workout_plan.exercises_in_plan.length === 1) {
+        const moveExerciseButtonsDiv = document.querySelector(`#move-exercise-buttons-${workout_plan.exercises_in_plan[0].id}`)
+        moveExerciseButtonsDiv.style.display = 'none';
+    }
 }
 
 // -------------------------- //
@@ -150,7 +185,7 @@ function swapExerciseButton(exercise) {
 // -------------------------- //
 function viewExerciseHistoryButton(exerciseID) {
     const view_history_action = document.createElement('button');
-    view_history_action.className = 'action-button';
+    view_history_action.className = 'action-button-outline';
     view_history_action.id = `view-history-button-${exerciseID}`
     view_history_action.onclick = () => view_exercise_history(exerciseID)
     view_history_action.innerHTML=`View History`
@@ -166,7 +201,7 @@ function view_exercise_history(exerciseID){
 // -------------------------- //
 function addExerciseButton() {
     const add_exercise_action = document.createElement('div');
-    add_exercise_action.className = 'section-container secondary-action';
+    add_exercise_action.className = 'section-container action';
     add_exercise_action.id = 'add-exercise-action'
     add_exercise_action.onclick = () => add_exercise()
     add_exercise_action.innerHTML=`
@@ -184,7 +219,7 @@ function endWorkoutButton() {
     end_workout_action.id = 'end-workout-action'
     end_workout_action.onclick = () => end_workout(workout_plan_id)
     end_workout_action.innerHTML=`
-                                <h4>End Workout</h4>
+                                <h4>Finish Workout</h4>
                                 `
     return end_workout_action
 }
@@ -198,7 +233,7 @@ function end_workout(workout_plan_id){
 // -------------------------- //
 function brokenSetButton(i, exerciseID) {
     const broken_set_action_container = document.createElement('div');
-    broken_set_action_container.className = 'action-buttons-container broken-set';
+    broken_set_action_container.className = 'action-buttons-container rightalign';
     broken_set_action_container.id = `broken-set-action-container-set-${i}-exercise-${exerciseID}`;
     
     const broken_set_action = document.createElement('button');
@@ -228,6 +263,31 @@ function broken_set(i, exerciseID){
 }
 
 // -------------------------- //
+// Delete Exercise Button      //
+// -------------------------- //
+function deleteExerciseButton(exerciseID) {
+    const delete_exercise_action_container = document.createElement('div');
+    delete_exercise_action_container.className = 'action-buttons-divider delete-exercise';
+    delete_exercise_action_container.id = `delete-exercise-action-container-${exerciseID}`;
+    delete_exercise_action_container.innerHTML=`<hr>`
+
+    const delete_exercise_action = document.createElement('div');
+    delete_exercise_action.className = 'section-container action';
+    delete_exercise_action.id = `delete-exercise-${exerciseID}`;
+    delete_exercise_action.onclick = () => delete_exercise(exerciseID);
+    delete_exercise_action.innerHTML=`
+                                                <h4>Delete Exercise</h4>
+                                            `
+    delete_exercise_action_container.appendChild(delete_exercise_action)
+    return delete_exercise_action_container;
+}
+
+function delete_exercise(exerciseID) {
+    document.querySelector(`#exercise-${exerciseID}-in-workout`).remove();
+}
+
+
+// -------------------------- //
 // Exercise in workout        //
 // -------------------------- //
 
@@ -253,6 +313,12 @@ function create_exercise_in_workout(exercise) {
     exerciseSetsAndRepsCount.innerHTML =`
                                         <p>${exercise.sets_in_workout} x ${exercise.reps_per_set} reps </p>
                                         `
+    // div for move up and move down buttons
+    const moveExerciseButtonsDiv = document.createElement('div')
+    moveExerciseButtonsDiv.className = `action-buttons-container move-exercise rightalign`
+    moveExerciseButtonsDiv.id = `move-exercise-buttons-${exercise.id}`
+    moveExerciseButtonsDiv.appendChild(moveExerciseUpButton(exerciseContainer))
+
     // div for expanded exercise information
     const exerciseInfoExpanded = document.createElement('div')
     exerciseInfoExpanded.className = 'expanded-exercise'
@@ -289,29 +355,49 @@ function create_exercise_in_workout(exercise) {
         // add the exercise info to the expanded exercise div
         exerciseInfoExpanded.appendChild(exerciseDiv)
     }
-
-    // Finished assembling expanded exercise div
+    // Delete Exercise Button
+    let deleteExerciseButtonDiv = deleteExerciseButton(exercise.id)
+    
+    // Finish assembling expanded exercise div
     exerciseInfoExpanded.insertBefore(exerciseActionsDiv, exerciseInfoExpanded.firstChild)
     exerciseInfoExpanded.insertBefore(exerciseDescriptionDiv,exerciseInfoExpanded.firstChild)
+    exerciseInfoExpanded.appendChild(deleteExerciseButtonDiv)
+    
     // Hide the expanded exercise div
     exerciseInfoExpanded.style.display = 'none';
 
     // Assemble the exerciseDiv
     exerciseContainer.appendChild(exerciseNameDiv)
     exerciseContainer.appendChild(exerciseSetsAndRepsCount)
+    exerciseContainer.appendChild(moveExerciseButtonsDiv)
     exerciseContainer.appendChild(exerciseInfoExpanded)
 
     return exerciseContainer
 };
 
 // -------------------------- //
-// Dropdown arrow             //
+// Move exercise up button    //
+// -------------------------- //
+function moveExerciseUpButton(exercise) {
+    const move_exercise_up_action = document.createElement('button');
+    move_exercise_up_action.className = 'action-button-outline';
+    move_exercise_up_action.id = `move-exercise-up-button`
+    move_exercise_up_action.addEventListener('click', function(event) {
+        event.stopPropagation();
+        moveUp(exercise);
+    });
+    move_exercise_up_action.innerHTML=`Move Exercise Up`
+    return move_exercise_up_action
+}
+
+
+// -------------------------- //
+// Expand exercise            //
 // -------------------------- //
 
-function addDropdownArrowListener(exercise) {
-    let dropDownArrow = document.getElementById(`dropdown-arrow-${exercise.id}`);
+function addExpandListener(exercise) {
     let exerciseToExpand = document.getElementById(`exercise-${exercise.id}-in-workout`);
-    dropDownArrow.addEventListener('click', function() {
+    exerciseToExpand.addEventListener('click', function() {
             expand_exercise(exerciseToExpand, exercise.id);
         });
 }
@@ -377,4 +463,4 @@ function start_workout(workout_plan_id) {
 // EXPORTS       //
 //---------------//
 
-export { start_workout, createExerciseDetailsDiv, create_exercise_in_workout, addDropdownArrowListener, removeEntering };
+export { start_workout, createExerciseDetailsDiv, create_exercise_in_workout, addExpandListener, removeEntering };

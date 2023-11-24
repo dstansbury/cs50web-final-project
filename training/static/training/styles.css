@@ -216,7 +216,7 @@ button.action-button-outline:hover {
 }
 
 /* this moves the Broken set button to the right */
-.action-buttons-container.broken-set {
+.action-buttons-container.rightalign {
   display: flex;
   justify-content: right;
   align-items: center;
