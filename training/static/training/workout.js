@@ -2,7 +2,7 @@
 // IMPORTS       //
 //---------------//
 
-import { swap_exercise } from "./exercises.js";
+import { swap_exercise, add_exercise } from "./exercises.js";
 
 // -------------------------- //
 // EVENT LISTENERS //
@@ -110,8 +110,17 @@ function createWorkout(workout_plan) {
     // Divs to hold the details of the exercises in the workout
     // loops through the exercises and creates a div for each
     workout_plan.exercises_in_plan.forEach(exercise =>{
-        create_exercise_in_workout(exercise)
-    })
+        let exerciseContainer = create_exercise_in_workout(exercise)
+        
+        // Add the exercise to the DOM
+        document.querySelector("#workout-plan").append(exerciseContainer);
+
+        // add event listner for the dropdown-arrow
+        addDropdownArrowListener(exercise);
+
+        // Remove the entering class after the animation has finished
+        removeEntering(exerciseContainer)
+        })
 
     // Add the add exercise button
     document.querySelector('#secondary-page-action').appendChild(addExerciseButton())
@@ -164,10 +173,6 @@ function addExerciseButton() {
                                 <h4>Add Exercise</h4>
                                 `
     return add_exercise_action
-}
-
-function add_exercise(){
-    console.log('add exercise button pressed');
 }
 
 // -------------------------- //
@@ -295,21 +300,21 @@ function create_exercise_in_workout(exercise) {
     exerciseContainer.appendChild(exerciseNameDiv)
     exerciseContainer.appendChild(exerciseSetsAndRepsCount)
     exerciseContainer.appendChild(exerciseInfoExpanded)
-    
-    // THIS IS WHERE THE PROBLEM IS
-    // Add the final div to the DOM
-    document.querySelector("#workout-plan").append(exerciseContainer);
 
-    // add event listner for the dropdown-arrow
+    return exerciseContainer
+};
+
+// -------------------------- //
+// Dropdown arrow             //
+// -------------------------- //
+
+function addDropdownArrowListener(exercise) {
     let dropDownArrow = document.getElementById(`dropdown-arrow-${exercise.id}`);
     let exerciseToExpand = document.getElementById(`exercise-${exercise.id}-in-workout`);
     dropDownArrow.addEventListener('click', function() {
             expand_exercise(exerciseToExpand, exercise.id);
-    });
-
-    // Remove the entering class after the animation has finished
-    removeEntering(exerciseContainer)
-};
+        });
+}
 
 // -------------------------- //
 // Exercise Details Div       //
@@ -372,4 +377,4 @@ function start_workout(workout_plan_id) {
 // EXPORTS       //
 //---------------//
 
-export { start_workout, createExerciseDetailsDiv, create_exercise_in_workout };
+export { start_workout, createExerciseDetailsDiv, create_exercise_in_workout, addDropdownArrowListener, removeEntering };
