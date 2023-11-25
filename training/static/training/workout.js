@@ -241,14 +241,11 @@ function end_workout(workout_plan_id){
 
     // get the number of exercises
     let workoutExercisesContainer = document.querySelector('#workout-plan');
-    let workoutExercises = workoutExercisesContainer.querySelectorAll(':scope > *');
 
+    let workoutExercises = workoutExercisesContainer.querySelectorAll(':scope > *');
+    
     // loop through the exercises
     workoutExercises.forEach(exerciseInWorkout => {
-        // get the Div
-        let exerciseDiv = exerciseInWorkout.querySelector(':scope > *');
-        console.log('exerciseDiv: ', exerciseDiv)
-        
         // get the exercise ID
         let exerciseID = exerciseInWorkout.id.match(/exercise-in-workout-container-(\d+)-number-\d+/)[1];
 
@@ -259,26 +256,29 @@ function end_workout(workout_plan_id){
         }
         console.log(exercise)
 
+        // TO DO: ERROR HANDLE IF THERE ARE ANY EMPTY SETS
+
         // get the number of sets
-        let exerciseSetsContainer = exerciseDiv.querySelector(`#expanded-exercise-${exerciseID}`);
-        console.log('exerciseSetsContainer: ', exerciseSetsContainer)
+        let exerciseSetsContainer = document.getElementById(`expanded-exercise-${exerciseID}`);
+        console.log(`We are looking for #expanded-exercise-${exerciseID}`)
         let exerciseSets = exerciseSetsContainer.querySelectorAll(':scope > *');
         console.log('exerciseSets: ', exerciseSets)
 
         // loop through the sets
-        exerciseSets.forEach(set => {
-            // get the set number
-            let setNumber = set.id.match(/set-(\d+)-exercise-\d+/)[1];
+        for (let counter = 1; counter <= exerciseSets.length; counter++) {
 
             // get the rep count
-            let repCount = set.querySelector(`#set-${setNumber}-rep-count-exercise-${exerciseID}`).value;
+            let repCountElement = document.getElementById(`#set-${counter}-rep-count-exercise-${exerciseID}`);
+            let repCount = repCountElement ? repCountElement.value : 0;
 
             // get the weight
-            let weight = set.querySelector(`#set-${setNumber}-weight-exercise-${exerciseID}`).value;
+            let weightElement = document.getElementById(`#set-${counter}-weight-exercise-${exerciseID}`);
+            let weight = weightElement ? weightElement : 0;
             
             // get the units
-            let units = set.querySelector(`#set-${setNumber}-units-exercise-${exerciseID}`).value;
-            
+            let unitsElement = document.getElementById(`#set-${counter}-units-exercise-${exerciseID}`);
+            let units = unitsElement ? unitsElement : 'kg';
+
             // construct the set object
             let setToSubmit = {
                 exerciseID: exerciseID,
@@ -290,7 +290,7 @@ function end_workout(workout_plan_id){
 
             // add the set to the exercise
             exercise.push = setToSubmit
-        })
+        }
 
         // add the exercise to the workout
         exercises_in_workout_to_submit.push = exercise
@@ -514,7 +514,7 @@ function addExpandListener(exercise, counter) {
 function createExerciseDetailsDiv(i, exercise) {
     const exerciseDetailsDiv = document.createElement('div')
     exerciseDetailsDiv.className = 'form-group'
-    exerciseDetailsDiv.id=`exercise-${exercise.id}-details-in-workout`
+    exerciseDetailsDiv.id=`set-${i}-exercise-${exercise.id}-in-workout-container`
     exerciseDetailsDiv.innerHTML=`
                         <hr>
                         <div class="set-number" id="set-${i}-exercise-${exercise.id}">
