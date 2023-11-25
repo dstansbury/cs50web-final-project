@@ -240,10 +240,63 @@ function end_workout(workout_plan_id){
     let exercises_in_workout_to_submit = []
 
     // get the number of exercises
-    let workoutExercises = document.querySelector('#workout-plan')
-    let exercises_in_workout = workoutExercises.children;
+    let workoutExercisesContainer = document.querySelector('#workout-plan');
+    let workoutExercises = workoutExercisesContainer.querySelectorAll(':scope > *');
 
-    console.log('exercises_in_workout: ', exercises_in_workout)
+    // loop through the exercises
+    workoutExercises.forEach(exerciseInWorkout => {
+        // get the Div
+        let exerciseDiv = exerciseInWorkout.querySelector(':scope > *');
+        console.log('exerciseDiv: ', exerciseDiv)
+        
+        // get the exercise ID
+        let exerciseID = exerciseInWorkout.id.match(/exercise-in-workout-container-(\d+)-number-\d+/)[1];
+
+        // construct the exercise object
+        let exercise = {
+            exerciseID: exerciseID,
+            sets: [],
+        }
+        console.log(exercise)
+
+        // get the number of sets
+        let exerciseSetsContainer = exerciseDiv.querySelector(`#expanded-exercise-${exerciseID}`);
+        console.log('exerciseSetsContainer: ', exerciseSetsContainer)
+        let exerciseSets = exerciseSetsContainer.querySelectorAll(':scope > *');
+        console.log('exerciseSets: ', exerciseSets)
+
+        // loop through the sets
+        exerciseSets.forEach(set => {
+            // get the set number
+            let setNumber = set.id.match(/set-(\d+)-exercise-\d+/)[1];
+
+            // get the rep count
+            let repCount = set.querySelector(`#set-${setNumber}-rep-count-exercise-${exerciseID}`).value;
+
+            // get the weight
+            let weight = set.querySelector(`#set-${setNumber}-weight-exercise-${exerciseID}`).value;
+            
+            // get the units
+            let units = set.querySelector(`#set-${setNumber}-units-exercise-${exerciseID}`).value;
+            
+            // construct the set object
+            let setToSubmit = {
+                exerciseID: exerciseID,
+                reps: repCount,
+                weight: weight,
+                units: units,
+            }
+            console.log('setToSubmit: ', setToSubmit)
+
+            // add the set to the exercise
+            exercise.push = setToSubmit
+        })
+
+        // add the exercise to the workout
+        exercises_in_workout_to_submit.push = exercise
+    })
+
+
 
     // exercises_in_workout.forEach(exercise => {
     //     // Extract the numeric ID from the element's ID
@@ -297,7 +350,7 @@ function broken_set(i, exerciseID){
 // -------------------------- //
 // Delete Exercise Button     //
 // -------------------------- //
-function deleteExerciseButton(exerciseID) {
+function deleteExerciseButton(exerciseID, counter) {
     const delete_exercise_action_container = document.createElement('div');
     delete_exercise_action_container.className = 'action-buttons-divider delete-exercise';
     delete_exercise_action_container.id = `delete-exercise-action-container-${exerciseID}`;
@@ -306,7 +359,7 @@ function deleteExerciseButton(exerciseID) {
     const delete_exercise_action = document.createElement('div');
     delete_exercise_action.className = 'section-container action';
     delete_exercise_action.id = `delete-exercise-${exerciseID}`;
-    delete_exercise_action.onclick = () => delete_exercise(exerciseID);
+    delete_exercise_action.onclick = () => delete_exercise(exerciseID, counter);
     delete_exercise_action.innerHTML=`
                                                 <h4>Remove Exercise</h4>
                                             `
@@ -314,8 +367,15 @@ function deleteExerciseButton(exerciseID) {
     return delete_exercise_action_container;
 }
 
-function delete_exercise(exerciseID) {
-    document.querySelector(`#exercise-${exerciseID}-in-workout`).remove();
+function delete_exercise(exerciseID, counter) {
+    console.log('delete exercise button pressed: ', document.querySelector(`#exercise-in-workout-container-${exerciseID}-number-${counter}`));
+    document.querySelector(`#exercise-in-workout-container-${exerciseID}-number-${counter}`).remove();
+    // Hide the move up button on the first exercise
+    console.log('calling hideFirstMoveUpButton')
+    hideFirstMoveUpButton();
+    // Show the move up button on the second exercise
+    console.log('calling showSecondMoveUpButton')
+    showSecondMoveUpButton();
 }
 
 
@@ -388,7 +448,7 @@ function create_exercise_in_workout(exercise, counter) {
         exerciseInfoExpanded.appendChild(exerciseDiv)
     }
     // Delete Exercise Button
-    let deleteExerciseButtonDiv = deleteExerciseButton(exercise.id)
+    let deleteExerciseButtonDiv = deleteExerciseButton(exercise.id, counter)
     
     // Finish assembling expanded exercise div
     exerciseInfoExpanded.insertBefore(exerciseActionsDiv, exerciseInfoExpanded.firstChild)
@@ -424,21 +484,15 @@ function moveExerciseUpButton(exercise) {
 
 // Hides the first exercise's move up button
 function hideFirstMoveUpButton() {
-    console.log('hideFirstMoveUpButton called')
     const firstExercise = document.querySelector('#workout-plan').firstElementChild;
-    console.log('firstExercise: ', firstExercise)
     const moveExerciseButtonsDiv = firstExercise.querySelector('.move-exercise')
-    console.log('moveExerciseButtonsDiv: ', moveExerciseButtonsDiv)
     moveExerciseButtonsDiv.style.display = 'none';
 }
 
 // Shows the second exercise's move up button if not already showing
 function showSecondMoveUpButton() {
-    console.log('showSecondMoveUpButton called')
     const secondExercise = document.querySelector('#workout-plan').children[1];
-    console.log('secondExercise: ', secondExercise)
     const moveExerciseButtonsDiv = secondExercise.querySelector('.move-exercise')
-    console.log('moveExerciseButtonsDiv: ', moveExerciseButtonsDiv)
     moveExerciseButtonsDiv.style.display = 'flex';
 }
 
@@ -448,7 +502,6 @@ function showSecondMoveUpButton() {
 
 function addExpandListener(exercise, counter) {
     let exerciseToExpand = document.getElementById(`exercise-in-workout-container-${exercise.id}-number-${counter}`);
-    console.log('exerciseToExpand: ', exerciseToExpand)
     exerciseToExpand.addEventListener('click', function() {
             expand_exercise(exerciseToExpand, exercise.id);
         });
@@ -461,7 +514,7 @@ function addExpandListener(exercise, counter) {
 function createExerciseDetailsDiv(i, exercise) {
     const exerciseDetailsDiv = document.createElement('div')
     exerciseDetailsDiv.className = 'form-group'
-    exerciseDetailsDiv.id=`exercise-in-workout-${exercise.id}`
+    exerciseDetailsDiv.id=`exercise-${exercise.id}-details-in-workout`
     exerciseDetailsDiv.innerHTML=`
                         <hr>
                         <div class="set-number" id="set-${i}-exercise-${exercise.id}">
