@@ -40,6 +40,28 @@ END HOME (INDEX)
 """
 
 """
+PROFILE
+"""
+def profile(request, userID):
+    # Check if the user is logged in, if not send to login page
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    
+    # Security check
+    userOwned(request, userID)
+
+    if request.method == "GET":
+        return render(request, "training/profile.html", {
+            "userID": userID,
+            "username": request.user.username
+        })
+    
+"""
+END PROFILE
+"""
+
+
+"""
 WORKOUT PLANS
 """
 def workout_plans(request, userID):
@@ -264,23 +286,84 @@ def workouts(request, userID, workout_plan_id):
     userOwned(request, userID)
 
     if request.method == "GET":
-        # grab the workout plan info from the DB and return them as JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            workout_plan = WorkoutPlan.objects.get(id=workout_plan_id)
+        # if a specific workout plan was requested
+        if workout_plan_id != None:
+            # grab the workout plan info from the DB and return them as JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                workout_plan = WorkoutPlan.objects.get(id=workout_plan_id)
 
-            serialized_workout_plan = workout_plan.serialize()
+                serialized_workout_plan = workout_plan.serialize()
 
-            print(f"serialized_workout_plan: {serialized_workout_plan}")
+                print(f"serialized_workout_plan: {serialized_workout_plan}")
+                
+                return JsonResponse(serialized_workout_plan, safe=False)
             
-            return JsonResponse(serialized_workout_plan, safe=False)
-        
-        #If it's not an AJAX request, render the workout plans page
+            #If it's not an AJAX request, render the workout plans page
+            else:
+                return render(request, "training/workout.html", {
+                    "userID": userID,
+                    "username": request.user.username,
+                    "workout_plan_id": workout_plan_id
+                })
+        # if no specific workout plan was requested
         else:
-            return render(request, "training/workout.html", {
-                "userID": userID,
-                "username": request.user.username,
-                "workout_plan_id": workout_plan_id
-            })
+            # grab all the user's info from the DB and return them as JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                workouts = Workout.objects.filter(user=request.user)
+
+                serialized_workouts = []
+                
+                for workout in workouts:
+                    serialized_workouts.append(workout.serialize())
+                
+                return JsonResponse(serialized_workouts, safe=False)
+            
+            #If it's not an AJAX request, render the workout plans page
+            else:
+                return render(request, "training/profile.html", {
+                    "userID": userID,
+                    "username": request.user.username
+                })
+    if request.method == "POST":
+        try:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                
+                # Get the data from the request
+                data = json.loads(request.body)
+
+                # Check essential data is there
+                if not data.get("workout_plan_id"):
+                    return JsonResponse({"error": "Missing necessary fields."}, status=400)
+                
+                # Create the new workout plan
+                new_workout = Workout(
+                    title=data.get("title"),
+                    description=data.get("description"),
+                    plan_user=User.objects.get(id=data.get("user_id")),
+                )
+                # Save the new workout plan
+                new_workout.save()
+                print(f"new workout saved: {new_workout}")
+
+                exercises_in_workout = data.get("exercises_in_workout")
+                for exercise_data in exercises_in_workout:
+                    
+                    new_exercise_in_workout_plan = ExerciseInWorkoutPlan(
+                        workout=new_workout,
+                        sets_in_workout=exercise_data.get("exerciseSets"),
+                        reps_per_set=exercise_data.get("exerciseReps"),
+                        exercise=Exercise.objects.get(id=exercise_data.get("exerciseID")),
+                        )
+                    print(f"new_exercise_in_workout_plan is {new_exercise_in_workout_plan}")
+                    new_exercise_in_workout_plan.save()
+                    print(f"new exercise in workout plan saved: {new_exercise_in_workout_plan}")
+
+                # Return a success HTTP response
+                return JsonResponse({"message": "Workout Plan successfully created."}, status=201) 
+        
+        except Exception as e:
+            print(f"error is {e}")
+            return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)
 
 """
 LOGIN

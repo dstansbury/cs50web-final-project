@@ -102,6 +102,12 @@ async function moveUp(sectionDiv) {
 
         // Apply enter animations
         await Promise.all([show_section(sectionDiv), show_section(aboveDiv)]);
+
+        // Hide the move up button on the first exercise
+        hideFirstMoveUpButton();
+
+        // Show the move up button on the second exercise if not already showing
+        showSecondMoveUpButton();
     }
 }
 
@@ -135,37 +141,34 @@ function createWorkout(workout_plan) {
     document.querySelector('#workout-page-title').innerHTML=`
                                                         <h2>${workout_plan.title}</h2>
                                                         `
+    // add the add exercise button
+    document.querySelector('#workout-page-title').append(addExerciseButton())
 
     // Divs to hold the details of the exercises in the workout
     // loops through the exercises and creates a div for each
+    let counter = 0;
     workout_plan.exercises_in_plan.forEach(exercise =>{
-        let exerciseContainer = create_exercise_in_workout(exercise)
+        let exerciseContainer = create_exercise_in_workout(exercise, counter)
+        
         
         // Add the exercise to the DOM
         document.querySelector("#workout-plan").append(exerciseContainer);
 
         // add event listner for the dropdown-arrow
-        addExpandListener(exercise);
+        addExpandListener(exercise, counter);
+        counter += 1;
 
         // Remove the entering class after the animation has finished
         removeEntering(exerciseContainer)
     })
-
-    // Add the add exercise button
-    document.querySelector('#secondary-page-action').appendChild(addExerciseButton())
-    //Remove the entering class after the animation has finished
-    removeEntering(document.querySelector('#secondary-page-action'))
 
     // Add the end workout button
     document.querySelector('#main-page-action').appendChild(endWorkoutButton())
     // Removed the entering class after the animation has finished
     removeEntering(document.querySelector('#main-page-action'))
 
-    // hide the move up and move down buttons if there is only one exercise
-    if (workout_plan.exercises_in_plan.length === 1) {
-        const moveExerciseButtonsDiv = document.querySelector(`#move-exercise-buttons-${workout_plan.exercises_in_plan[0].id}`)
-        moveExerciseButtonsDiv.style.display = 'none';
-    }
+    // hide the move up button in first exercise
+    hideFirstMoveUpButton()
 }
 
 // -------------------------- //
@@ -200,13 +203,11 @@ function view_exercise_history(exerciseID){
 // Add exercise button        //
 // -------------------------- //
 function addExerciseButton() {
-    const add_exercise_action = document.createElement('div');
-    add_exercise_action.className = 'section-container action';
-    add_exercise_action.id = 'add-exercise-action'
+    const add_exercise_action = document.createElement('button');
+    add_exercise_action.className = 'action-button';
+    add_exercise_action.id = 'add-exercise-button'
     add_exercise_action.onclick = () => add_exercise()
-    add_exercise_action.innerHTML=`
-                                <h4>Add Exercise</h4>
-                                `
+    add_exercise_action.innerHTML=`Add Exercise`
     return add_exercise_action
 }
 
@@ -219,13 +220,44 @@ function endWorkoutButton() {
     end_workout_action.id = 'end-workout-action'
     end_workout_action.onclick = () => end_workout(workout_plan_id)
     end_workout_action.innerHTML=`
-                                <h4>Finish Workout</h4>
+                                <h4>End Workout</h4>
                                 `
     return end_workout_action
 }
 
 function end_workout(workout_plan_id){
     console.log('end workout button pressed');
+    // gather all the info in the workout
+    
+    // create a workout object
+    let workoutDetails = {
+        workoutPlan: workout_plan_id,
+        userID: userID,
+    }
+    console.log('workoutDetails: ', workoutDetails)
+    
+    // create an exercises_in_workout object
+    let exercises_in_workout_to_submit = []
+
+    // get the number of exercises
+    let workoutExercises = document.querySelector('#workout-plan')
+    let exercises_in_workout = workoutExercises.children;
+
+    console.log('exercises_in_workout: ', exercises_in_workout)
+
+    // exercises_in_workout.forEach(exercise => {
+    //     // Extract the numeric ID from the element's ID
+    //     let match = exercise.id.match(/exercise-(\d+)-in-workout/);
+    //     if (match && match[1]) {
+    //         exerciseID = parseInt(match[1], 10);
+    //         let exerciseID = parseInt(match[1], 10);
+
+
+        
+
+    // send it to the server
+
+    // redirect to the user profile page
 }
 
 // -------------------------- //
@@ -263,7 +295,7 @@ function broken_set(i, exerciseID){
 }
 
 // -------------------------- //
-// Delete Exercise Button      //
+// Delete Exercise Button     //
 // -------------------------- //
 function deleteExerciseButton(exerciseID) {
     const delete_exercise_action_container = document.createElement('div');
@@ -276,7 +308,7 @@ function deleteExerciseButton(exerciseID) {
     delete_exercise_action.id = `delete-exercise-${exerciseID}`;
     delete_exercise_action.onclick = () => delete_exercise(exerciseID);
     delete_exercise_action.innerHTML=`
-                                                <h4>Delete Exercise</h4>
+                                                <h4>Remove Exercise</h4>
                                             `
     delete_exercise_action_container.appendChild(delete_exercise_action)
     return delete_exercise_action_container;
@@ -291,11 +323,11 @@ function delete_exercise(exerciseID) {
 // Exercise in workout        //
 // -------------------------- //
 
-function create_exercise_in_workout(exercise) {
+function create_exercise_in_workout(exercise, counter) {
     // Set up the section div for the exercise
     const exerciseContainer = document.createElement('div')
     exerciseContainer.className="section-container entering"
-    exerciseContainer.id = `exercise-${exercise.id}-in-workout`
+    exerciseContainer.id = `exercise-in-workout-container-${exercise.id}-number-${counter}`
     
     // div for exercise name
     const exerciseNameDiv = document.createElement('div')
@@ -333,7 +365,7 @@ function create_exercise_in_workout(exercise) {
     let exerciseDescription = '';
     if (!exercise.description) {
         // Assign an empty string if description is not available
-        exerciseDescription = 'DESCRIPTION GOES HERE';
+        exerciseDescription = '';
     } else {
         // Assign the actual description if available
         exerciseDescription = exercise.description;
@@ -390,13 +422,33 @@ function moveExerciseUpButton(exercise) {
     return move_exercise_up_action
 }
 
+// Hides the first exercise's move up button
+function hideFirstMoveUpButton() {
+    console.log('hideFirstMoveUpButton called')
+    const firstExercise = document.querySelector('#workout-plan').firstElementChild;
+    console.log('firstExercise: ', firstExercise)
+    const moveExerciseButtonsDiv = firstExercise.querySelector('.move-exercise')
+    console.log('moveExerciseButtonsDiv: ', moveExerciseButtonsDiv)
+    moveExerciseButtonsDiv.style.display = 'none';
+}
+
+// Shows the second exercise's move up button if not already showing
+function showSecondMoveUpButton() {
+    console.log('showSecondMoveUpButton called')
+    const secondExercise = document.querySelector('#workout-plan').children[1];
+    console.log('secondExercise: ', secondExercise)
+    const moveExerciseButtonsDiv = secondExercise.querySelector('.move-exercise')
+    console.log('moveExerciseButtonsDiv: ', moveExerciseButtonsDiv)
+    moveExerciseButtonsDiv.style.display = 'flex';
+}
 
 // -------------------------- //
 // Expand exercise            //
 // -------------------------- //
 
-function addExpandListener(exercise) {
-    let exerciseToExpand = document.getElementById(`exercise-${exercise.id}-in-workout`);
+function addExpandListener(exercise, counter) {
+    let exerciseToExpand = document.getElementById(`exercise-in-workout-container-${exercise.id}-number-${counter}`);
+    console.log('exerciseToExpand: ', exerciseToExpand)
     exerciseToExpand.addEventListener('click', function() {
             expand_exercise(exerciseToExpand, exercise.id);
         });
@@ -463,4 +515,4 @@ function start_workout(workout_plan_id) {
 // EXPORTS       //
 //---------------//
 
-export { start_workout, createExerciseDetailsDiv, create_exercise_in_workout, addExpandListener, removeEntering };
+export { start_workout, createExerciseDetailsDiv, create_exercise_in_workout, addExpandListener, removeEntering, hideFirstMoveUpButton };

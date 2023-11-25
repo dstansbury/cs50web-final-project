@@ -1,5 +1,7 @@
 {% extends "training/layout.html" %}
 
+{% load static %}
+
 {% block body %}
 
     <div class="page-container" id="profile-page-container">
@@ -15,16 +17,21 @@
         </div>
     {% endif %}
 
-        <div class="section-container" id="profile-exercises">
-            Exercises
+        <div class="page-content" id="profile-personal-information">
         </div>
 
-        <div class="section-container" id="profile-workouts">
-            Workout Plans
+        <div class="page-content" id="profile-workout-history">
         </div>
 
-        <div class="section-container" id="profile-personal-information">
-            Personal Information
-        </div>
     </div>
 {% endblock %}
+
+{% block script %}
+    {{ block.super }}
+    <script>
+        var workout_plan_id = "{{ workout_plan_id }}";
+    </script>
+    <script type="module" src="{% static 'training/exercises.js' %}"></script>
+    <script type="module" src="{% static 'training/profile.js' %}"></script>
+{% endblock %}
+```

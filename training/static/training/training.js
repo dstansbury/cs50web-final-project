@@ -213,7 +213,6 @@ function fetch_user_exercises(userID) {
 // SUBMIT THE WORKOUT PLAN FORM //
 
 function submit_plan() {
-    console.log('submit plan is called')
     let planDetails = {
         "title" : document.getElementById('new-workout-plan-title').value,
         "description" : document.getElementById('new-workout-plan-description').value,
@@ -367,7 +366,7 @@ async function open_create_workout_plan_form() {
             removeExerciseFromFormBtn.addEventListener('click', remove_exercise_from_form);
         }
 
-        // add event listener for if use selects add new exercise in dropdown
+        // add event listener for if user selects add new exercise in dropdown
         document.getElementById('new-exercises').addEventListener('change', function(event) {
             if(event.target.id.startsWith('new-exercise-name') && event.target.value === 'add-new-exercise') {
                 lastSelectedDropdown = event.target;

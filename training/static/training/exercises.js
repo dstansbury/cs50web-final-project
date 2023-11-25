@@ -3,7 +3,7 @@
 // -------------------------- //
 
 import { show_section, hide_section } from "./training.js";
-import { create_exercise_in_workout, addExpandListener, removeEntering } from "./workout.js";
+import { create_exercise_in_workout, addExpandListener, removeEntering, hideFirstMoveUpButton } from "./workout.js";
 import { load_workout_plans } from "./workoutPlans.js";
 
 // -------------------------- //
@@ -77,6 +77,7 @@ async function swap_exercise(exercise) {
     let swap_exercise_form = createSwapExerciseForm(exercise, dropdown, userExercises);
     document.querySelector('#exercise-adjustments').appendChild(swap_exercise_form);
     show_section(swap_exercise_form);
+
 }
 
 // Create the form
@@ -208,6 +209,10 @@ async function add_exercise() {
     let workout = document.querySelector('#workout-elements');
     workout.style.display = 'none';
 
+    // hide the add exercise button
+    let add_exercise_btn = document.querySelector('#add-exercise-button');
+    add_exercise_btn.style.display = 'none';
+
     // fetch exercises
     let userExercises = await fetchUserExercises(userID);
 
@@ -232,7 +237,7 @@ function createAddExerciseForm(dropdown, userExercises) {
     const add_exercise_form_title = document.createElement('div');
     add_exercise_form_title.id = 'add-exercise-form-title';
     add_exercise_form_title.classList = 'section-title';
-    add_exercise_form_title.innerHTML = `<h4>Add Exercise</h4>
+    add_exercise_form_title.innerHTML = `<h4>Add Exercise To Workout</h4>
     <div class="close-section" id="close_add_exercise_form"><strong>Ｘ</strong></div>`;
     
     // event listener for close form button
@@ -327,13 +332,209 @@ async function submit_add_exercise_form(all_exercises) {
 }
 
 // Close the form
-function close_add_exercise_form() {
+async function close_add_exercise_form() {
+    await hide_section(document.querySelector('#add-exercise-form-container'))
     document.querySelector('#add-exercise-form-container').remove();
+
+    // show the add exercise button again
+    let add_exercise_btn = document.querySelector('#add-exercise-button');
+    add_exercise_btn.style.display = 'block';
 
     // show the workout again
     let workout = document.querySelector('#workout-elements');
-    show_section(workout)
+    await show_section(workout)
 }
+
+// // -------------------------- //
+// // CREATE NEW EXERCISE        //
+// // -------------------------- //
+
+// // Create a new exercise form
+// async function create_exercise_form() {
+
+//     // Create the new exercise form
+//     const form_container = document.createElement('div');
+//     form_container.className = 'section-container entering';
+//     form_container.id = 'create-exercise-form-container';
+    
+//     // div for form title
+//     const form_title = document.createElement('div');
+//     form_title.className = 'section-title';
+//     form_title.id = 'create_exercise_form_title';
+//     form_title.innerHTML = `
+//                         <h3>New Exercise</h3>
+//                         <div class="close-section" id="close_create_exercise_form"><strong>Ｘ</strong></div>
+//                         `
+//     // div for form body
+//     const form_body = document.createElement('form');
+//     form_body.className = 'form-container';
+//     form_body.id = 'create-exercise-form';
+//     form_body.innerHTML = `
+//                 <label>Exercise Name</label>
+//                 <input type="text" class="form-control" id="new-exercise-name" placeholder="Exercise name">
+//             </div>
+//             <div class="form-group">
+//                 <label>Exercise Description</label>
+//                 <textarea class="form-control" id="new-exercise-description" placeholder="Exercise description"></textarea>
+//             </div>
+//             <div class="section-container action" id="new-exercise-save" role="button">
+//                 <h4>Save Exercise</h4>
+//             </div>
+//     `;
+
+//     // assemble the form and append to DOM
+//     form_container.appendChild(form_title);
+//     form_container.appendChild(form_body);
+
+//     // Add the form to the DOM
+//     document.getElementById('exercise-adjustments').appendChild(form_container);
+    
+//     setTimeout(() => {
+//         // Set focus to the "Exercise Name" input field
+//         const newExerciseNameInput = document.getElementById('new-exercise-name');
+//         if (newExerciseNameInput) {
+//             newExerciseNameInput.focus();
+//         }
+//     }, 0);
+
+//     // Add an event listener for the animation end
+//     form_container.addEventListener('animationend', function animationEndCallback() {
+//         form_container.classList.remove('entering');
+//         form_container.removeEventListener('animationend', animationEndCallback);
+//     });
+
+    // // Add event listener for the close button
+    // const closeExerciseFormBtn = document.getElementById('close_create_exercise_form');
+    // if (closeExerciseFormBtn) {
+    //     closeExerciseFormBtn.addEventListener('click', closeExerciseForm);
+    // }
+
+    // // Add event listener for saving the new exercise
+    // const saveNewExerciseBtn = document.getElementById('new-exercise-save');
+    // if (saveNewExerciseBtn) {
+    //     saveNewExerciseBtn.addEventListener('click', save_new_exercise);
+    // }
+//}
+
+// // SAVE THE EXERCISE FORM DATA IN THE DB
+
+// // Save the new exercise 
+// async function save_new_exercise() {
+//     // Get the new exercise data from the form
+//     const exerciseName = document.getElementById('new-exercise-name').value;
+//     const exerciseDescription = document.getElementById('new-exercise-description').value;
+
+//     // Create the new exercise object
+//     const newExercise = {
+//         "name": exerciseName,
+//         "description": exerciseDescription,
+//         "user_id": userID
+//     }
+
+//     // Check the user has not entered a blank exercise name
+//     if (!newExercise.name || newExercise.name.trim() === '') {
+//         alert('Exercise name cannot be blank');
+//         return;
+//     }
+
+//     // Check the user has not entered 'Add new exercise' as the exercise name
+//     if (newExercise.name.toLowerCase() === 'add new exercise') {
+//         alert('Cannot add "Add new exercise" as an exercise name');
+//         return;
+//     }
+
+//     // Check the user hasn't added an exercise that already exists
+//     let existingExercise = fetchedExercises.find(exercise => exercise.name.toLowerCase() === newExercise.name.toLowerCase());
+//     if (existingExercise) {
+//         alert('Exercise already exists');
+//         return;
+//     }
+
+//     // Get the CSRF token from the meta tag
+//     const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+
+//     // POST the new exercise to the DB
+//     await fetch(`/${userID}/exercises/`, {
+//         method: 'POST',
+//         body: JSON.stringify(newExercise),
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-Requested-With': 'XMLHttpRequest',
+//             'X-CSRFToken': csrf_token,
+//         }
+//     })
+//         .catch(error => {
+//             console.error('Error submitting new exercise to DB:', error);
+//             throw error;
+//         })
+
+//     // Fetch exercises from DB again so we can update the front end
+//     await fetch_user_exercises(userID);
+//     console.log("added new exercise. fetchedExercises: ", fetchedExercises)
+
+//     // Call the update front end function
+//     update_exercises_front_end(newExercise);
+// }
+
+// // UPDATE THE FRONT END WITH NEW EXERCISE INFO WITHOUT PAGE RELOAD
+
+// // Update the front end with the new exercise
+// function update_exercises_front_end(newExercise) {
+
+//     // Grab all the current entries before we regenerate the dropdown menus
+//     let currentEntries = [];
+//     let dropdowns = document.querySelectorAll('select[id^="new-exercise-name"]');
+//     dropdowns.forEach(dropdown => {
+//         currentEntries.push(dropdown.value);
+//     });
+    
+//     // Clear all the dropdown menus
+//     dropdowns.forEach(dropdown => {
+//         dropdown.innerHTML = '';
+//     });
+
+//     // Regenerate the dropdown menus
+//     const exerciseDropdown = generate_exercise_dropdown();
+
+//     // Add the newly generated dropdown menus to the DOM
+//     dropdowns.forEach(dropdown => {
+//         dropdown.innerHTML = exerciseDropdown;
+//     });
+
+//     // Remove the new exercise form
+//     let createExerciseForm = document.getElementById('create-exercise-form-container');
+//     hide_section(createExerciseForm);
+//     // and remove it so that it is created fresh next time.
+//     createExerciseForm.remove();
+
+//     // Add the previously entered entries back into the dropdown menus
+//     dropdowns.forEach((dropdown, index) => {
+//         let currentEntry = currentEntries[index];
+//         let options = dropdown.options;
+//         for(let j = 0; j < options.length; j++) {
+//             if(options[j].value === currentEntry) {
+//                 dropdown.value = options[j].value;
+//                 break;
+//             }
+//         }
+//     });
+
+//     // Update the selection in the last selected dropdown menu to the newly created exercise
+//     let options = lastSelectedDropdown.options;
+//     for(let i = 0; i < options.length; i++) {
+//         if(options[i].text === newExercise.name) {
+//             options[i].selected=true;
+//             break;
+//         }
+//     }
+
+//     // Set focus to the last selected dropdown menu
+//     lastSelectedDropdown.focus();
+
+//     // reshow the create workout plan form
+//     let createWorkoutPlanForm = document.getElementById('create-workout-plan-form-container');
+//     show_section(createWorkoutPlanForm);
+// }
 
 // -------------------------- //
 // EXPORTS                    //
