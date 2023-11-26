@@ -268,25 +268,24 @@ function end_workout(workout_plan_id){
         // TO DO: ERROR HANDLE IF THERE ARE ANY EMPTY SETS
 
         // get the number of sets
-        let exerciseSetsContainer = document.getElementById(`expanded-exercise-${exerciseID}`);
-        console.log(`We are looking for #expanded-exercise-${exerciseID}`)
-        let exerciseSets = exerciseSetsContainer.querySelectorAll(':scope > *');
+        let expandedExerciseContainer = document.getElementById(`expanded-exercise-${exerciseID}`);
+        let exerciseSets = expandedExerciseContainer.querySelectorAll('[id^="set-"][id$="-in-workout-container"]');
         console.log('exerciseSets: ', exerciseSets)
 
-        // loop through the sets
-        for (let counter = 1; counter <= exerciseSets.length; counter++) {
+        // loop through the sets.
+        for (let counter = 1; counter <= (exerciseSets.length); counter++) {
             console.log('counter: ', counter)
 
-            // get the rep count
-            let repCountElement = document.getElementById(`#set-${counter}-rep-count-exercise-${exerciseID}`);
+            // get the rep count set-${i}-rep-count-exercise-${exercise.id}
+            let repCountElement = document.getElementById(`set-${counter}-rep-count-exercise-${exerciseID}`);
             let repCount = repCountElement ? repCountElement.value : 0;
 
             // get the weight
-            let weightElement = document.getElementById(`#set-${counter}-weight-exercise-${exerciseID}`);
+            let weightElement = document.getElementById(`set-${counter}-weight-exercise-${exerciseID}`);
             let weight = weightElement ? weightElement : 0;
             
             // get the units
-            let unitsElement = document.getElementById(`#set-${counter}-units-exercise-${exerciseID}`);
+            let unitsElement = document.getElementById(`set-${counter}-units-exercise-${exerciseID}`);
             let units = unitsElement ? unitsElement : 'kg';
 
             // construct the set object
@@ -304,7 +303,7 @@ function end_workout(workout_plan_id){
         // add the exercise to the workout
         exercises_in_workout_to_submit.push = exercise
 
-        console.log('exercises_in_workout_to_submit: ', exercises_in_workout_to_submit)
+        //console.log('exercises_in_workout_to_submit: ', exercises_in_workout_to_submit)
     })
 
 
