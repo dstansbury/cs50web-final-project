@@ -53,8 +53,11 @@ async function expand_exercise(sectionDiv, exerciseID){
     divToShow.style.display = 'block';
 
     // focus on the title section of the div
-    const titleDiv = document.querySelector(`#exercise-in-workout-name-${exerciseID}`)
-    titleDiv.focus();
+    const titleDiv = sectionDiv.querySelector(`[id^="exercise-in-workout-name-${exerciseID}"]`);
+    if (titleDiv) {
+        titleDiv.setAttribute('tabindex', '-1');
+        titleDiv.focus();
+    }
 }
 
 function contract_exercise(sectionDiv){
@@ -84,6 +87,12 @@ function contract_exercise(sectionDiv){
     sectionDiv.addEventListener('animationend', function() {
         sectionDiv.classList.remove('contract');
     });
+
+    // hide the move up button if the first section
+    hideFirstMoveUpButton();
+
+    // show the move up button if second section
+    showSecondMoveUpButton();
 }
 
 // move a div up in the DOM
@@ -266,6 +275,7 @@ function end_workout(workout_plan_id){
 
         // loop through the sets
         for (let counter = 1; counter <= exerciseSets.length; counter++) {
+            console.log('counter: ', counter)
 
             // get the rep count
             let repCountElement = document.getElementById(`#set-${counter}-rep-count-exercise-${exerciseID}`);
@@ -286,7 +296,6 @@ function end_workout(workout_plan_id){
                 weight: weight,
                 units: units,
             }
-            console.log('setToSubmit: ', setToSubmit)
 
             // add the set to the exercise
             exercise.push = setToSubmit
@@ -294,6 +303,8 @@ function end_workout(workout_plan_id){
 
         // add the exercise to the workout
         exercises_in_workout_to_submit.push = exercise
+
+        console.log('exercises_in_workout_to_submit: ', exercises_in_workout_to_submit)
     })
 
 
@@ -348,33 +359,45 @@ function broken_set(i, exerciseID){
 }
 
 // -------------------------- //
+// Add Set Button             //
+// -------------------------- //
+
+function addSetButton(exerciseID, counter) {
+    const add_set_action_container = document.createElement('div');
+    add_set_action_container.className = 'action-buttons-divider add-set';
+    add_set_action_container.id = `add-set-action-container-${exerciseID}-number-${counter}`;
+    add_set_action_container.innerHTML=`<hr>`
+
+    const add_set_action = document.createElement('div');
+    add_set_action.className = 'section-container action';
+    add_set_action.id = `add-set-${exerciseID}-number-${counter}`;
+    add_set_action.onclick = () => add_set(exerciseID, counter);
+    add_set_action.innerHTML=`<h4>Add Set</h4>`
+
+    add_set_action_container.appendChild(add_set_action)
+    return add_set_action_container;
+}
+
+// -------------------------- //
 // Delete Exercise Button     //
 // -------------------------- //
 function deleteExerciseButton(exerciseID, counter) {
-    const delete_exercise_action_container = document.createElement('div');
-    delete_exercise_action_container.className = 'action-buttons-divider delete-exercise';
-    delete_exercise_action_container.id = `delete-exercise-action-container-${exerciseID}`;
-    delete_exercise_action_container.innerHTML=`<hr>`
-
-    const delete_exercise_action = document.createElement('div');
-    delete_exercise_action.className = 'section-container action';
-    delete_exercise_action.id = `delete-exercise-${exerciseID}`;
-    delete_exercise_action.onclick = () => delete_exercise(exerciseID, counter);
-    delete_exercise_action.innerHTML=`
-                                                <h4>Remove Exercise</h4>
-                                            `
-    delete_exercise_action_container.appendChild(delete_exercise_action)
-    return delete_exercise_action_container;
+    const delete_exercise_button = document.createElement('button');
+    delete_exercise_button.className = 'action-button-outline';
+    delete_exercise_button.id = `delete-exercise-${exerciseID}`;
+    delete_exercise_button.onclick = () => delete_exercise(exerciseID, counter);
+    delete_exercise_button.innerHTML=`Remove Exercise`
+    return delete_exercise_button;
 }
 
-function delete_exercise(exerciseID, counter) {
-    console.log('delete exercise button pressed: ', document.querySelector(`#exercise-in-workout-container-${exerciseID}-number-${counter}`));
+async function delete_exercise(exerciseID, counter) {
+    // animate the removal of the section
+    await hide_section(document.querySelector(`#exercise-in-workout-container-${exerciseID}-number-${counter}`));
+    // Remove the exercise from the DOM
     document.querySelector(`#exercise-in-workout-container-${exerciseID}-number-${counter}`).remove();
     // Hide the move up button on the first exercise
-    console.log('calling hideFirstMoveUpButton')
     hideFirstMoveUpButton();
     // Show the move up button on the second exercise
-    console.log('calling showSecondMoveUpButton')
     showSecondMoveUpButton();
 }
 
@@ -392,7 +415,7 @@ function create_exercise_in_workout(exercise, counter) {
     // div for exercise name
     const exerciseNameDiv = document.createElement('div')
     exerciseNameDiv.className = `section-title`
-    exerciseNameDiv.id = `exercise-in-workout-name-${exercise.id}`
+    exerciseNameDiv.id = `exercise-in-workout-name-${exercise.id}-number-${counter}`
     exerciseNameDiv.innerHTML=`
                                 <h4>${exercise.name}</h4>
                                 <div role="button" class="dropdown-arrow" id="dropdown-arrow-${exercise.id}">▼</div>
@@ -401,14 +424,15 @@ function create_exercise_in_workout(exercise, counter) {
     // div for sets and reps count
     const exerciseSetsAndRepsCount = document.createElement('div')
     exerciseSetsAndRepsCount.className = 'sets-and-reps-count'
-    exerciseSetsAndRepsCount.id = `sets-and-reps-count-${exercise.id}`
+    exerciseSetsAndRepsCount.id = `sets-and-reps-count-${exercise.id}-number-${counter}`
     exerciseSetsAndRepsCount.innerHTML =`
                                         <p>${exercise.sets_in_workout} x ${exercise.reps_per_set} reps </p>
                                         `
     // div for move up and move down buttons
     const moveExerciseButtonsDiv = document.createElement('div')
-    moveExerciseButtonsDiv.className = `action-buttons-container move-exercise rightalign`
+    moveExerciseButtonsDiv.className = `action-buttons-container move-exercise`
     moveExerciseButtonsDiv.id = `move-exercise-buttons-${exercise.id}`
+    moveExerciseButtonsDiv.appendChild(deleteExerciseButton(exercise.id, counter))
     moveExerciseButtonsDiv.appendChild(moveExerciseUpButton(exerciseContainer))
 
     // div for expanded exercise information
@@ -447,13 +471,16 @@ function create_exercise_in_workout(exercise, counter) {
         // add the exercise info to the expanded exercise div
         exerciseInfoExpanded.appendChild(exerciseDiv)
     }
+    // Add set button
+    let addSetButtonDiv = addSetButton(exercise.id, counter)
+    
     // Delete Exercise Button
     let deleteExerciseButtonDiv = deleteExerciseButton(exercise.id, counter)
     
     // Finish assembling expanded exercise div
     exerciseInfoExpanded.insertBefore(exerciseActionsDiv, exerciseInfoExpanded.firstChild)
     exerciseInfoExpanded.insertBefore(exerciseDescriptionDiv,exerciseInfoExpanded.firstChild)
-    exerciseInfoExpanded.appendChild(deleteExerciseButtonDiv)
+    exerciseInfoExpanded.appendChild(addSetButtonDiv)
     
     // Hide the expanded exercise div
     exerciseInfoExpanded.style.display = 'none';
@@ -502,7 +529,8 @@ function showSecondMoveUpButton() {
 
 function addExpandListener(exercise, counter) {
     let exerciseToExpand = document.getElementById(`exercise-in-workout-container-${exercise.id}-number-${counter}`);
-    exerciseToExpand.addEventListener('click', function() {
+    let clickablePartOfExerciseDiv = document.getElementById(`exercise-in-workout-name-${exercise.id}-number-${counter}`);
+    clickablePartOfExerciseDiv.addEventListener('click', function() {
             expand_exercise(exerciseToExpand, exercise.id);
         });
 }
