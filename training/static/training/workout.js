@@ -364,18 +364,33 @@ function broken_set(i, exerciseID){
 function addSetButton(exerciseID, counter) {
     const add_set_action_container = document.createElement('div');
     add_set_action_container.className = 'action-buttons-divider add-set';
-    add_set_action_container.id = `add-set-action-container-${exerciseID}-number-${counter}`;
+    add_set_action_container.id = `add-set-action-container-${exerciseID}`;
     add_set_action_container.innerHTML=`<hr>`
 
     const add_set_action = document.createElement('div');
     add_set_action.className = 'section-container action';
-    add_set_action.id = `add-set-${exerciseID}-number-${counter}`;
-    add_set_action.onclick = () => add_set(exerciseID, counter);
+    add_set_action.id = `add-set-${exerciseID}`;
+    add_set_action.onclick = () => add_set(exerciseID);
     add_set_action.innerHTML=`<h4>Add Set</h4>`
 
     add_set_action_container.appendChild(add_set_action)
     return add_set_action_container;
 }
+
+function add_set(exerciseID) {
+    // find all the divs of sets currently in the exercise
+    let setsInExercise = document.querySelectorAll(`[id^="set-"][id$="${exerciseID}-in-workout-container"]`);
+    
+    // add new set
+    let newSet = createExerciseDetailsDiv((setsInExercise.length+1), exerciseID)
+    
+    // get the div of the previous set
+    let previousSet = document.getElementById(`set-${setsInExercise.length}-exercise-${exerciseID}-in-workout-container`)
+
+    // add the new set after it
+    previousSet.insertAdjacentElement('afterend', newSet)
+}
+
 
 // -------------------------- //
 // Delete Exercise Button     //
