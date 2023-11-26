@@ -159,7 +159,6 @@ function createWorkout(workout_plan) {
     workout_plan.exercises_in_plan.forEach(exercise =>{
         let exerciseContainer = create_exercise_in_workout(exercise, counter)
         
-        
         // Add the exercise to the DOM
         document.querySelector("#workout-plan").append(exerciseContainer);
 
@@ -361,34 +360,95 @@ function broken_set(i, exerciseID){
 // Add Set Button             //
 // -------------------------- //
 
-function addSetButton(exerciseID, counter) {
-    const add_set_action_container = document.createElement('div');
-    add_set_action_container.className = 'action-buttons-divider add-set';
-    add_set_action_container.id = `add-set-action-container-${exerciseID}`;
-    add_set_action_container.innerHTML=`<hr>`
+function addSetButton(exerciseID) {
+    const add_set_button = document.createElement('button');
+    add_set_button.className = 'action-button';
+    add_set_button.id = `add-set-button-${exerciseID}`;
+    add_set_button.onclick = () => add_set(exerciseID);
+    add_set_button.innerHTML=`Add Set`
 
-    const add_set_action = document.createElement('div');
-    add_set_action.className = 'section-container action';
-    add_set_action.id = `add-set-${exerciseID}`;
-    add_set_action.onclick = () => add_set(exerciseID);
-    add_set_action.innerHTML=`<h4>Add Set</h4>`
-
-    add_set_action_container.appendChild(add_set_action)
-    return add_set_action_container;
+    return add_set_button;
 }
 
 function add_set(exerciseID) {
     // find all the divs of sets currently in the exercise
     let setsInExercise = document.querySelectorAll(`[id^="set-"][id$="${exerciseID}-in-workout-container"]`);
-    
+    console.log('exerciseID: ', exerciseID)
     // add new set
     let newSet = createExerciseDetailsDiv((setsInExercise.length+1), exerciseID)
     
     // get the div of the previous set
     let previousSet = document.getElementById(`set-${setsInExercise.length}-exercise-${exerciseID}-in-workout-container`)
 
-    // add the new set after it
-    previousSet.insertAdjacentElement('afterend', newSet)
+    if (previousSet) {
+        // add the new set after it
+        previousSet.insertAdjacentElement('afterend', newSet)
+    }
+    else {
+        // add the new set before the add and remove sets div
+        let addAndRemoveSetsDivContainer = document.getElementById(`add-and-remove-sets-container-${exerciseID}`)
+        addAndRemoveSetsDivContainer.insertAdjacentElement('beforebegin', newSet)
+    }
+
+    // show the remove set button if we have just added the first set
+    if (setsInExercise.length+1 === 1) {
+        showRemoveSetButton(exerciseID)
+    }
+}
+
+// -------------------------- //
+// Remove Set Button          //
+// -------------------------- //
+
+function removeSetButton(exerciseID) {
+    const remove_set_button = document.createElement('button');
+    remove_set_button.className = 'action-button';
+    remove_set_button.id = `remove-set-button-${exerciseID}`;
+    remove_set_button.onclick = () => remove_set(exerciseID);
+    remove_set_button.innerHTML=`Remove Set`
+    return remove_set_button;
+}
+
+function remove_set(exerciseID) {
+    // find all the divs of sets currently in the exercise
+    let setsInExercise = document.querySelectorAll(`[id^="set-"][id$="${exerciseID}-in-workout-container"]`);
+
+    console.log('setsInExercise: ', setsInExercise)
+    console.log('setsInExercise.length: ', setsInExercise.length)
+
+    // get the div of the final set in the exercise
+    let finalSet = document.getElementById(`set-${setsInExercise.length}-exercise-${exerciseID}-in-workout-container`)
+
+    if (finalSet){
+        // remove the final set
+        finalSet.remove()
+    }
+    else {
+        console.log('ERROR: no sets to remove')
+    }
+
+    // hide the remove set button if there are no sets left after performing the remove
+    if (setsInExercise.length-1 === 0) {
+        hideRemoveSetButton(exerciseID)
+    }
+}
+
+function hideRemoveSetButton(exerciseID) {
+    let removeSetsButton = document.getElementById(`remove-set-button-${exerciseID}`)
+    removeSetsButton.style.display = 'none';
+
+    // maintain the right align of the add set button
+    let addAndRemoveSetsDiv = document.getElementById(`add-and-remove-sets-${exerciseID}`)
+    addAndRemoveSetsDiv.classList.add('rightalign')
+}
+
+function showRemoveSetButton(exerciseID) {
+    let removeSetButton = document.getElementById(`remove-set-button-${exerciseID}`)
+    removeSetButton.style.display = 'block';
+
+    // revert the action container to the flex style
+    let addAndRemoveSetsDiv = document.getElementById(`add-and-remove-sets-${exerciseID}`)
+    addAndRemoveSetsDiv.classList.remove('rightalign')
 }
 
 
@@ -481,20 +541,32 @@ function create_exercise_in_workout(exercise, counter) {
 
     // divs for sets
     for (let i = 1; i <= exercise.sets_in_workout; i++){
-        let exerciseDiv = createExerciseDetailsDiv(i, exercise)
+        let exerciseDiv = createExerciseDetailsDiv(i, exercise.id)
         // add the exercise info to the expanded exercise div
         exerciseInfoExpanded.appendChild(exerciseDiv)
     }
-    // Add set button
-    let addSetButtonDiv = addSetButton(exercise.id, counter)
     
     // Delete Exercise Button
     let deleteExerciseButtonDiv = deleteExerciseButton(exercise.id, counter)
-    
+
+    // Add and Remove Sets div
+    let addAndRemoveSetsDivContainer = document.createElement('div')
+    addAndRemoveSetsDivContainer.className = `add-and-remove-sets-container`
+    addAndRemoveSetsDivContainer.id = `add-and-remove-sets-container-${exercise.id}`
+    addAndRemoveSetsDivContainer.innerHTML=`<hr>`
+
+    let addAndRemoveSetsDiv = document.createElement('div')
+    addAndRemoveSetsDiv.className = 'action-buttons-container'
+    addAndRemoveSetsDiv.id = `add-and-remove-sets-${exercise.id}`
+    addAndRemoveSetsDiv.appendChild(removeSetButton(exercise.id))
+    addAndRemoveSetsDiv.appendChild(addSetButton(exercise.id))
+
+    addAndRemoveSetsDivContainer.appendChild(addAndRemoveSetsDiv)
+
     // Finish assembling expanded exercise div
     exerciseInfoExpanded.insertBefore(exerciseActionsDiv, exerciseInfoExpanded.firstChild)
     exerciseInfoExpanded.insertBefore(exerciseDescriptionDiv,exerciseInfoExpanded.firstChild)
-    exerciseInfoExpanded.appendChild(addSetButtonDiv)
+    exerciseInfoExpanded.appendChild(addAndRemoveSetsDivContainer)
     
     // Hide the expanded exercise div
     exerciseInfoExpanded.style.display = 'none';
@@ -553,26 +625,26 @@ function addExpandListener(exercise, counter) {
 // Exercise Details Div       //
 // -------------------------- //
 
-function createExerciseDetailsDiv(i, exercise) {
+function createExerciseDetailsDiv(i, exerciseID) {
     const exerciseDetailsDiv = document.createElement('div')
     exerciseDetailsDiv.className = 'form-group'
-    exerciseDetailsDiv.id=`set-${i}-exercise-${exercise.id}-in-workout-container`
+    exerciseDetailsDiv.id=`set-${i}-exercise-${exerciseID}-in-workout-container`
     exerciseDetailsDiv.innerHTML=`
                         <hr>
-                        <div class="set-number" id="set-${i}-exercise-${exercise.id}">
+                        <div class="set-number" id="set-${i}-exercise-${exerciseID}">
                             <strong> Set ${i} </strong>
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label>Reps completed</label>
-                                    <input type="number" class="form-control" id="set-${i}-rep-count-exercise-${exercise.id}" min="1" step="1" placeholder="Enter Reps">  
+                                    <input type="number" class="form-control" id="set-${i}-rep-count-exercise-${exerciseID}" min="1" step="1" placeholder="Enter Reps">  
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Weight</label>
-                                    <input type="number" class="form-control" id="set-${i}-weight-exercise-${exercise.id}" min="1" step="0.01" placeholder="Enter Weight">
+                                    <input type="number" class="form-control" id="set-${i}-weight-exercise-${exerciseID}" min="1" step="0.01" placeholder="Enter Weight">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label>Units</label>
-                                    <select class="form-control" id="set-${i}-units-exercise-${exercise.id}">
+                                    <select class="form-control" id="set-${i}-units-exercise-${exerciseID}">
                                         <option value="" selected>Kg</option>
                                         <option value="">Lbs</option> 
                                     </select>
@@ -580,7 +652,7 @@ function createExerciseDetailsDiv(i, exercise) {
                             </div>
                         </div>
                         `
-    exerciseDetailsDiv.appendChild(brokenSetButton(i, exercise.id))
+    exerciseDetailsDiv.appendChild(brokenSetButton(i, exerciseID))
     return exerciseDetailsDiv
 }
 // -------------------------- //
