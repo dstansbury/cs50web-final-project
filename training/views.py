@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -10,7 +11,7 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.shortcuts import render, redirect, HttpResponseRedirect, HttpResponse
 
-from .models import Exercise, User, BodyWeight, WorkoutPlan, Workout, ExerciseInWorkoutPlan, ExerciseInWorkout, TrainingSet, BrokenSet, PersonalBest
+from .models import Exercise, User, BodyWeight, WorkoutPlan, Workout, ExerciseInWorkoutPlan, ExerciseInWorkout, TrainingSet, PersonalBest
 """ 
 SECURITY CHECKS
 """
@@ -330,33 +331,40 @@ def workouts(request, userID, workout_plan_id):
                 
                 # Get the data from the request
                 data = json.loads(request.body)
-
+                print(f"SAVING WORKOUT TO DB:\n\n {data}\n\n")
+        
                 # Check essential data is there
-                if not data.get("workout_plan_id"):
+                if not data.get("exercises"):
                     return JsonResponse({"error": "Missing necessary fields."}, status=400)
                 
                 # Create the new workout plan
                 new_workout = Workout(
-                    title=data.get("title"),
-                    description=data.get("description"),
-                    plan_user=User.objects.get(id=data.get("user_id")),
+                    user=User.objects.get(id=data.get("userID")),
+                    workout_plan=WorkoutPlan.objects.get(id=data.get("workoutPlan")),
+                    date=datetime.now(),
                 )
                 # Save the new workout plan
                 new_workout.save()
                 print(f"new workout saved: {new_workout}")
 
-                exercises_in_workout = data.get("exercises_in_workout")
+                exercises_in_workout = data.get("exercises")
                 for exercise_data in exercises_in_workout:
-                    
-                    new_exercise_in_workout_plan = ExerciseInWorkoutPlan(
+                    new_exercise_in_workout = ExerciseInWorkout(
                         workout=new_workout,
-                        sets_in_workout=exercise_data.get("exerciseSets"),
-                        reps_per_set=exercise_data.get("exerciseReps"),
-                        exercise=Exercise.objects.get(id=exercise_data.get("exerciseID")),
+                        exercise=Exercise.objects.get(id=int(exercise_data.get("exerciseID")))
                         )
-                    print(f"new_exercise_in_workout_plan is {new_exercise_in_workout_plan}")
-                    new_exercise_in_workout_plan.save()
-                    print(f"new exercise in workout plan saved: {new_exercise_in_workout_plan}")
+                    new_exercise_in_workout.save()
+                    print(f"new exercise in workout saved: {new_exercise_in_workout}")
+                
+                    for training_set in exercise_data["sets"]:
+                        new_training_set = TrainingSet(
+                            exercise=new_exercise_in_workout,
+                            weight=training_set.get("weight"),
+                            reps=training_set.get("reps"),
+                            unit=training_set.get("units"),
+                            )
+                        new_training_set.save()
+                        print(f"new training set saved: {new_training_set}")
 
                 # Return a success HTTP response
                 return JsonResponse({"message": "Workout Plan successfully created."}, status=201) 

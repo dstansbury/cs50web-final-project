@@ -21,7 +21,7 @@ class Exercise(models.Model):
         }
     
     def __str__(self): 
-         return (f"{self.added_by_user}: {self.name}")
+         return (f"{self.added_by_user}: {self.name}, ID: {self.id}")
     
     
 class User(AbstractUser):
@@ -57,7 +57,7 @@ class WorkoutPlan(models.Model):
         exercises_details = []
         for exercise_detail in self.exerciseinworkoutplan_set.all():
             exercises_details.append({
-                "id": exercise_detail.id,
+                "id": exercise_detail.exercise.id,
                 "name": exercise_detail.exercise.name,
                 "sets_in_workout": exercise_detail.sets_in_workout,
                 "reps_per_set": exercise_detail.reps_per_set,
@@ -123,7 +123,7 @@ class ExerciseInWorkout(models.Model):
         }
     
     def __str__(self): 
-         return (f"{self.exercise.name} in {self.workout.name}")
+         return (f"{self.exercise.name} in workout {self.workout.id}")
 
 class TrainingSet(models.Model):
     id = models.AutoField(primary_key=True, null=False)
@@ -131,7 +131,6 @@ class TrainingSet(models.Model):
     weight = models.DecimalField(max_digits=5, decimal_places=2, null=False, blank=False)
     reps = models.IntegerField(null=False, blank=False)
     unit = models.CharField(max_length=7, choices=WeightUnit.choices, default=WeightUnit.UNKNOWN, null=False, blank=False)
-    is_broken_set = models.BooleanField(default=False, null=False)
 
     def serialize(self):
         return {
@@ -140,27 +139,10 @@ class TrainingSet(models.Model):
             "weight": self.weight,
             "reps": self.reps,
             "unit": self.unit,
-            "is_broken_set": self.is_broken_set,
         }
     
     def __str__(self): 
-         return (f"{self.exercise.exercise.name} in {self.exercise.workout.name}")
-
-class BrokenSet(models.Model):
-    id = models.AutoField(primary_key=True, null=False)
-    set = models.ForeignKey(TrainingSet, on_delete=models.CASCADE, related_name="broken_set", null=False, blank=False)
-    weight = models.DecimalField(max_digits=5, decimal_places=2, null=False, blank=False)
-    reps = models.IntegerField(null=False, blank=False)
-    unit = models.CharField(max_length=7, choices=WeightUnit.choices, default=WeightUnit.UNKNOWN, null=False, blank=False)
-    
-    def serialize(self):
-        return {
-            "id": self.id,
-            "set": self.set,
-            "weight": self.weight,
-            "reps": self.reps,
-            "unit": self.unit,
-        }
+         return (f"{self.exercise.exercise.name} in workout {self.exercise.workout.id}")
     
 class PersonalBest(models.Model):
     id = models.AutoField(primary_key=True, null=False)

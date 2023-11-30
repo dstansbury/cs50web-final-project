@@ -4,6 +4,7 @@
 
 import { swap_exercise, add_exercise } from "./exercises.js";
 import { hide_section, show_section } from "./training.js";
+import { loadProfilePage } from "./profile.js";
 
 // -------------------------- //
 // EVENT LISTENERS //
@@ -137,6 +138,37 @@ function fetchWorkoutPlan(workout_plan_id) {
         });
 }
 
+//-------------------//
+// Submit workout    //
+//-------------------//
+
+function submitWorkoutToDB(workout_to_submit, workout_plan_id) {
+    // Get the CSRF token from the meta tag
+    const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+
+    // Add the CSRF token to the headers
+    return fetch(`/${userID}/workouts/${workout_plan_id}`, {
+        method: 'POST',
+        headers: { 
+            'X-Requested-With': 'XMLHttpRequest', 
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf_token, 
+        },
+        body: JSON.stringify(workout_to_submit)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Error submitting workout:', error);
+        throw error;
+    });
+}
+
+
 //----------------//
 // CREATE WORKOUT //
 //----------------//
@@ -233,19 +265,18 @@ function endWorkoutButton() {
     return end_workout_action
 }
 
-function end_workout(workout_plan_id){
-    console.log('end workout button pressed');
-    // gather all the info in the workout
+// ----------- //
+// End workout //
+// ----------- //
+
+async function end_workout(workout_plan_id){
     
     // create a workout object
     let workoutDetails = {
         workoutPlan: workout_plan_id,
         userID: userID,
+        exercises:[],
     }
-    console.log('workoutDetails: ', workoutDetails)
-    
-    // create an exercises_in_workout object
-    let exercises_in_workout_to_submit = []
 
     // get the number of exercises
     let workoutExercisesContainer = document.querySelector('#workout-plan');
@@ -260,100 +291,96 @@ function end_workout(workout_plan_id){
         // construct the exercise object
         let exercise = {
             exerciseID: exerciseID,
+            name: document.querySelector(`[id^="exercise-in-workout-name-${exerciseID}"] h4`).innerText,
             sets: [],
         }
-        console.log(exercise)
-
-        // TO DO: ERROR HANDLE IF THERE ARE ANY EMPTY SETS
 
         // get the number of sets
         let expandedExerciseContainer = document.getElementById(`expanded-exercise-${exerciseID}`);
         let exerciseSets = expandedExerciseContainer.querySelectorAll('[id^="set-"][id$="-in-workout-container"]');
-        console.log('exerciseSets: ', exerciseSets)
 
         // loop through the sets.
         for (let counter = 1; counter <= (exerciseSets.length); counter++) {
-            console.log('counter: ', counter)
 
             // get the rep count set-${i}-rep-count-exercise-${exercise.id}
-            let repCountElement = document.getElementById(`set-${counter}-rep-count-exercise-${exerciseID}`);
-            let repCount = repCountElement ? repCountElement.value : 0;
+            let repCountElement = document.getElementById(`set-${counter}-rep-count-exercise-${exerciseID}`).value;
+            let repCount = repCountElement ? repCountElement : 0;
 
             // get the weight
-            let weightElement = document.getElementById(`set-${counter}-weight-exercise-${exerciseID}`);
+            let weightElement = document.getElementById(`set-${counter}-weight-exercise-${exerciseID}`).value;
             let weight = weightElement ? weightElement : 0;
             
             // get the units
-            let unitsElement = document.getElementById(`set-${counter}-units-exercise-${exerciseID}`);
+            let unitsElement = document.getElementById(`set-${counter}-units-exercise-${exerciseID}`).value;
             let units = unitsElement ? unitsElement : 'kg';
 
             // construct the set object
             let setToSubmit = {
+                setNumber: counter,
                 exerciseID: exerciseID,
                 reps: repCount,
                 weight: weight,
                 units: units,
             }
-
-            // add the set to the exercise
-            exercise.push = setToSubmit
+            // add the set to the exercise's sets array
+            exercise.sets.push(setToSubmit);
         }
 
         // add the exercise to the workout
-        exercises_in_workout_to_submit.push = exercise
-
-        //console.log('exercises_in_workout_to_submit: ', exercises_in_workout_to_submit)
+        workoutDetails.exercises.push(exercise);
     })
 
+    // warn the user they have blank items and seek confirmation of submit
+    // if they confirm, submit the workout
+    // if they don't confirm, do nothing
+    let hasBlankItems = checkForBlankItems(workoutDetails.exercises);
+    if (hasBlankItems) {
+        // Warn the user and seek confirmation
+        let confirmSubmit = window.confirm(`MISSING INFORMATION\n\n Are you sure you want to submit the workout? \n\n ${hasBlankItems}`);
+        if (!confirmSubmit) {
+            // User did not confirm; exit the function
+            return;
+        }else {
+            // User confirmed; continue
+            await submitWorkoutToDB(workoutDetails, workout_plan_id)
 
-
-    // exercises_in_workout.forEach(exercise => {
-    //     // Extract the numeric ID from the element's ID
-    //     let match = exercise.id.match(/exercise-(\d+)-in-workout/);
-    //     if (match && match[1]) {
-    //         exerciseID = parseInt(match[1], 10);
-    //         let exerciseID = parseInt(match[1], 10);
-
-
-        
-
-    // send it to the server
-
-    // redirect to the user profile page
+            // redirect to the user's profile page
+            console.log('calling loadProfilePage')
+            loadProfilePage(userID)
+        }
+    }
 }
 
 // -------------------------- //
-// Broken set button          //
+// Check for incomplete items  //
 // -------------------------- //
-function brokenSetButton(i, exerciseID) {
-    const broken_set_action_container = document.createElement('div');
-    broken_set_action_container.className = 'action-buttons-container rightalign';
-    broken_set_action_container.id = `broken-set-action-container-set-${i}-exercise-${exerciseID}`;
-    
-    const broken_set_action = document.createElement('button');
-    broken_set_action.className = 'action-button-outline';
-    broken_set_action.id = `broken-set-button-set-${i}-exercise-${exerciseID}`;
-    broken_set_action.onclick = () => broken_set(i, exerciseID)
-    broken_set_action.innerHTML=`Broken Set`
 
-    broken_set_action_container.appendChild(broken_set_action)
-
-    return broken_set_action_container
-}
-
-function broken_set(i, exerciseID){
-    let j = `${i}.1`
-    const brokenSetDiv = document.createElement('div')
-    brokenSetDiv.className = 'broken-set'
-    brokenSetDiv.id = `broken-set-${j}-exercise-${exerciseID}`
-    let brokenSetInfo = createExerciseDetailsDiv(j, exerciseID)
-    brokenSetDiv.appendChild(brokenSetInfo) 
-
-    const setDiv = document.getElementById(`set-${i}-exercise-${exerciseID}`)
-    const brokenSetButtonToReplace = document.getElementById(`broken-set-action-container-set-${i}-exercise-${exerciseID}`)
-    console.log('setDiv: ', setDiv)
-    console.log('brokenSetButtonToReplace: ', brokenSetButtonToReplace)
-    setDiv.parentElement.replaceChild(brokenSetDiv, brokenSetButtonToReplace)
+function checkForBlankItems(exercises_in_workout_to_submit) {
+    // Set up error message
+    let errorMessage = '';
+    // loop through the exercises
+    exercises_in_workout_to_submit.forEach(exercise => {
+        // loop through sets
+       exercise.sets.forEach(set => {
+            // check if reps and weight are filled
+            if (set.reps !== 0 && set.weight !== 0) {
+                //pass
+            }
+            // check if reps and weight are blank
+            if (set.reps === 0 && set.weight === 0) {
+                errorMessage += `${exercise.name}: set ${set.setNumber} is missing reps and weight.\n`
+            }
+            // check for blank reps
+            else if (set.reps === 0) {
+                errorMessage += `${exercise.name}: set ${set.setNumber} has a blank rep count.\n`
+            }
+            // check for blank weight
+            else if (set.weight === 0) {
+                errorMessage += `${exercise.name}: set ${set.setNumber} has a blank weight.\n`
+            }
+       })
+    })
+    return errorMessage
 }
 
 // -------------------------- //
@@ -545,9 +572,6 @@ function create_exercise_in_workout(exercise, counter) {
         // add the exercise info to the expanded exercise div
         exerciseInfoExpanded.appendChild(exerciseDiv)
     }
-    
-    // Delete Exercise Button
-    let deleteExerciseButtonDiv = deleteExerciseButton(exercise.id, counter)
 
     // Add and Remove Sets div
     let addAndRemoveSetsDivContainer = document.createElement('div')
@@ -652,7 +676,6 @@ function createExerciseDetailsDiv(i, exerciseID) {
                             </div>
                         </div>
                         `
-    exerciseDetailsDiv.appendChild(brokenSetButton(i, exerciseID))
     return exerciseDetailsDiv
 }
 // -------------------------- //

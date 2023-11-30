@@ -28,8 +28,18 @@ function fetchAllWorkouts(userID) {
             throw error;
         });
 }
-// Load workouts
+
+// -------------------------- //
+// LOAD PROFILE PAGE          //
+// -------------------------- //
+
+// load profile page
+function loadProfilePage(userID) {
+    window.location.href = `/${userID}/profile/`;
+}
 
 // -------------------------- //
 // EXPORTS                    //
 // -------------------------- //
+
+export { fetchAllWorkouts, loadProfilePage };
