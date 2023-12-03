@@ -222,6 +222,14 @@ button.action-button-outline:hover {
   align-items: center;
 }
 
+/* ------------------- */
+/* CHARTS */
+/* ------------------- */
+
+/* Chart container appearance */
+.chart {
+  margin-bottom: 10px;
+}
 
 /* ---------------------- */
 /* ANIMATION DEFINITIONS  */ 

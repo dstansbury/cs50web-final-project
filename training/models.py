@@ -44,7 +44,7 @@ class BodyWeight(models.Model):
         }
     
     def __str__(self):
-        return (f"{self.user.username}: {self.date}")
+        return (f"{self.user.username} body weight on: {self.date}")
 
 class WorkoutPlan(models.Model):
     id = models.AutoField(primary_key=True, null=False)
@@ -83,13 +83,13 @@ class Workout(models.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "user": self.user,
-            "workout_plan": self.workout_plan,
+            "user": self.user.id,
+            "workout_plan": self.workout_plan.title,
             "date": self.date,
         }
     
     def __str__(self):
-        return (f"{self.user.username}: {self.date}")
+        return (f"{self.workout_plan.title}: {self.date}")
 
 class ExerciseInWorkoutPlan(models.Model):
     id = models.AutoField(primary_key=True, null=False)

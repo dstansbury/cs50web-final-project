@@ -4,7 +4,7 @@
 
 import { swap_exercise, add_exercise } from "./exercises.js";
 import { hide_section, show_section } from "./training.js";
-import { loadProfilePage } from "./profile.js";
+import { goToProfilePage } from "./profile.js";
 
 // -------------------------- //
 // EVENT LISTENERS //
@@ -345,8 +345,7 @@ async function end_workout(workout_plan_id){
             await submitWorkoutToDB(workoutDetails, workout_plan_id)
 
             // redirect to the user's profile page
-            console.log('calling loadProfilePage')
-            loadProfilePage(userID)
+            goToProfilePage(userID)
         }
     }
 }

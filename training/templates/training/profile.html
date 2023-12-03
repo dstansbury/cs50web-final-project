@@ -17,10 +17,13 @@
         </div>
     {% endif %}
 
-        <div class="page-content" id="profile-personal-information">
+        <div class="page-content" id="profile-body-weight">
         </div>
 
         <div class="page-content" id="profile-workout-history">
+        </div>
+
+        <div class="page-content" id="profile-manage-exercises">
         </div>
 
     </div>
@@ -32,6 +35,7 @@
         var workout_plan_id = "{{ workout_plan_id }}";
     </script>
     <script type="module" src="{% static 'training/exercises.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="{% static 'training/profile.js' %}"></script>
 {% endblock %}
 ```

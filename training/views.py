@@ -278,7 +278,7 @@ END EXERCISES
 """
 WORKOUTS
 """
-def workouts(request, userID, workout_plan_id):
+def workouts(request, userID, workout_plan_id=None):
     # Check if the user is logged in, if not send to login page
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
@@ -306,17 +306,17 @@ def workouts(request, userID, workout_plan_id):
                     "username": request.user.username,
                     "workout_plan_id": workout_plan_id
                 })
-        # if no specific workout plan was requested
+        # if no specific workout plan was requested, get all the user's workouts
         else:
             # grab all the user's info from the DB and return them as JSON
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                workouts = Workout.objects.filter(user=request.user)
-
+                workouts = Workout.objects.filter(user=userID)
                 serialized_workouts = []
-                
+            
                 for workout in workouts:
                     serialized_workouts.append(workout.serialize())
                 
+                print("\nSuccessfully fetched workouts\n")
                 return JsonResponse(serialized_workouts, safe=False)
             
             #If it's not an AJAX request, render the workout plans page
@@ -369,6 +369,62 @@ def workouts(request, userID, workout_plan_id):
                 # Return a success HTTP response
                 return JsonResponse({"message": "Workout Plan successfully created."}, status=201) 
         
+        except Exception as e:
+            print(f"error is {e}")
+            return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)
+
+
+""" 
+BODY WEIGHTS
+"""
+def bodyWeights(request, userID):
+    # Check if the user is logged in, if not send to login page
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    
+    # Security check
+    userOwned(request, userID)
+
+    if request.method == "GET":
+        # grab all the user's info from the DB and return them as JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            body_weights = BodyWeight.objects.filter(user=userID)
+
+            serialized_body_weights = []
+            
+            for body_weight in body_weights:
+                serialized_body_weights.append(body_weight.serialize())
+            
+            return JsonResponse(serialized_body_weights, safe=False)
+        
+        #If it's not an AJAX request, render the workout plans page
+        else:
+            return render(request, "training/profile.html", {
+                "userID": userID,
+                "username": request.user.username
+            })
+    elif request.method == "POST":
+        try:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                
+                # Get the data from the request
+                data = json.loads(request.body)
+
+                # Check essential data is there
+                if not data.get("weight") or not data.get("unit"):
+                    return JsonResponse({"error": "Missing necessary fields."}, status=400)
+                
+                # Create the new body weight
+                new_body_weight = BodyWeight(
+                    weight=data.get("weight"),
+                    unit=data.get("unit"),
+                    date=datetime.now(),
+                    user=User.objects.get(id=data.get("userID")),
+                )
+                new_body_weight.save()
+
+                # Return a success HTTP response
+                return JsonResponse({"message": "Body Weight successfully created."}, status=201) 
         except Exception as e:
             print(f"error is {e}")
             return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)

@@ -18,6 +18,14 @@ urlpatterns = [
     path("<int:userID>/exercises/", views.exercises, name="exercises"),
 
     # WORKOUTS
+    # single workout
     path("<int:userID>/workouts/<int:workout_plan_id>", views.workouts, name="workouts"),
+    # all workouts
+    path("<int:userID>/workouts/", views.workouts, name="workouts"),
+
+    # BODY WEIGHTS
+    path("<int:userID>/body-weights/", views.bodyWeights, name="bodyWeights"),
+
+
     
 ]
