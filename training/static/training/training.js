@@ -278,11 +278,14 @@ async function open_create_workout_plan_form() {
     // hide all the workout plans and the create workout button
     let promises=[];
     let createWorkoutPlanAction = document.getElementById('create-workout-plan-action');
-    let workoutPlans = document.querySelectorAll('.workout-plan-container');
+    let workoutPlans = document.querySelectorAll('div[id^=workout-plan-container]');
+    console.log('workoutPlans: ', workoutPlans);
     workoutPlans.forEach(workoutPlan => {
+        console.log('hiding workout plan: ', workoutPlan);
         promises.push(hide_section(workoutPlan));
         });
-    promises.push(hide_section(createWorkoutPlanAction))
+
+    promises.push(hide_section(createWorkoutPlanAction));
 
     // wait for all the promises to resolve
     await Promise.all(promises);
@@ -301,6 +304,7 @@ async function open_create_workout_plan_form() {
     // If yes, show it
     let workout_plan_form = document.getElementById('create-workout-plan-form-container');
     if (workout_plan_form) {
+        console.log('showing workout plan form');
         show_section(workout_plan_form);
         return;
     }
