@@ -26,6 +26,9 @@ urlpatterns = [
     # BODY WEIGHTS
     path("<int:userID>/body-weights/", views.bodyWeights, name="bodyWeights"),
 
+    # PERSONAL BEST
+    path("<int:userID>/<int:exerciseID>/personal-best/", views.personalBest, name="personalBest"),
+
 
     
 ]

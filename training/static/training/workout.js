@@ -224,19 +224,70 @@ function swapExerciseButton(exercise) {
 }
 
 // -------------------------- //
-// View history button        //
+// View PB button        //
 // -------------------------- //
-function viewExerciseHistoryButton(exerciseID) {
-    const view_history_action = document.createElement('button');
-    view_history_action.className = 'action-button-outline';
-    view_history_action.id = `view-history-button-${exerciseID}`
-    view_history_action.onclick = () => view_exercise_history(exerciseID)
-    view_history_action.innerHTML=`View History`
-    return view_history_action
+function fetchExercisePB(exerciseID) {
+    return fetch(`/${userID}/${exerciseID}/personal-best/`, { 
+        headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(personal_best => {
+        return personal_best;
+    })
+    .catch(error => {
+        console.error('Error fetching personal best:', error);
+        throw error;
+    });
 }
 
-function view_exercise_history(exerciseID){
-    console.log('view history button pressed');
+async function view_exercise_PB(exerciseID){
+    // fetch exercise PB
+    let personal_best = await fetchExercisePB(exerciseID)
+
+    // Change the button to Hide Personal Best
+    let view_PB_button = document.getElementById(`view-PB-button-${exerciseID}`)
+    view_PB_button.innerHTML = 'Hide Personal Best'
+    view_PB_button.onclick = () => hide_exercise_PB(exerciseID)
+
+    // create the div to hold the PB
+    let PB_div = document.createElement('div')
+    PB_div.className = 'personal-best'
+    PB_div.id = `personal-best-${exerciseID}`
+    
+    // if no PB recorded, display message
+    console.log('personal_best.weight: ', personal_best.weight)
+    if (personal_best.weight === undefined) {
+        PB_div.innerHTML = 'No personal best recorded for this exercise.'
+    }
+    else {
+        PB_div.innerHTML = `<strong>Personal Best:</strong> ${personal_best.weight} kgs`
+    }
+   
+    // add the div to the DOM
+    let exerciseInfoExpanded = document.getElementById(`expanded-exercise-${exerciseID}`)   
+    exerciseInfoExpanded.insertBefore(PB_div, exerciseInfoExpanded.firstChild)
+}
+
+function hide_exercise_PB(exerciseID){
+    // Change the button to View Personal Best
+    let view_PB_button = document.getElementById(`view-PB-button-${exerciseID}`)
+    view_PB_button.innerHTML = 'View Personal Best'
+    view_PB_button.onclick = () => view_exercise_PB(exerciseID)
+
+    // remove the div that holds the PB
+    let PB_div = document.getElementById(`personal-best-${exerciseID}`) 
+    PB_div.remove()
+}
+
+function viewExercisePBButton(exerciseID) {
+    const view_PB_action = document.createElement('button');
+    view_PB_action.className = 'action-button-outline';
+    view_PB_action.id = `view-PB-button-${exerciseID}`
+    view_PB_action.onclick = () => view_exercise_PB(exerciseID)
+    view_PB_action.innerHTML=`View Personal Best`
+    return view_PB_action
 }
 
 // -------------------------- //
@@ -563,7 +614,7 @@ function create_exercise_in_workout(exercise, counter) {
     exerciseActionsDiv.className = `action-buttons-container`
     exerciseActionsDiv.id = `exercise-in-workout-actions-${exercise.id}`
     exerciseActionsDiv.appendChild(swapExerciseButton(exercise))
-    exerciseActionsDiv.appendChild(viewExerciseHistoryButton(exercise.id))
+    exerciseActionsDiv.appendChild(viewExercisePBButton(exercise.id))
 
     // divs for sets
     for (let i = 1; i <= exercise.sets_in_workout; i++){

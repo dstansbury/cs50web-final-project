@@ -149,16 +149,14 @@ class PersonalBest(models.Model):
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, related_name="personal_best", null=False, blank=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="personal_best_user", null=False, blank=False)
     weight = models.DecimalField(max_digits=5, decimal_places=2, null=False, blank=False)
-    unit = models.CharField(max_length=7, choices=WeightUnit.choices, default=WeightUnit.UNKNOWN, null=False, blank=False)
     date = models.DateField(null=False, blank=False)
 
     def serialize(self):
         return {
             "id": self.id,
-            "exercise": self.exercise,
-            "user": self.user,
+            "exercise": self.exercise.id,
+            "user": self.user.id,
             "weight": self.weight,
-            "unit": self.unit,
             "date": self.date,
         }
     

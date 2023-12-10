@@ -27,7 +27,6 @@ function fetchBodyWeights(userID) {
     return fetch(`/${userID}/body-weights`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => response.json())
         .then(bodyWeights => {
-            console.log('Body weights fetched successfully:', bodyWeights);
             return bodyWeights;
         })
         .catch(error => {
@@ -95,7 +94,7 @@ function addWeightMeasurementButton(){
     weightMeasurementButton.className = 'action-button';
     weightMeasurementButton.id = 'weight-measurement-button';
     weightMeasurementButton.innerHTML = 'Log weight';
-    weightMeasurementButton.onClick= addWeight();
+    weightMeasurementButton.onclick= addWeight();
 
     // add button to container
     weightMeasurementButtonContainer.appendChild(weightMeasurementButton);
@@ -107,14 +106,11 @@ function addWeightMeasurementButton(){
 function addWeight() {
     // hide the Add weight button
     let buttonContainer = document.querySelector('#weight-measurement-button-container');
-    console.log('buttonContainer is: ', buttonContainer);
 
     // create a div for the form
     // const weightMeasurementFormContainer = document.createElement('div');
     // weightMeasurementFormContainer.className = 'form-container';
     // weightMeasurementFormContainer.id = 'weight-measurement-container';
-
-    console.log('Add Weight button clicked')
 
 }
 
@@ -135,7 +131,6 @@ function fetchAllWorkouts(userID) {
     return fetch(`/${userID}/workouts`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => response.json())
         .then(workouts => {
-            console.log('Workouts fetched successfully:', workouts);
             return workouts;
         })
         .catch(error => {
@@ -195,7 +190,7 @@ function addShowMoreButton() {
 
 // function for showing more workouts
 function showMoreWorkouts() {
-    console.log('Show more workouts button clicked');
+    return
 }
 
 
@@ -218,10 +213,8 @@ function assembleWorkoutHistory(workouts) {
 // Load profile page
 async function loadProfilePage(userID) {
     let workouts = await fetchAllWorkouts(userID);
-    console.log('Workouts are: ', workouts);
 
     let bodyWeights = await fetchBodyWeights(userID);
-    console.log('Body weights are: ', bodyWeights);
 
     document.querySelector('#profile-body-weight').append(assemblePersonalInfo(bodyWeights));
     document.querySelector('#profile-workout-history').append(assembleWorkoutHistory(workouts));

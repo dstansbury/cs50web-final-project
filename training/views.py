@@ -275,6 +275,40 @@ def exercises(request, userID):
 END EXERCISES
 """
 
+""" 
+PERSONAL BESTS
+"""
+def personalBest(request, userID, exerciseID):
+    # Check if the user is logged in, if not send to login page
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    
+    # Security check
+    userOwned(request, userID)
+
+    if request.method == "GET":
+        # grab all the user's info from the DB and return them as JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            try:
+                personal_best = PersonalBest.objects.get(user=userID, exercise=exerciseID)
+                serialized_personal_best = personal_best.serialize()
+                print(f"serialized_personal_best: {serialized_personal_best}")
+                
+                return JsonResponse(serialized_personal_best, safe=False)
+            except PersonalBest.DoesNotExist:
+                print(f"personal best does not exist")
+                return JsonResponse({}, safe=False)
+        
+        #If it's not an AJAX request, render the workout plans page
+        else:
+            return render(request, "training/profile.html", {
+                "userID": userID,
+                "username": request.user.username
+            })
+"""
+END PERSONAL BESTS
+"""
+
 """
 WORKOUTS
 """
@@ -355,6 +389,10 @@ def workouts(request, userID, workout_plan_id=None):
                         )
                     new_exercise_in_workout.save()
                     print(f"new exercise in workout saved: {new_exercise_in_workout}")
+
+                    # Get the PB for the exerise
+                    personal_best = PersonalBest.objects.get(user=new_workout.user, exercise=new_exercise_in_workout.exercise) 
+                    print(f"personal_best is {personal_best}")
                 
                     for training_set in exercise_data["sets"]:
                         new_training_set = TrainingSet(
@@ -364,6 +402,22 @@ def workouts(request, userID, workout_plan_id=None):
                             unit=training_set.get("units"),
                             )
                         new_training_set.save()
+
+                        if new_training_set.unit == "lbs":
+                            new_training_set_weight_in_kg = new_training_set.weight * 0.45359237
+
+                            # if the weight in the set exceeds the personal best, set that as the personal best
+                            if new_training_set_weight_in_kg > personal_best.weight:
+                                new_personal_best = PersonalBest(
+                                    user=new_workout.user,
+                                    exercise=new_exercise_in_workout.exercise,
+                                    weight=new_training_set.weight,
+                                    reps=new_training_set.reps,
+                                    unit='kg',
+                                    date=datetime.now(),
+                                )
+                                new_personal_best.save()
+                                print(f"new personal best saved: {personal_best}")
                         print(f"new training set saved: {new_training_set}")
 
                 # Return a success HTTP response

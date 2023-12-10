@@ -85,6 +85,11 @@ async function swap_exercise(exercise) {
     document.querySelector('#exercise-adjustments').appendChild(swap_exercise_form);
     show_section(swap_exercise_form);
 
+    // add listner for close the form button
+    let closeBtn = document.querySelector('#close_swap_exercise_form');
+    closeBtn.removeEventListener('click', close_swap_exercise_form);
+    closeBtn.addEventListener('click', close_swap_exercise_form);
+
 }
 
 // Create the form
@@ -101,11 +106,6 @@ function createSwapExerciseForm(exercise, dropdown, userExercises) {
     swap_exercise_form_title.classList = 'section-title';
     swap_exercise_form_title.innerHTML = `<h4>Swap Exercise</h4>
     <div class="close-section" id="close_swap_exercise_form"><strong>Ｘ</strong></div>`;
-    
-    // event listener for close form button
-    const closeBtn = swap_exercise_form_title.querySelector('#close_create_exercise_form');
-    closeBtn.removeEventListener('click', close_swap_exercise_form);
-    closeBtn.addEventListener('click', close_swap_exercise_form);
     
     // form body
     const swap_exercise_form = document.createElement('div');
@@ -197,7 +197,8 @@ async function submit_swap_exercise_form(exercise, all_exercises) {
 }
 
 // Close the form
-function close_swap_exercise_form() {
+async function close_swap_exercise_form() {
+    await hide_section(document.querySelector('#swap-exercise-form-container')) 
     document.querySelector('#swap-exercise-form-container').remove();
 
     // show the workout again
