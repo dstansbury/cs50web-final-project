@@ -746,7 +746,14 @@ async function loadWorkout(workout_plan_id) {
 //---------------//
 
 // Called when Start Workout button is clicked on the workout plan page
-function start_workout(workout_plan_id) {
+async function start_workout(workout_plan_id) {
+    // Hide the section containers currently on page
+    // Get all the section containers
+    const sectionContainers = document.querySelectorAll('.section-container[id^="workout-plan-container"], .section-container[id^="create-workout-plan-action"]');
+    // Hide each section container
+    await Promise.all(Array.from(sectionContainers).map(sectionContainer => hide_section(sectionContainer)));
+
+    // Load the workout page for that plan
     window.location.href = `/${userID}/workouts/${workout_plan_id}`;
 }
 
