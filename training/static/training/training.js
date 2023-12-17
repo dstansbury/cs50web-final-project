@@ -59,24 +59,6 @@ function show_section(section) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // -------------------------- //
 // CREATE WORKOUT PLAN FORM   //
 // STARTS HERE                //

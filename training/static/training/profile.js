@@ -43,16 +43,23 @@ function createPersonalInfoContainer() {
     personalInfoContainer.innerHTML = `
         <div class="section-title" id="personal-info-container-title">
             <h4>Personal Information</h4>
+            <div class="dropdown-arrow">▼</div>
+        </div>
+        <div class="section-content" id="personal-info-container-content" style="display: none">
         </div>
     `;
+    personalInfoContainer.onclick = () => openPersonalInfoContainer();
     return personalInfoContainer;
 }   
 
-// Load body weights into container
+// create chart of body weights
 function addBodyWeightChart(bodyWeights) {
     const ctx = document.createElement('canvas');
     ctx.className = 'chart';
     ctx.id = 'body-weight-chart';
+
+        // Sort bodyWeights by date in ascending order
+    bodyWeights.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     const dates = bodyWeights.map(weight => weight.date);
     const weights = bodyWeights.map(weight => weight.weight);
@@ -104,22 +111,44 @@ function addWeightMeasurementButton(){
 
 // function for adding a weight
 function addWeight() {
-    // hide the Add weight button
-    let buttonContainer = document.querySelector('#weight-measurement-button-container');
-
-    // create a div for the form
-    // const weightMeasurementFormContainer = document.createElement('div');
-    // weightMeasurementFormContainer.className = 'form-container';
-    // weightMeasurementFormContainer.id = 'weight-measurement-container';
-
+    return
 }
 
 // Assemble Personal Information
 function assemblePersonalInfo(bodyWeights) {
     const personalInfoContainer = createPersonalInfoContainer();
-    personalInfoContainer.appendChild(addBodyWeightChart(bodyWeights));
-    personalInfoContainer.appendChild(addWeightMeasurementButton());
+    const personalInfoDetails = personalInfoContainer.querySelector('#personal-info-container-content');
+    personalInfoDetails.appendChild(addBodyWeightChart(bodyWeights));
+    personalInfoDetails.appendChild(addWeightMeasurementButton());
     return personalInfoContainer;
+}
+
+// expand the section on dropdown arrow click
+function openPersonalInfoContainer() {
+    const personalInfoContainer = document.querySelector('#personal-info-container');
+    const personalInfoDetails = document.querySelector('#personal-info-container-content');
+    // check if the Info container is expanded and contract if so
+    if (personalInfoContainer.classList.contains('expand')) {
+        personalInfoContainer.classList.remove('expand')
+        personalInfoContainer.classList.add('contract')
+        personalInfoDetails.style.display = 'none';
+         // on animation end, remove the closed class
+         personalInfoContainer.addEventListener('animationend', function() {
+            personalInfoContainer.classList.remove('contract');
+        });
+        return
+    }else{
+        // if not, expand it
+        personalInfoContainer.classList.remove('contract')
+        personalInfoContainer.classList.add('expand')
+        personalInfoDetails.style.display = 'block';
+    }
+}
+
+// contract the section on dropdown arrow click
+function closePersonalInfoContainer() {
+    const personalInfoDetails = document.querySelector('#personal-info-container-content');
+    personalInfoDetails.style.display = 'none';
 }
 
 // -------------------------- //
@@ -147,8 +176,9 @@ function createWorkoutHistoryContainer() {
     workoutHistoryContainer.innerHTML = `
         <div class="section-title" id="workout-history-container-title">
             <h4>Recent Workouts</h4>
+            <div class="dropdown-arrow">▼</div>
         </div>
-        <div class="section-content" id="workout-history-container-content">
+        <div class="section-content" id="workout-history-container-content" style="display: none">
         </div>
         
     `;
@@ -197,13 +227,65 @@ function showMoreWorkouts() {
 // Assemble Workout History
 function assembleWorkoutHistory(workouts) {
     const workoutHistoryContainer = createWorkoutHistoryContainer();
+    const workoutHistoryDetails = workoutHistoryContainer.querySelector('#workout-history-container-content');
     // Check if there are more than 2 workouts, and slice the array to get the most recent five
     const lastFiveWorkouts = workouts.length > 2 ? workouts.slice(-2) : workouts;
     for (const workout of lastFiveWorkouts){
-        workoutHistoryContainer.appendChild(addWorkout(workout));
+        workoutHistoryDetails.appendChild(addWorkout(workout));
     }
-    workoutHistoryContainer.appendChild(addShowMoreButton());
+    workoutHistoryDetails.appendChild(addShowMoreButton());
     return workoutHistoryContainer;
+}
+
+// -------------------------- //
+// PERSONAL BESTS             //
+// -------------------------- //
+
+// Fetch personal bests
+function fetchPersonalBest(userID, exerciseID) {
+    return fetch(`/${userID}/${exerciseID}/personal-bests`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(response => response.json())
+        .then(personalBest => {
+            return personalBest;
+        })
+        .catch(error => {
+            console.error(`Error fetching personal best for exercise ${exerciseID}: `, error);
+            throw error;
+        });
+}
+
+// Create personal bests container
+function createPersonalBestsContainer() {
+    const personalBestsContainer = document.createElement('div');
+    personalBestsContainer.className='section-container';
+    personalBestsContainer.id = 'personal-bests-container';
+    personalBestsContainer.innerHTML = `
+        <div class="section-title" id="personal-bests-container-title">
+            <h4>Personal Bests</h4>
+            <div class="dropdown-arrow">▼</div>
+        </div>
+        <div class="section-content" id="personal-bests-container-content" style="display: none">
+        </div>
+    `;
+    return personalBestsContainer;
+}
+
+function assemblePersonalBests() {
+    const personalBestsContainer = createPersonalBestsContainer();
+    return personalBestsContainer;
+}
+
+// -------------------------- //
+// WORKOUT NOW BUTTON         //
+// -------------------------- //
+
+// Create workout now button
+function createWorkoutNowButton() {
+    const workoutNowButton = document.createElement('div');
+    workoutNowButton.className = 'section-container action';
+    workoutNowButton.id = 'workout-now-button-profile';
+    workoutNowButton.innerHTML = '<h4> Workout Now </h4>';
+    return workoutNowButton;
 }
 
 // -------------------------- //
@@ -217,7 +299,9 @@ async function loadProfilePage(userID) {
     let bodyWeights = await fetchBodyWeights(userID);
 
     document.querySelector('#profile-body-weight').append(assemblePersonalInfo(bodyWeights));
+    document.querySelector('#profile-personal-bests').append(assemblePersonalBests());
     document.querySelector('#profile-workout-history').append(assembleWorkoutHistory(workouts));
+    document.querySelector('#profile-page-main-action').append(createWorkoutNowButton());
     
 }
 
