@@ -2,6 +2,8 @@
 // IMPORTS                    //
 // -------------------------- //
 
+import { hide_section, show_section } from './training.js';
+
 // -------------------------- //
 // EVENT LISTNERS             //
 // -------------------------- //
@@ -101,7 +103,7 @@ function addWeightMeasurementButton(){
     weightMeasurementButton.className = 'action-button';
     weightMeasurementButton.id = 'weight-measurement-button';
     weightMeasurementButton.innerHTML = 'Log weight';
-    weightMeasurementButton.onclick= addWeight();
+    weightMeasurementButton.onclick = () => addWeightForm();
 
     // add button to container
     weightMeasurementButtonContainer.appendChild(weightMeasurementButton);
@@ -109,9 +111,25 @@ function addWeightMeasurementButton(){
     return weightMeasurementButtonContainer;
 }
 
-// function for adding a weight
-function addWeight() {
-    return
+// function for creating the add Weight form and putting it on the page
+async function addWeightForm() {
+    // hide the section containers
+    const sectionContainers = document.querySelectorAll('.section-container');
+    // Hide each section container
+    await Promise.all(Array.from(sectionContainers).map(sectionContainer => hide_section(sectionContainer)));
+
+    // create the add weight form if it doesn't already exist
+    const addWeightFormContainer = document.querySelector('#add-weight-form-container');
+    if (!addWeightFormContainer) {
+        const newAddWeightForm = createAddWeightForm();
+        document.querySelector("#profile-page-content").appendChild(newAddWeightForm);
+        show_section(newAddWeightForm);
+        newAddWeightForm.style.display = 'flex';
+    } else {
+        // if it does exist, show it
+        show_section(addWeightFormContainer);
+        addWeightFormContainer.style.display = 'flex';
+    }
 }
 
 // Assemble Personal Information
@@ -120,10 +138,12 @@ function assemblePersonalInfo(bodyWeights) {
     const personalInfoDetails = personalInfoContainer.querySelector('#personal-info-container-content');
     personalInfoDetails.appendChild(addBodyWeightChart(bodyWeights));
     personalInfoDetails.appendChild(addWeightMeasurementButton());
+    // set display to none so it can be shown with animation
+    personalInfoContainer.style.display = 'none';
     return personalInfoContainer;
 }
 
-// expand the section on dropdown arrow click
+// expand the section on dropdown arrow click / contract it if already open
 function openPersonalInfoContainer() {
     const personalInfoContainer = document.querySelector('#personal-info-container');
     const personalInfoDetails = document.querySelector('#personal-info-container-content');
@@ -145,10 +165,59 @@ function openPersonalInfoContainer() {
     }
 }
 
-// contract the section on dropdown arrow click
-function closePersonalInfoContainer() {
-    const personalInfoDetails = document.querySelector('#personal-info-container-content');
-    personalInfoDetails.style.display = 'none';
+// -------------------------- //
+// ADD WEIGHT FORM            //
+// -------------------------- //
+
+// Create add weight form
+function createAddWeightForm() {
+    // create container for the form
+    const addWeightFormContainer = document.createElement('div');
+    addWeightFormContainer.className = 'section-container';
+    addWeightFormContainer.id = 'add-weight-form-container';
+
+    // create the form itself
+    const addWeightForm = document.createElement('form');
+    addWeightForm.className = 'form';
+    addWeightForm.id = 'add-weight-form';
+    addWeightForm.style.display = 'none';
+
+    addWeightForm.innerHTML = `
+        <div class="form-title">
+            <h4>Add Weight</h4>
+        </div>
+        <div class="form-content">
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="weight">Weight</label>
+                    <input type="number" name="weight" id="weight" placeholder="-" required>
+                </div>
+                <div class="form-field">
+                    <label for="date">Date</label>
+                    <input type="date" name="date" id="-" required>
+                </div>
+                <div class="form-field">
+                    <label for="Unit">Unit</label>
+                    <select name="unit" id="unit" required>
+                        <option value="kg">kg</option>
+                        <option value="lbs">lbs</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // create the submit button
+    const saveWeightButton = document.createElement('div');
+    saveWeightButton.className = 'section-container action';
+    saveWeightButton.id = 'save-weight-button';
+    saveWeightButton.innerHTML = '<h4> Save Weight </h4>';
+    saveWeightButton.onclick = () => saveWeight();
+
+    addWeightFormContainer.appendChild(addWeightForm);
+    addWeightFormContainer.appendChild(saveWeightButton);
+
+    return addWeightFormContainer;
 }
 
 // -------------------------- //
@@ -234,6 +303,8 @@ function assembleWorkoutHistory(workouts) {
         workoutHistoryDetails.appendChild(addWorkout(workout));
     }
     workoutHistoryDetails.appendChild(addShowMoreButton());
+    // set to none so it can be shown with animation
+    workoutHistoryContainer.style.display = 'none';
     return workoutHistoryContainer;
 }
 
@@ -272,6 +343,8 @@ function createPersonalBestsContainer() {
 
 function assemblePersonalBests() {
     const personalBestsContainer = createPersonalBestsContainer();
+    // set to none so it can be shown with animation
+    personalBestsContainer.style.display = 'none';
     return personalBestsContainer;
 }
 
@@ -285,8 +358,22 @@ function createWorkoutNowButton() {
     workoutNowButton.className = 'section-container action';
     workoutNowButton.id = 'workout-now-button-profile';
     workoutNowButton.innerHTML = '<h4> Workout Now </h4>';
+    workoutNowButton.onclick = () => goToWorkoutNowPage(userID);
+    // set to none to that it can be shown with animation
+    workoutNowButton.style.display = 'none';
     return workoutNowButton;
 }
+
+// redirect to workout_plans page
+async function goToWorkoutNowPage(userID) {
+    // hide all the section-containers on the page
+    const sectionContainers = document.querySelectorAll('.section-container');
+    // Hide each section container
+    await Promise.all(Array.from(sectionContainers).map(sectionContainer => hide_section(sectionContainer)));
+    // redirect to workout_plans page
+    window.location.href = `/${userID}/workout_plans/`;
+}
+
 
 // -------------------------- //
 // LOAD PROFILE PAGE          //
@@ -298,10 +385,22 @@ async function loadProfilePage(userID) {
 
     let bodyWeights = await fetchBodyWeights(userID);
 
-    document.querySelector('#profile-body-weight').append(assemblePersonalInfo(bodyWeights));
-    document.querySelector('#profile-personal-bests').append(assemblePersonalBests());
-    document.querySelector('#profile-workout-history').append(assembleWorkoutHistory(workouts));
-    document.querySelector('#profile-page-main-action').append(createWorkoutNowButton());
+    const profilePageContentContainer = document.querySelector('#profile-page-content');
+
+    profilePageContentContainer.append(assemblePersonalInfo(bodyWeights));
+    profilePageContentContainer.append(assemblePersonalBests());
+    profilePageContentContainer.append(assembleWorkoutHistory(workouts));
+    profilePageContentContainer.append(createWorkoutNowButton());
+
+    // show all the section-containers on the page
+    const sectionContainers = document.querySelectorAll('.section-container');
+
+    // Show each section container
+    await Promise.all(Array.from(sectionContainers).map(sectionContainer => show_section(sectionContainer)));
+
+    // center the workout no button text
+    const workoutNowButton = document.querySelector('#workout-now-button-profile');
+    workoutNowButton.style.display = 'flex';
     
 }
 
