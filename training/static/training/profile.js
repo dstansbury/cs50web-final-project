@@ -201,18 +201,18 @@ function createAddWeightForm() {
             <div class="form-row">
                 <div class="form-group col-md-4" id="add-weight-form-weight">
                     <label>Weight</label>
-                    <input type="number" name="weight" id="weight" placeholder="Enter weight" required>
+                    <input type="number" class="form-control" name="weight" id="weight" placeholder="Enter weight" required>
                 </div>
                 <div class="form-group col-md-4" id="add-weight-form-unit">
-                    <label for="Unit">Unit</label>
-                    <select name="unit" id="unit" required>
+                    <label>Unit</label>
+                    <select class="form-control" name="unit" id="unit" required>
                         <option value="kg">kg</option>
                         <option value="lbs">lbs</option>
                     </select>
                 </div>
-                <div class="form-group col-md-4" id="add-weight-form-date>
-                    <label for="date">Date</label>
-                    <input type="date" name="date" required>
+                <div class="form-group col-md-4" id="add-weight-form-date">
+                    <label>Date</label>
+                    <input class="form-control" type="date" name="date" required>
                 </div>
             </div>
         </div>
@@ -221,11 +221,12 @@ function createAddWeightForm() {
     // create the submit button
     const saveWeightButton = document.createElement('div');
     saveWeightButton.className = 'section-container action';
-    saveWeightButton.id = 'save-weight-button';
+    saveWeightButton.id = 'add-weight-form-submit';
     saveWeightButton.role = 'button';
-    saveWeightButton.innerHTML = '<h4> Save Weight </h4>';
+    saveWeightButton.innerHTML = '<h4> Add Weight </h4>';
     saveWeightButton.onclick = () => saveWeight();
 
+    // assemble the form
     addWeightFormContainer.appendChild(addWeightFormTitle);
     addWeightFormContainer.appendChild(addWeightForm);
     addWeightFormContainer.appendChild(saveWeightButton);
@@ -244,8 +245,6 @@ async function close_add_weight_form() {
     // Show each section container
     await Promise.all(Array.from(sectionContainers).map(sectionContainer => show_section(sectionContainer)));
 }
-
-
 
 // -------------------------- //
 // Workout History            //
