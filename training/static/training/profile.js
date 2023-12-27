@@ -8,10 +8,17 @@ import { hide_section, show_section } from './training.js';
 // EVENT LISTNERS             //
 // -------------------------- //
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Profile page
     if (document.querySelector("#profile-page-container")) {
-        loadProfilePage(userID);
+        await loadProfilePage(userID);
+    }
+    // check for profile page in local storage
+    if (localStorage.getItem('openPersonalInfo') === 'true') {
+        // open the personal info container
+        openPersonalInfoContainer();
+        // remove the flag
+        localStorage.removeItem('openPersonalInfo');
     }
 });
 
@@ -88,7 +95,7 @@ function addBodyWeightChart(bodyWeights) {
             }
         }
     });
-    return ctx
+    return ctx;
 }
 
 // Add weight measurement button
@@ -244,7 +251,70 @@ async function close_add_weight_form() {
     const sectionContainers = document.querySelectorAll('.section-container');
     // Show each section container
     await Promise.all(Array.from(sectionContainers).map(sectionContainer => show_section(sectionContainer)));
+    // open the personal info container
+    openPersonalInfoContainer();
+
 }
+
+// save the new weight to the DB
+async function saveWeight() {
+    // get the form data
+    const addWeightForm = document.querySelector('#add-weight-form');
+    const formData = new FormData(addWeightForm);
+    const weight = formData.get('weight');
+    const unit = formData.get('unit');
+    const date = formData.get('date');
+
+    // if weight is not a number or blank, alert the user
+    if (isNaN(weight) || weight === '') {
+        alert('Please enter a valid weight');
+        return
+    }
+
+    // if date is blank, alert the user 
+    if (date === '') {
+        alert('Please enter a valid date');
+        return
+    }
+
+    // assemble the object to be submitted to DB
+    const newWeight = {
+        weight: weight,
+        unit: unit,
+        date: date,
+        user: userID
+    }
+
+    // get the CSRF token
+    const csrf_token = document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+
+    // send the data to the DB
+    await fetch(`/${userID}/body-weights/`, {
+        method: 'POST',
+        body: JSON.stringify(newWeight),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrf_token,
+        }
+    })
+        .catch(error => {
+            console.error('Error submitting new exercise to DB:', error);
+            throw error;
+        })
+
+    // hide the add weight form
+    const addWeightFormContainer = document.querySelector('#add-weight-form-container');
+    await addWeightFormContainer.remove();
+
+    // Set a flag in localStorage or sessionStorage
+    localStorage.setItem('openPersonalInfo', 'true');
+
+    // reload the page
+    window.location.href = `/${userID}/profile/`;
+}
+
+
 
 // -------------------------- //
 // Workout History            //

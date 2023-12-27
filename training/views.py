@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from decimal import Decimal
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -15,11 +16,11 @@ from .models import Exercise, User, BodyWeight, WorkoutPlan, Workout, ExerciseIn
 """ 
 SECURITY CHECKS
 """
-def userOwned(request, userID):
-    if request.user.id != int(userID):
+def userOwned(currentRequest, userID):
+    if currentRequest.user.id != int(userID):
         # create an error message
-        messages.warning(request, 'Access to others\' information is not allowed. Redirecting to your own profile.')
-        return HttpResponseRedirect(reverse("profile", args=(request.user.id,)))
+        messages.warning(currentRequest, 'Access to others\' information is not allowed. Redirecting to your own profile.')
+        return HttpResponseRedirect(reverse("profile", args=(currentRequest.user.id,)))
 """
 END SECURITY CHECKS
 """
@@ -432,6 +433,7 @@ def workouts(request, userID, workout_plan_id=None):
 BODY WEIGHTS
 """
 def bodyWeights(request, userID):
+    
     # Check if the user is logged in, if not send to login page
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
@@ -447,8 +449,13 @@ def bodyWeights(request, userID):
             serialized_body_weights = []
             
             for body_weight in body_weights:
+                # convert lbs to kg
+                if body_weight.unit == "lbs":
+                    body_weight.weight = body_weight.weight * Decimal(0.45359237)
+                    body_weight.unit = "kg"
                 serialized_body_weights.append(body_weight.serialize())
             
+            # return the body weights
             return JsonResponse(serialized_body_weights, safe=False)
         
         #If it's not an AJAX request, render the workout plans page
@@ -465,20 +472,32 @@ def bodyWeights(request, userID):
                 data = json.loads(request.body)
 
                 # Check essential data is there
-                if not data.get("weight") or not data.get("unit"):
+                if not data.get("weight") or not data.get("date"):
                     return JsonResponse({"error": "Missing necessary fields."}, status=400)
                 
                 # Create the new body weight
                 new_body_weight = BodyWeight(
                     weight=data.get("weight"),
                     unit=data.get("unit"),
-                    date=datetime.now(),
-                    user=User.objects.get(id=data.get("userID")),
+                    date=data.get("date"),
+                    user=User.objects.get(id=data.get("user")),
                 )
-                new_body_weight.save()
+                # Check if a body weight for that user and date already exists 
+                if BodyWeight.objects.filter(user=new_body_weight.user, date=new_body_weight.date).exists():
+                    # if yes, update the existing body weight for that user on that date
+                    existing_body_weight = BodyWeight.objects.get(user=new_body_weight.user, date=new_body_weight.date)
+                    existing_body_weight.weight = new_body_weight.weight
+                    existing_body_weight.unit = new_body_weight.unit
+                    existing_body_weight.save()
+                    print(f'Existing body weight updated: ', existing_body_weight)
+                else:
+                     # Save the new body weight
+                    new_body_weight.save()
+                    print('New body weight saved: ', new_body_weight)
 
                 # Return a success HTTP response
                 return JsonResponse({"message": "Body Weight successfully created."}, status=201) 
+        
         except Exception as e:
             print(f"error is {e}")
             return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=400)

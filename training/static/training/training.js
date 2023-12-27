@@ -48,7 +48,14 @@ function hide_section(section) {
 
 // Show a section container
 function show_section(section) {
-    section.style.display = 'block';
+    // if section's class incudes 'action', set display to flex
+    if (section.classList.contains('action')) {
+        section.style.display = 'flex';
+    }
+    // else set display to block
+    else{
+        section.style.display = 'block';
+    }
     section.classList.add('entering');
     
     // add listener for end of animation
