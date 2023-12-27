@@ -116,7 +116,7 @@ async function addWeightForm() {
     // hide the section containers
     const sectionContainers = document.querySelectorAll('.section-container');
     // Hide each section container
-    await Promise.all(Array.from(sectionContainers).map(sectionContainer => hide_section(sectionContainer)));
+    await Promise.all(Array.from(sectionContainers).map(sectionContainer => sectionContainer.style.display = 'none'));
 
     // create the add weight form if it doesn't already exist
     const addWeightFormContainer = document.querySelector('#add-weight-form-container');
@@ -124,7 +124,7 @@ async function addWeightForm() {
         const newAddWeightForm = createAddWeightForm();
         document.querySelector("#profile-page-content").appendChild(newAddWeightForm);
         show_section(newAddWeightForm);
-        newAddWeightForm.style.display = 'flex';
+        newAddWeightForm.style.display = 'block';
     } else {
         // if it does exist, show it
         show_section(addWeightFormContainer);
@@ -134,9 +134,13 @@ async function addWeightForm() {
 
 // Assemble Personal Information
 function assemblePersonalInfo(bodyWeights) {
+    const ruleOff = document.createElement('hr');
+    ruleOff.className = 'rule-off';
+    ruleOff.id = 'rule-off-personal-info';
     const personalInfoContainer = createPersonalInfoContainer();
     const personalInfoDetails = personalInfoContainer.querySelector('#personal-info-container-content');
     personalInfoDetails.appendChild(addBodyWeightChart(bodyWeights));
+    personalInfoDetails.appendChild(ruleOff);
     personalInfoDetails.appendChild(addWeightMeasurementButton());
     // set display to none so it can be shown with animation
     personalInfoContainer.style.display = 'none';
@@ -176,32 +180,39 @@ function createAddWeightForm() {
     addWeightFormContainer.className = 'section-container';
     addWeightFormContainer.id = 'add-weight-form-container';
 
+    // form title
+    const addWeightFormTitle = document.createElement('div');
+    addWeightFormTitle.id = 'add-weight-form-title';
+    addWeightFormTitle.classList = 'section-title';
+    addWeightFormTitle.innerHTML = `<h4>Add Weight</h4>
+    <div class="close-section" id="close_add_weight_form"><strong>Ｘ</strong></div>`;
+
+    // event listener for close form button
+    const closeBtn = addWeightFormTitle.querySelector('#close_add_weight_form');
+    closeBtn.removeEventListener('click', close_add_weight_form);
+    closeBtn.addEventListener('click', close_add_weight_form);
+
     // create the form itself
     const addWeightForm = document.createElement('form');
-    addWeightForm.className = 'form';
+    addWeightForm.className = 'form-container';
     addWeightForm.id = 'add-weight-form';
-    addWeightForm.style.display = 'none';
-
     addWeightForm.innerHTML = `
-        <div class="form-title">
-            <h4>Add Weight</h4>
-        </div>
-        <div class="form-content">
+        <div class="form-group">
             <div class="form-row">
-                <div class="form-field">
-                    <label for="weight">Weight</label>
-                    <input type="number" name="weight" id="weight" placeholder="-" required>
+                <div class="form-group col-md-4" id="add-weight-form-weight">
+                    <label>Weight</label>
+                    <input type="number" name="weight" id="weight" placeholder="Enter weight" required>
                 </div>
-                <div class="form-field">
-                    <label for="date">Date</label>
-                    <input type="date" name="date" id="-" required>
-                </div>
-                <div class="form-field">
+                <div class="form-group col-md-4" id="add-weight-form-unit">
                     <label for="Unit">Unit</label>
                     <select name="unit" id="unit" required>
                         <option value="kg">kg</option>
                         <option value="lbs">lbs</option>
                     </select>
+                </div>
+                <div class="form-group col-md-4" id="add-weight-form-date>
+                    <label for="date">Date</label>
+                    <input type="date" name="date" required>
                 </div>
             </div>
         </div>
@@ -211,14 +222,30 @@ function createAddWeightForm() {
     const saveWeightButton = document.createElement('div');
     saveWeightButton.className = 'section-container action';
     saveWeightButton.id = 'save-weight-button';
+    saveWeightButton.role = 'button';
     saveWeightButton.innerHTML = '<h4> Save Weight </h4>';
     saveWeightButton.onclick = () => saveWeight();
 
+    addWeightFormContainer.appendChild(addWeightFormTitle);
     addWeightFormContainer.appendChild(addWeightForm);
     addWeightFormContainer.appendChild(saveWeightButton);
 
     return addWeightFormContainer;
 }
+
+// Close add weight form
+async function close_add_weight_form() {
+    // hide the add weight form
+    const addWeightFormContainer = document.querySelector('#add-weight-form-container');
+    await addWeightFormContainer.remove();
+
+    // show all the section-containers on the page
+    const sectionContainers = document.querySelectorAll('.section-container');
+    // Show each section container
+    await Promise.all(Array.from(sectionContainers).map(sectionContainer => show_section(sectionContainer)));
+}
+
+
 
 // -------------------------- //
 // Workout History            //

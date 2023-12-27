@@ -22,6 +22,10 @@ body {
   color: var(--lightest);
 }
 
+#rule-off-personal-info {
+  border-color: var(--light);
+}
+
 /* ------------------- */
 /* NAVBAR */
 /* ------------------- */
