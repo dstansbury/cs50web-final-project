@@ -3,6 +3,7 @@
 // -------------------------- //
 
 import { hide_section, show_section } from './training.js';
+import { fetchUserExercises, createExerciseDropdown } from './exercises.js';
 
 // -------------------------- //
 // EVENT LISTNERS             //
@@ -314,8 +315,6 @@ async function saveWeight() {
     window.location.href = `/${userID}/profile/`;
 }
 
-
-
 // -------------------------- //
 // Workout History            //
 // -------------------------- //
@@ -388,7 +387,6 @@ function showMoreWorkouts() {
     return
 }
 
-
 // Assemble Workout History
 function assembleWorkoutHistory(workouts) {
     const workoutHistoryContainer = createWorkoutHistoryContainer();
@@ -410,7 +408,7 @@ function assembleWorkoutHistory(workouts) {
 
 // Fetch personal bests
 function fetchPersonalBest(userID, exerciseID) {
-    return fetch(`/${userID}/${exerciseID}/personal-bests`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    return fetch(`/${userID}/${exerciseID}/personal-best`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => response.json())
         .then(personalBest => {
             return personalBest;
@@ -421,27 +419,157 @@ function fetchPersonalBest(userID, exerciseID) {
         });
 }
 
+
 // Create personal bests container
-function createPersonalBestsContainer() {
+async function createPersonalBestsContainer() {
+    // fetch user exercises for the dropdown
+    const userExercises = await fetchUserExercises(userID);
+
+    // generate the dropdown, but remove the add new exercise option
+    let exerciseDropdown = createExerciseDropdown(userExercises, false);
+    exerciseDropdown = exerciseDropdown.replace(`<option value="" disabled>_______</option>`, '');
+    exerciseDropdown = exerciseDropdown.replace(`<option value="add-new-exercise">Add new exercise</option>`, '');
+
+    // div to contain all the section's content
     const personalBestsContainer = document.createElement('div');
     personalBestsContainer.className='section-container';
     personalBestsContainer.id = 'personal-bests-container';
-    personalBestsContainer.innerHTML = `
-        <div class="section-title" id="personal-bests-container-title">
-            <h4>Personal Bests</h4>
-            <div class="dropdown-arrow">▼</div>
-        </div>
-        <div class="section-content" id="personal-bests-container-content" style="display: none">
-        </div>
+
+    // div for the section's title
+    const personalBestsContainerTitle = document.createElement('div');
+    personalBestsContainerTitle.className = 'section-title';
+    personalBestsContainerTitle.id = 'personal-bests-container-title';
+    personalBestsContainerTitle.innerHTML = `
+        <h4>Personal Bests</h4>
+        <div class="dropdown-arrow">▼</div>
     `;
+    personalBestsContainerTitle.onclick = () => openPersonalBestsContainer();
+
+    // div for the section's expanded content  
+    const personalBestsContainerContent = document.createElement('div');
+    personalBestsContainerContent.className = 'section-content';
+    personalBestsContainerContent.id = 'personal-bests-container-content';
+    personalBestsContainerContent.style.display = 'none';
+    personalBestsContainerContent.innerHTML = `
+        <div class="personal-best-exercise-selector" id="personal-best-exercise-selector-string">
+            Show personal bests for:
+        </div>
+        <div class="personal-best-exercise-selector" id='personal-best-exercise-selector-dropdown'>
+            ${exerciseDropdown}
+        </div>
+        `
+    // div for the chart for the selected exercise
+    const personalBestsChart = document.createElement('div');
+    personalBestsChart.className = 'personal-best-chart';
+    personalBestsChart.id = 'personal-best-chart';
+
+    // draw the chart if there is an option selected
+    const exerciseSelector = personalBestsContainerContent.querySelector('#exercise-dropdown-false');
+    exerciseSelector.addEventListener('change', async function() {
+        // get the selected exercise from the dropdown
+        const selectedExercise = exerciseSelector.value;
+        // if the selected exercise is blank, remove the chart
+        if (selectedExercise === '') {
+            personalBestsChart.innerHTML = '';
+            return
+        }
+        // if not, draw the chart
+        const chart = await createPersonalBestChart(selectedExercise);
+        personalBestsChart.innerHTML = '';
+        personalBestsChart.appendChild(chart);
+    });
+
+    // assemble the section
+    personalBestsContainer.appendChild(personalBestsContainerTitle);
+    personalBestsContainer.appendChild(personalBestsContainerContent);
+    personalBestsContainer.appendChild(personalBestsChart);
+    
     return personalBestsContainer;
 }
 
-function assemblePersonalBests() {
-    const personalBestsContainer = createPersonalBestsContainer();
+async function assemblePersonalBests() {
+    const personalBestsContainer = await createPersonalBestsContainer();
     // set to none so it can be shown with animation
     personalBestsContainer.style.display = 'none';
     return personalBestsContainer;
+}
+
+// create the personal best chart for a given exercise
+async function createPersonalBestChart(exerciseID) {
+    // fetch the personal bests for the exercise
+    const personalBestsResponse = await fetchPersonalBest(userID, exerciseID);
+    const personalBests = JSON.parse(personalBestsResponse);
+
+    // if no personal bests for the selected exercise, tell the user
+    if (personalBests.length === 0) {
+        const noPersonalBestsMessage = document.createElement('div');
+        noPersonalBestsMessage.className = 'personal-best-chart';
+        noPersonalBestsMessage.id = 'personal-best-chart';
+        noPersonalBestsMessage.innerHTML = `
+            <strong>No personal bests recorded for this exercise</strong>
+        `;
+        return noPersonalBestsMessage;
+    }
+
+    const ctx = document.createElement('canvas');
+    ctx.className = 'chart';
+    ctx.id = 'personal-best-chart';
+
+    // Sort personalBests by date in ascending order
+    personalBests.sort((a, b) => new Date(a.fields.date) - new Date(b.fields.date));
+
+    // Map the sorted personal bests to their respective dates and weights
+    const dates = personalBests.map(pb => pb.fields.date);
+    const weights = personalBests.map(pb => parseFloat(pb.fields.weight));
+
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Weight (kg)',
+                data: weights,
+                fill: false,
+                borderColor: getComputedStyle(document.documentElement)
+                .getPropertyValue('--emphasis').trim(),
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: Math.min(...weights) - 1,
+                }
+            }
+        }
+    });
+    return ctx;
+}
+
+
+
+
+// on clicking the section, expand it if not expanded, contract it if expanded
+function openPersonalBestsContainer() {
+    const personalBestsContainer = document.querySelector('#personal-bests-container');
+    const personalBestsDetails = document.querySelector('#personal-bests-container-content');
+    // check if the Info container is expanded and contract if so
+    if (personalBestsContainer.classList.contains('expand')) {
+        personalBestsContainer.classList.remove('expand')
+        personalBestsContainer.classList.add('contract')
+        personalBestsDetails.style.display = 'none';
+         // on animation end, remove the closed class
+         personalBestsContainer.addEventListener('animationend', function() {
+            personalBestsContainer.classList.remove('contract');
+        });
+        return
+    }else{
+        // if not, expand it
+        personalBestsContainer.classList.remove('contract')
+        personalBestsContainer.classList.add('expand')
+        personalBestsDetails.style.display = 'block';
+    }
 }
 
 // -------------------------- //
@@ -484,7 +612,8 @@ async function loadProfilePage(userID) {
     const profilePageContentContainer = document.querySelector('#profile-page-content');
 
     profilePageContentContainer.append(assemblePersonalInfo(bodyWeights));
-    profilePageContentContainer.append(assemblePersonalBests());
+    const personalBestsContainer = await assemblePersonalBests();
+    profilePageContentContainer.append(personalBestsContainer);
     profilePageContentContainer.append(assembleWorkoutHistory(workouts));
     profilePageContentContainer.append(createWorkoutNowButton());
 

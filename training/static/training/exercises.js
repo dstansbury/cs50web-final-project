@@ -560,4 +560,4 @@ async function update_add_exercise_form(newExercise) {
 // EXPORTS                    //
 // -------------------------- //
 
-export { swap_exercise, add_exercise }
+export { swap_exercise, add_exercise, createExerciseDropdown, fetchUserExercises }

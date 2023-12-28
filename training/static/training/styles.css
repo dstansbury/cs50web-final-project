@@ -26,6 +26,10 @@ body {
   border-color: var(--light);
 }
 
+.section-title {
+  padding-bottom: 10px;
+}
+
 /* ------------------- */
 /* NAVBAR */
 /* ------------------- */

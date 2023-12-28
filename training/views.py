@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.db.models.query import QuerySet
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.core import serializers
 from django.shortcuts import render, redirect, HttpResponseRedirect, HttpResponse
 
 from .models import Exercise, User, BodyWeight, WorkoutPlan, Workout, ExerciseInWorkoutPlan, ExerciseInWorkout, TrainingSet, PersonalBest
@@ -291,11 +292,11 @@ def personalBest(request, userID, exerciseID):
         # grab all the user's info from the DB and return them as JSON
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             try:
-                personal_best = PersonalBest.objects.get(user=userID, exercise=exerciseID)
-                serialized_personal_best = personal_best.serialize()
-                print(f"serialized_personal_best: {serialized_personal_best}")
+                personal_bests = PersonalBest.objects.filter(user=userID, exercise=exerciseID)
+                serialized_personal_bests = serializers.serialize('json', personal_bests)
+                print(f"serialized_personal_bests: {serialized_personal_bests}")
                 
-                return JsonResponse(serialized_personal_best, safe=False)
+                return JsonResponse(serialized_personal_bests, safe=False)
             except PersonalBest.DoesNotExist:
                 print(f"personal best does not exist")
                 return JsonResponse({}, safe=False)
