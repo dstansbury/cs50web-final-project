@@ -9,21 +9,26 @@ urlpatterns = [
     path("register", views.register, name="register"),
     
     # PROFILE
-    #error handling path
-    path("profile/", views.no_user_profile, name="no_user_profile"),
-    #actual path
     path("<int:userID>/profile/", views.profile, name="profile"),
-
+    
     # WORKOUT PLANS
-    #error handling path
-    path("workout_plans/", views.no_user_workout_plans, name="no_user_workout_plans"),
-    #actual path
     path("<int:userID>/workout_plans/", views.workout_plans, name="workout_plans"),
 
     # EXERCISES
-    #error handling path
-    path("exercises/", views.no_user_exercises, name="no_user_exercises"),
-    #actual path
     path("<int:userID>/exercises/", views.exercises, name="exercises"),
+
+    # WORKOUTS
+    # single workout
+    path("<int:userID>/workouts/<int:workout_plan_id>", views.workouts, name="workouts"),
+    # all workouts
+    path("<int:userID>/workouts/", views.workouts, name="workouts"),
+
+    # BODY WEIGHTS
+    path("<int:userID>/body-weights/", views.bodyWeights, name="bodyWeights"),
+
+    # PERSONAL BEST
+    path("<int:userID>/<int:exerciseID>/personal-best/", views.personalBest, name="personalBest"),
+
+
     
 ]

@@ -5,7 +5,7 @@
 :root {
   --darkest: #000000;
   --dark: #4C5355;
-  --medium: #607D86; 
+  --medium: #607D86;
   --light: #CBCDCB;
   --emphasis: #C44B4F;
   --lightest: #FFFFFF;
@@ -20,6 +20,14 @@
 body {
   background-color: var(--medium);
   color: var(--lightest);
+}
+
+#rule-off-personal-info {
+  border-color: var(--light);
+}
+
+.section-title {
+  padding-bottom: 10px;
 }
 
 /* ------------------- */
@@ -114,7 +122,21 @@ body {
   color: var(--lightest);
   display: flex;
   justify-content: center;
-  align-items: center;  
+  align-items: center;
+  margin-left: 10px; 
+  margin-right: 10px;  
+}
+
+/* Secondary Action Section Container appearance */
+.section-container.secondary-action {
+  background-color: var(--lightest);
+  color: var(--emphasis);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px; 
+  margin-right: 10px;
+  border: 1px solid var(--lightest);  
 }
 
 /* Apply slide-in animations to each section container based on their order */
@@ -144,6 +166,24 @@ body {
   justify-content: space-between;
   align-items: center;
 }
+
+#swap-exercise-form {
+  margin: 15px;
+}
+
+#swap-exercise-dropdown {
+  margin-top: 10px;
+}
+
+#workout-history-table-inner th,
+#workout-history-table-inner td {
+  text-align: center;
+}
+
+#workout-history-table-inner thead {
+  font-weight: bold;
+}
+
             
 /* ------------------- */
 /* BUTTONS */
@@ -193,6 +233,21 @@ button.action-button-outline:hover {
   align-items: center;
 }
 
+/* this moves the Broken set button to the right */
+.action-buttons-container.rightalign {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+
+/* ------------------- */
+/* CHARTS */
+/* ------------------- */
+
+/* Chart container appearance */
+.chart {
+  margin-bottom 10px;
+}
 
 /* ---------------------- */
 /* ANIMATION DEFINITIONS  */ 

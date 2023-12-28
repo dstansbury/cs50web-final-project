@@ -11,7 +11,7 @@
     <body>
 
         <nav class="navbar navbar-expand-lg">
-            <span class="navbar-brand mb-0 h1"> Workout Diary</span>
+            <a href="../profile/" style="color:white"><span class="navbar-brand mb-0 h1"> Workout Diary</span></a>
             
             <!-- Hamburger icon -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,9 +30,6 @@
                     <li class = "nav-item">
                         <a class="nav-link" href="../workout_plans/">Workout Now</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../profile/">Profile</a>
-                    </li>
                 {% endif %}
                 {% if user.is_authenticated %}
                     <li class="nav-item">
@@ -40,8 +37,12 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">Home Page</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Log In</a>
                     </li>
+                    
                 {% endif %}
               </ul>
             </div>
@@ -63,7 +64,8 @@
         </script>
         
         <!-- Custom JS for this app-->
-        <script src="{% static 'training/training.js' %}"></script>
+        <script type="module" src="{% static 'training/training.js' %}"></script>
+        <script type="module" src="{% static 'training/workoutPlans.js' %}"></script>
         
     {% endblock %}
     </body>

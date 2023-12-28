@@ -1,11 +1,12 @@
 {% extends "training/layout.html" %}
 
+{% load static %}
+
 {% block body %}
 
     <div class="page-container" id="profile-page-container">
         <div class="page-title" id="profile-page-title">
-            <h2> {{ username }} Profile </h2>
-            <a class="action-button" id="create-workout-plan-button" href="../workout_plans">Workout Now</a>
+            <h2> {{ username }}'s Profile </h2>
         </div>
     
 
@@ -15,16 +16,25 @@
         </div>
     {% endif %}
 
-        <div class="section-container" id="profile-exercises">
-            Exercises
+        <div class="page-content" id="profile-page-content">
         </div>
 
-        <div class="section-container" id="profile-workouts">
-            Workout Plans
+        <div class="page-content" id = "add-weight-form">
         </div>
 
-        <div class="section-container" id="profile-personal-information">
-            Personal Information
+        <div class="page-content" id="profile-page-main-action">
         </div>
+
     </div>
 {% endblock %}
+
+{% block script %}
+    {{ block.super }}
+    <script>
+        var workout_plan_id = "{{ workout_plan_id }}";
+    </script>
+    <script type="module" src="{% static 'training/exercises.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="{% static 'training/profile.js' %}"></script>
+{% endblock %}
+```

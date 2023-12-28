@@ -1,23 +1,68 @@
 {% extends "training/layout.html" %}
 
 {% block body %}
-
-    <h2>Home page</h2>
+<div class="page-container" id="workout_plan-page-container">
+    <div class="page-title" id="register-page-title">
+        <h2> CS50 Web Final Project: Workout Diary </h2>
+    </div>
 
     {% if message %}
         <div>{{ message }}</div>
     {% endif %}
 
-    <div class="section-container" id="index-explainer">
-        Reasons to create an account.
+    <div class="section-container" id="index-intro">
+        <p>This is my final project for the CS50 web programming course. It is a workout diary app that tries to respond to some of the challenges I have faced with more complex tracking apps.</p>
+    </div>
+    <div class="section-container" id="index-challenges">
+        <h4>User Problems to solve</h4>
+        <ul>
+            <li>Too much complexity in creating a plan for a workout</li>
+            <li>Lack of flexibility in adjusting a workout once a workout has started</li>
+            <li>Lack of intelligent switching between weight units to accomodate use of different machines in different gyms</li>
+            <li>Inability to quickly and easily see history with an exercise, including PBs</li>
+            <li>Inability to track my weight within the same app - a key reason why I work out</li>
+            <li>Too much clutter with features I don't want, getting in the way of ones I do.</li>
+        </ul>
+    </div>
+    <div class="section-container" id="index-requirements">
+        <h4> Requirements</h4>
+        <p> The app tries to solve each of these challenges, with these basic requirements:
+
+        </p>
+        <ol>
+            <li>Register/Login/Logout functions</li>
+            <li>See a list of workout plans the user previously created</li>
+            <li>Create a new workout plan</li>
+            <li>Add new exercises that can be included in workout plans</li>
+            <li>See a list of exercises the user has created</li>
+            <li>View current personal bests for the exercises, and click in to see personal best history</li>
+            <li>Select a workout plan to do as a workout that day</li>
+            <li>Adjust a workout during the workout e.g. if a machine is not available</li>
+            <li>Adjust the weight units for a given exercise</li>
+            <li>Break a set into two or more, if the required rep count is to high at the set weight</li>
+            <li>See a list of all the workouts a user has done, and when</li>
+            <li>Add a new weight for the user to track</li>
+            <li>See a chart of the user's weight over time</li>
+
+            Things still to do:
+            <li>Animation of exiting on the new exercise form when accessed through Create workout plan</li>
+            <li>Exit animation on save new plan in create workout plan</li>
+            <li>Broken sets can only go one level deep</li>
+            <li>Animation on expanding section in the list of workouts</li>
+            <li>Update an exercise</li>
+            <li>Move Exercise Up in a workout, the top exercise should not have that button</li>
+            <li> in Add Exercise and Swap Exercise in workout, handle if user selects add new exercise</li>
+            <li> When Creating a New Workout Plan, other plans are displayed </li>
+            <li> Show more workouts on the profile page</li>
+            <li> Expand a workout on the workout page</li>
+            <li> Manage exercises </li> 
+            </li>
+        </ol>
     </div>
 
-    <div class="section-container" id="index-login">
-        Login
+    <div class="section-container" id="register-new-account-index">
+        To get started, register for an account: <a href="{% url 'register' %}">Register here.</a>
     </div>
-
-    <div class="home-section-container" id="index-register">
-        Register
-    </div>
+</div>
 
 {% endblock %}

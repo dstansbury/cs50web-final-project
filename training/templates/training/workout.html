@@ -1,0 +1,48 @@
+{% extends "training/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+<div class="page-container" id="workout-page-container">
+    <div class="page-title" id="workout-page-title">
+    </div>
+
+    {% if message %}
+        <div>
+            {{ message }}
+        </div>
+    {% endif %}
+    
+    <!--Form for adding new exercises-->
+    <div class="page-content" id="exercise-adjustments">
+    </div>
+
+    <!-- Full workout elements -->
+    <div class="page-content" id="workout-elements">
+        
+        <!-- Show all workout details-->
+        <div class="page-content" id="workout-plan">
+        </div>
+
+        <!-- Main page action-->
+        <div class="page-content" id="main-page-action">
+        </div>
+    
+    </div>
+    
+        
+    
+</div>
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+    <script>
+        var workout_plan_id = "{{ workout_plan_id }}";
+    </script>
+    <script type="module" src="{% static 'training/exercises.js' %}"></script>
+    <script type="module" src="{% static 'training/workout.js' %}"></script>
+{% endblock %}
+```
+
+
