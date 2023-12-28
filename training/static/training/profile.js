@@ -482,7 +482,7 @@ async function createPersonalBestsContainer() {
     // assemble the section
     personalBestsContainer.appendChild(personalBestsContainerTitle);
     personalBestsContainer.appendChild(personalBestsContainerContent);
-    personalBestsContainer.appendChild(personalBestsChart);
+    personalBestsContainerContent.appendChild(personalBestsChart);
     
     return personalBestsContainer;
 }
