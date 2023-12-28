@@ -244,7 +244,15 @@ function fetchExercisePB(exerciseID) {
 
 async function view_exercise_PB(exerciseID){
     // fetch exercise PB
-    let personal_best = await fetchExercisePB(exerciseID)
+    const personal_bests_response = await fetchExercisePB(exerciseID)
+    const personal_bests = JSON.parse(personal_bests_response)
+
+    // Sort personalBests by date in descending order
+    personal_bests.sort((a, b) => new Date(b.fields.date) - new Date(a.fields.date));
+
+    // grab the first one only and store in the personal_best variable
+    let personal_best = personal_bests.slice(0,1)[0];
+    console.log('personal_best: ', personal_best)
 
     // Change the button to Hide Personal Best
     let view_PB_button = document.getElementById(`view-PB-button-${exerciseID}`)
@@ -257,12 +265,11 @@ async function view_exercise_PB(exerciseID){
     PB_div.id = `personal-best-${exerciseID}`
     
     // if no PB recorded, display message
-    console.log('personal_best.weight: ', personal_best.weight)
-    if (personal_best.weight === undefined) {
+    if (personal_best.fields.weight === undefined) {
         PB_div.innerHTML = 'No personal best recorded for this exercise.'
     }
     else {
-        PB_div.innerHTML = `<strong>Personal Best:</strong> ${personal_best.weight} kgs`
+        PB_div.innerHTML = `<strong>Personal Best:</strong> ${personal_best.fields.weight} kgs (${personal_best.fields.weight * 2.2} lbs) on ${personal_best.fields.date}`
     }
    
     // add the div to the DOM

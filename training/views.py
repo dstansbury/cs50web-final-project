@@ -35,7 +35,7 @@ HOME (INDEX)
 def index(request):
     if request.user.is_authenticated:
         userID = request.user.id
-        return HttpResponseRedirect(reverse("workout_plans", args=(userID,)))
+        return HttpResponseRedirect(reverse("profile", args=(userID,)))
     else:
         return render(request, "training/index.html")
 """
@@ -517,7 +517,7 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("workout_plans", args=(user.id,)))
+            return HttpResponseRedirect(reverse("profile", args=(user.id,)))
         else:
             return render(request, "login", {
                 "message": "Invalid username and/or password."

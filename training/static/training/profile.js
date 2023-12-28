@@ -333,73 +333,154 @@ function fetchAllWorkouts(userID) {
 }
 
 // Workout history container
-function createWorkoutHistoryContainer() {
+function assembleWorkoutHistory(workouts) {
     const workoutHistoryContainer = document.createElement('div');
     workoutHistoryContainer.className='section-container';
     workoutHistoryContainer.id = 'workout-history-container';
-    workoutHistoryContainer.innerHTML = `
-        <div class="section-title" id="workout-history-container-title">
-            <h4>Recent Workouts</h4>
-            <div class="dropdown-arrow">▼</div>
-        </div>
-        <div class="section-content" id="workout-history-container-content" style="display: none">
-        </div>
-        
-    `;
-    return workoutHistoryContainer;
-}
 
-// Load workout history into container
-function addWorkout(workout) {
-    const workoutDiv = document.createElement('div');
-    workoutDiv.className = 'workout-in-history';
-    workoutDiv.id= `workout-in-history-${workout.id}`;
-    workoutDiv.innerHTML = `
-        <hr>
-        <div class="section-title">
-            <h5>${workout.date}</h5>
-            <h5>${workout.workout_plan}</h5>
-            <div role="button" class="dropdown-arrow" id="dropdown-arrow-workout-history-${workout.id}">▼</div>
-        </div>
+    // div for the section's title
+    const workoutHistoryContainerTitle = document.createElement('div');
+    workoutHistoryContainerTitle.className = 'section-title';
+    workoutHistoryContainerTitle.id = 'workout-history-container-title';
+    workoutHistoryContainerTitle.onclick = () => openWorkoutHistoryContainer();
+    workoutHistoryContainerTitle.innerHTML = `
+        <h4>Workout History</h4>
+        <div class="dropdown-arrow">▼</div>
         `;
-    return workoutDiv;
-}
+    
+    // div for the section's expanded content
+    const workoutHistoryContainerContent = document.createElement('div');
+    workoutHistoryContainerContent.className = 'section-content';
+    workoutHistoryContainerContent.id = 'workout-history-container-content';
+    workoutHistoryContainerContent.style.display = 'none';
 
-// Show more workouts button
-function addShowMoreButton() {
+    // div for the workout history table
+    const workoutHistoryTable = document.createElement('div');
+    workoutHistoryTable.className = 'workout-history-table';
+    workoutHistoryTable.id = 'workout-history-table';
+
+    // div for container the show more button
     const showMoreButtonContainer = document.createElement('div');
     showMoreButtonContainer.className = 'action-buttons-container rightalign';
-    showMoreButtonContainer.id = 'search-by-date-button-container';
+    showMoreButtonContainer.id = 'show-more-button-container';
 
+    // show more button
     const showMoreButton = document.createElement('button');
-    showMoreButton.className = 'action-button';
-    showMoreButton.id = 'search-by-date-button';
+    showMoreButton.className = 'action-button'
+    showMoreButton.onclick = () => showMoreWorkouts(workouts);
     showMoreButton.innerHTML = 'Show More Workouts';
-    showMoreButton.onclick = showMoreWorkouts();
-    
-    showMoreButtonContainer.appendChild(showMoreButton);
+    showMoreButtonContainer.appendChild(showMoreButton)
 
-    return showMoreButtonContainer;
-}
+    // populate the workout history table
+    const workoutHistoryTableContents = createWorkoutHistoryTable(workouts, 3);
 
-// function for showing more workouts
-function showMoreWorkouts() {
-    return
-}
+    // assemble the section
+    workoutHistoryContainer.appendChild(workoutHistoryContainerTitle);
+    workoutHistoryContainer.appendChild(workoutHistoryContainerContent);
+    workoutHistoryContainerContent.appendChild(workoutHistoryTable);
+    workoutHistoryContainerContent.appendChild(showMoreButtonContainer);
+    workoutHistoryTable.appendChild(workoutHistoryTableContents);
 
-// Assemble Workout History
-function assembleWorkoutHistory(workouts) {
-    const workoutHistoryContainer = createWorkoutHistoryContainer();
-    const workoutHistoryDetails = workoutHistoryContainer.querySelector('#workout-history-container-content');
-    // Check if there are more than 2 workouts, and slice the array to get the most recent five
-    const lastFiveWorkouts = workouts.length > 2 ? workouts.slice(-2) : workouts;
-    for (const workout of lastFiveWorkouts){
-        workoutHistoryDetails.appendChild(addWorkout(workout));
-    }
-    workoutHistoryDetails.appendChild(addShowMoreButton());
-    // set to none so it can be shown with animation
-    workoutHistoryContainer.style.display = 'none';
     return workoutHistoryContainer;
+}
+
+// build the workout history table, to show three most recent workouts
+function createWorkoutHistoryTable(workouts, numWorkoutsToShow) {
+    // sort the workouts, most recent first
+    workouts.sort((a, b) => new Date(b.date) - new Date(a.date)); 
+
+    // create the table element
+    const workoutHistoryTable = document.createElement('table');
+    workoutHistoryTable.className = 'table table-hover';
+    workoutHistoryTable.id = 'workout-history-table-inner';
+    workoutHistoryTable.style.width = "100%"
+
+    // create the table headers
+    const thead = workoutHistoryTable.createTHead();
+    const headerRow = thead.insertRow();
+    
+    const dateHeader = headerRow.insertCell();
+    dateHeader.textContent = 'Date';
+    
+    const workoutHeader = headerRow.insertCell();
+    workoutHeader.textContent = 'Workout';
+    
+    const detailsHeader = headerRow.insertCell();
+    detailsHeader.textContent = '';
+    
+    // create the table body
+    const tbody = workoutHistoryTable.createTBody();
+
+    // loop through the workouts up to the number to show and add a row in the table for each
+    workouts.slice(0, numWorkoutsToShow).forEach(workout => {
+        const row = tbody.insertRow();
+        
+        const dateCell = row.insertCell();
+        dateCell.textContent = workout.date;
+        
+        const workoutCell = row.insertCell();
+        workoutCell.textContent = workout.workout_plan;
+    });
+
+    return workoutHistoryTable;
+}
+
+// expand the Workout History Container
+function openWorkoutHistoryContainer() {
+    const workoutHistoryContainer = document.querySelector('#workout-history-container');
+    const workoutHistoryDetails = document.querySelector('#workout-history-container-content');
+    // check if the Info container is expanded and contract if so
+    if (workoutHistoryContainer.classList.contains('expand')) {
+        workoutHistoryContainer.classList.remove('expand')
+        workoutHistoryContainer.classList.add('contract')
+        workoutHistoryDetails.style.display = 'none';
+        // on animation end, remove the closed class
+        workoutHistoryContainer.addEventListener('animationend', function() {
+        workoutHistoryContainer.classList.remove('contract');
+        });
+    }else{
+        // if not, expand it
+        workoutHistoryContainer.classList.remove('contract')
+        workoutHistoryContainer.classList.add('expand')
+        workoutHistoryDetails.style.display = 'block';
+    }
+}
+
+// show more workouts
+function showMoreWorkouts(workouts) {
+    // get the current number of workouts in the table
+    const numRows= document.getElementById('workout-history-table').getElementsByTagName('tr').length - 1;
+
+    // wipeout the current table
+    document.querySelector("#workout-history-table").innerHTML = ''
+
+    // check there are enough workouts to show three more
+    let newNumToShow = numRows+3
+    let checkPass = true
+    if (newNumToShow > workouts.length) {
+        newNumToShow = workouts.length
+        checkPass = false
+    }else{
+        checkPass=true
+    }
+
+    // recreate it with additional rows. If no more workouts, add a row saying no more workouts saved
+    const workoutHistoryTableContents = createWorkoutHistoryTable(workouts, (newNumToShow));
+    document.querySelector("#workout-history-table").appendChild(workoutHistoryTableContents);
+
+    if (checkPass == false) {
+        // Add another row to the table to tell the user there are no more workouts to show
+        const row = workoutHistoryTableContents.insertRow();
+        const cell = row.insertCell();
+
+        // Set the text content and styling
+        cell.textContent = 'No more workouts to display';
+        cell.style.fontWeight = 'bold';
+        cell.style.textAlign = 'center';
+        cell.colSpan = 2;
+
+        row.appendChild(cell);
+    };
 }
 
 // -------------------------- //
@@ -418,7 +499,6 @@ function fetchPersonalBest(userID, exerciseID) {
             throw error;
         });
 }
-
 
 // Create personal bests container
 async function createPersonalBestsContainer() {
@@ -547,9 +627,6 @@ async function createPersonalBestChart(exerciseID) {
     return ctx;
 }
 
-
-
-
 // on clicking the section, expand it if not expanded, contract it if expanded
 function openPersonalBestsContainer() {
     const personalBestsContainer = document.querySelector('#personal-bests-container');
@@ -597,7 +674,6 @@ async function goToWorkoutNowPage(userID) {
     // redirect to workout_plans page
     window.location.href = `/${userID}/workout_plans/`;
 }
-
 
 // -------------------------- //
 // LOAD PROFILE PAGE          //

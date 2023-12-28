@@ -81,11 +81,28 @@ class Workout(models.Model):
     date = models.DateField(null=False, blank=False)
 
     def serialize(self):
+        exercises = ExerciseInWorkout.objects.filter(workout=self)
+        exercises_data = []
+        for exercise in exercises:
+            sets = TrainingSet.objects.filter(exercise=exercise)
+            sets_data = []
+            for set in sets:
+                sets_data.append({
+                    "weight": set.weight,
+                    "reps": set.reps,
+                    "unit": set.unit,
+                })
+            exercises_data.append({
+                "exercise_id": exercise.exercise.id,
+                "exercise_name": exercise.exercise.name,
+                "sets": sets_data,
+            })
         return {
             "id": self.id,
             "user": self.user.id,
             "workout_plan": self.workout_plan.title,
             "date": self.date,
+            "exercises": exercises_data,
         }
     
     def __str__(self):
