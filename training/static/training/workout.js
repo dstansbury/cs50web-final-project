@@ -686,6 +686,10 @@ function hideFirstMoveUpButton() {
 // Shows the second exercise's move up button if not already showing
 function showSecondMoveUpButton() {
     const secondExercise = document.querySelector('#workout-plan').children[1];
+    // if there is no second Exercise any more, return
+    if (!secondExercise) {
+        return;
+    }
     const moveExerciseButtonsDiv = secondExercise.querySelector('.move-exercise')
     moveExerciseButtonsDiv.style.display = 'flex';
 }
