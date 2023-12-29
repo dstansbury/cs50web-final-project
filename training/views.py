@@ -2,16 +2,12 @@ import json
 from datetime import datetime
 from decimal import Decimal
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.urls import reverse
-from django.db.models.query import QuerySet
-from django.views.decorators.http import require_POST
-from django.utils import timezone
 from django.core import serializers
-from django.shortcuts import render, redirect, HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, HttpResponseRedirect
 
 from .models import Exercise, User, BodyWeight, WorkoutPlan, Workout, ExerciseInWorkoutPlan, ExerciseInWorkout, TrainingSet, PersonalBest
 """ 
