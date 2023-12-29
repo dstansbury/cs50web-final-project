@@ -67,8 +67,9 @@ function createExerciseDropdown(exercises, location) {
 // ----------------------------- //
 
 // Main swap exercise function
-async function swap_exercise(exercise) {
+async function swap_exercise(exercise, exercise_div) {
     // hide the workout
+    console.log('exercise is: ', exercise)
     // cannot directly hide workout-elements as it is not a section container
     let workout = document.querySelector('#workout-elements');
     workout.style.display = 'none';
@@ -81,7 +82,7 @@ async function swap_exercise(exercise) {
     let dropdown = createExerciseDropdown(userExercises, 'swap-exercise');
     
     // show swap exercise form
-    let swap_exercise_form = createSwapExerciseForm(exercise, dropdown, userExercises);
+    let swap_exercise_form = createSwapExerciseForm(exercise, dropdown, userExercises, exercise_div);
     document.querySelector('#exercise-adjustments').appendChild(swap_exercise_form);
     show_section(swap_exercise_form);
 
@@ -93,7 +94,7 @@ async function swap_exercise(exercise) {
 }
 
 // Create the form
-function createSwapExerciseForm(exercise, dropdown, userExercises) {
+function createSwapExerciseForm(exercise, dropdown, userExercises, exercise_div) {
     // form section container
     const swap_exercise_form_container = document.createElement('div');
     swap_exercise_form_container.classList = 'section-container';
@@ -136,7 +137,7 @@ function createSwapExerciseForm(exercise, dropdown, userExercises) {
     swap_exercise_form_submit.classList = 'section-container action';
     swap_exercise_form_submit.id = 'swap-exercise-form-submit';
     swap_exercise_form_submit.role = 'button';
-    swap_exercise_form_submit.onclick = () => submit_swap_exercise_form(exercise, userExercises);
+    swap_exercise_form_submit.onclick = () => submit_swap_exercise_form(exercise, userExercises, exercise_div);
     swap_exercise_form_submit.innerHTML = `<h4>Swap Exercise</h4>`;
                             
     // assemble the form
@@ -147,7 +148,7 @@ function createSwapExerciseForm(exercise, dropdown, userExercises) {
 }
 
 // Submit the form
-async function submit_swap_exercise_form(exercise, all_exercises) {
+async function submit_swap_exercise_form(exercise, all_exercises, exercise_div) {
     // get the selected exercise
     let selected_exercise_id = document.querySelector('#exercise-dropdown-swap-exercise').value;
 
@@ -179,11 +180,13 @@ async function submit_swap_exercise_form(exercise, all_exercises) {
     }
     
     // select the div where the exercise is to be swapped out
-    let exercise_to_swap_out_div = document.querySelector(`#exercise-${exercise.id}-in-workout`);
+    let exercise_to_swap_out_div = exercise_div;
     // create the div for the exercise to swap in
     let exercise_to_swap_in_div = await create_exercise_in_workout(exercise_to_swap_in);
     
     // swap the exercises
+    console.log('exercise_to_swap_out_div: ', exercise_to_swap_out_div);
+    console.log('exercise_to_swap_in_div: ', exercise_to_swap_in_div);
     await exercise_to_swap_out_div.replaceWith(exercise_to_swap_in_div);
 
     // add event listner for the dropdown-arrow

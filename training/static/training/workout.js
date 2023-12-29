@@ -214,11 +214,11 @@ function createWorkout(workout_plan) {
 // -------------------------- //
 // Swap exercise button       //
 // -------------------------- //
-function swapExerciseButton(exercise) {
+function swapExerciseButton(exercise, exerciseDiv) {
     const swap_exercise_action = document.createElement('button');
     swap_exercise_action.className = 'action-button-outline';
     swap_exercise_action.id = `swap-exercise-button-${exercise.id}`
-    swap_exercise_action.onclick = () => swap_exercise(exercise)
+    swap_exercise_action.onclick = () => swap_exercise(exercise, exerciseDiv)
     swap_exercise_action.innerHTML=`Swap Exercise`
     return swap_exercise_action
 }
@@ -265,7 +265,7 @@ async function view_exercise_PB(exerciseID){
     PB_div.id = `personal-best-${exerciseID}`
     
     // if no PB recorded, display message
-    if (personal_best.fields.weight === undefined) {
+    if (personal_best === undefined) {
         PB_div.innerHTML = 'No personal best recorded for this exercise.'
     }
     else {
@@ -620,7 +620,7 @@ function create_exercise_in_workout(exercise, counter) {
     const exerciseActionsDiv = document.createElement('div')
     exerciseActionsDiv.className = `action-buttons-container`
     exerciseActionsDiv.id = `exercise-in-workout-actions-${exercise.id}`
-    exerciseActionsDiv.appendChild(swapExerciseButton(exercise))
+    exerciseActionsDiv.appendChild(swapExerciseButton(exercise, exerciseContainer))
     exerciseActionsDiv.appendChild(viewExercisePBButton(exercise.id))
 
     // divs for sets

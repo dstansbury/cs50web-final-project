@@ -1,0 +1,6 @@
+Python packages required for this app to function as expected:
+
+- Django
+- json
+- datetime
+- decimal

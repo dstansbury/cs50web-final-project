@@ -130,7 +130,6 @@ function openWorkoutPlan(workout_plan) {
     } else {
         // get all other expanded sections and close them
         const expanded_sections = document.querySelectorAll('.expand');
-        console.log('expanded_sections: ', expanded_sections)
         expanded_sections.forEach(section => {
             closeWorkoutPlan(section);
         });
