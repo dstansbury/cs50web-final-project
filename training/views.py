@@ -369,13 +369,13 @@ def workouts(request, userID, workout_plan_id=None):
                 if not data.get("exercises"):
                     return JsonResponse({"error": "Missing necessary fields."}, status=400)
                 
-                # Create the new workout plan
+                # Create the new workout
                 new_workout = Workout(
                     user=User.objects.get(id=data.get("userID")),
                     workout_plan=WorkoutPlan.objects.get(id=data.get("workoutPlan")),
                     date=datetime.now(),
                 )
-                # Save the new workout plan
+                # Save the new workout
                 new_workout.save()
                 print(f"new workout saved: {new_workout}")
 
@@ -388,36 +388,54 @@ def workouts(request, userID, workout_plan_id=None):
                     new_exercise_in_workout.save()
                     print(f"new exercise in workout saved: {new_exercise_in_workout}")
 
-                    # Get the PB for the exerise
-                    personal_best = PersonalBest.objects.get(user=new_workout.user, exercise=new_exercise_in_workout.exercise) 
-                    print(f"personal_best is {personal_best}")
-                
                     for training_set in exercise_data["sets"]:
-                        new_training_set = TrainingSet(
-                            exercise=new_exercise_in_workout,
-                            weight=training_set.get("weight"),
-                            reps=training_set.get("reps"),
-                            unit=training_set.get("units"),
+                        # convert lbs to kg so the DB only handles kg
+                        if training_set.unit == "lbs":
+                            set_weight = training_set.get("weight") * 0.45359237
+                            set_unit = "kg" 
+                        else:
+                            set_weight = training_set.get("weight")
+                            set_unit = "kg"
+                            training_set = TrainingSet(
+                                exercise=new_exercise_in_workout,
+                                weight=set_weight,
+                                reps=training_set.get("reps"),
+                                unit=set_unit,
                             )
-                        new_training_set.save()
+                        training_set.save()
+                        print(f"new training set saved: {training_set}") 
 
-                        if new_training_set.unit == "lbs":
-                            new_training_set_weight_in_kg = new_training_set.weight * 0.45359237
+                        # Check if there is a personal best for the exercise
+                        if PersonalBest.objects.filter(user=new_workout.user, exercise=new_exercise_in_workout.exercise).exists():
+                            # if yes, check if the weight in the set exceeds the personal best
+                            # Get the PB for the exerise
+                            personal_best = PersonalBest.objects.get(user=new_workout.user, exercise=new_exercise_in_workout.exercise)
+                            # convert lbs to kg
+                            if personal_best.unit == "lbs":
+                                personal_best_weight_in_kg = personal_best.weight * 0.45359237
+                            else:
+                                personal_best_weight_in_kg = personal_best.weight
 
                             # if the weight in the set exceeds the personal best, set that as the personal best
-                            if new_training_set_weight_in_kg > personal_best.weight:
+                            if set_weight > personal_best_weight_in_kg:
                                 new_personal_best = PersonalBest(
                                     user=new_workout.user,
                                     exercise=new_exercise_in_workout.exercise,
-                                    weight=new_training_set.weight,
-                                    reps=new_training_set.reps,
-                                    unit='kg',
+                                    weight=personal_best_weight_in_kg,
+                                    reps=training_set.reps,
                                     date=datetime.now(),
                                 )
                                 new_personal_best.save()
-                                print(f"new personal best saved: {personal_best}")
-                        print(f"new training set saved: {new_training_set}")
-
+                                print(f"new personal best saved: {personal_best}") 
+                        else:
+                            # if there is no matching personal best, then the current weight is the personal best
+                            new_personal_best = PersonalBest(
+                                    user=new_workout.user,
+                                    exercise=new_exercise_in_workout.exercise,
+                                    weight=personal_best_weight_in_kg,
+                                    reps=training_set.reps,
+                                    date=datetime.now(),
+                                )
                 # Return a success HTTP response
                 return JsonResponse({"message": "Workout Plan successfully created."}, status=201) 
         

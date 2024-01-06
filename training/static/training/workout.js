@@ -158,7 +158,7 @@ function submitWorkoutToDB(workout_to_submit, workout_plan_id) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error('Network response was not ok: ', response);
         }
         return response.json();
     })
@@ -265,7 +265,7 @@ async function view_exercise_PB(exerciseID){
     PB_div.id = `personal-best-${exerciseID}`
     
     // if no PB recorded, display message
-    if (personal_best === undefined) {
+    if (personal_best === undefined | personal_best === 0) {
         PB_div.innerHTML = 'No personal best recorded for this exercise.'
     }
     else {

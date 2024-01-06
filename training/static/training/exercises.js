@@ -332,12 +332,19 @@ async function submit_add_exercise_form(all_exercises) {
         alert('Please enter a valid number of reps.');
         return;
     }
-    
+
     // create the div for the exercise to add in
     let exercise_to_add_div = await create_exercise_in_workout(exercise_to_add);
     
     // add the exercise
     document.querySelector('#workout-plan').appendChild(exercise_to_add_div)
+
+    // get the number of exercises in the workout
+    let counter = document.querySelectorAll('[id*="exercise-in-workout-container"]').length;
+    console.log('counter: ', counter);
+
+    // update the id of the new exercise div to match this number
+    exercise_to_add_div.id = exercise_to_add_div.id.replace('-number-undefined', `-number-${counter-1}`);
 
     // add event listner for the dropdown-arrow
     addExpandListener(exercise_to_add);
