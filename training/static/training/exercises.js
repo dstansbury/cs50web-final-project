@@ -181,16 +181,19 @@ async function submit_swap_exercise_form(exercise, all_exercises, exercise_div) 
     
     // select the div where the exercise is to be swapped out
     let exercise_to_swap_out_div = exercise_div;
+    console.log('exercise_to_swap_out_div: ', exercise_to_swap_out_div)
+
+    // get the number of the exercise to swap out
+    let exercise_to_swap_out_number = exercise_to_swap_out_div.id.split('-number-')[1];
+
     // create the div for the exercise to swap in
-    let exercise_to_swap_in_div = await create_exercise_in_workout(exercise_to_swap_in);
+    let exercise_to_swap_in_div = await create_exercise_in_workout(exercise_to_swap_in, exercise_to_swap_out_number);
     
     // swap the exercises
-    console.log('exercise_to_swap_out_div: ', exercise_to_swap_out_div);
-    console.log('exercise_to_swap_in_div: ', exercise_to_swap_in_div);
     await exercise_to_swap_out_div.replaceWith(exercise_to_swap_in_div);
 
     // add event listner for the dropdown-arrow
-    addExpandListener(exercise_to_swap_in);
+    addExpandListener(exercise_to_swap_in, exercise_to_swap_out_number);
 
     // Remove the entering class after the animation has finished
     removeEntering(exercise_to_swap_in_div);
@@ -333,21 +336,20 @@ async function submit_add_exercise_form(all_exercises) {
         return;
     }
 
+    // get the number of exercises in the workout before the addition
+    let counter = document.querySelectorAll('[id*="exercise-in-workout-container"]').length;
+    
     // create the div for the exercise to add in
-    let exercise_to_add_div = await create_exercise_in_workout(exercise_to_add);
+    let exercise_to_add_div = await create_exercise_in_workout(exercise_to_add, counter);
     
     // add the exercise
     document.querySelector('#workout-plan').appendChild(exercise_to_add_div)
-
-    // get the number of exercises in the workout
-    let counter = document.querySelectorAll('[id*="exercise-in-workout-container"]').length;
-    console.log('counter: ', counter);
 
     // update the id of the new exercise div to match this number
     exercise_to_add_div.id = exercise_to_add_div.id.replace('-number-undefined', `-number-${counter-1}`);
 
     // add event listner for the dropdown-arrow
-    addExpandListener(exercise_to_add);
+    addExpandListener(exercise_to_add, counter);
 
     // Remove the entering class after the animation has finished
     removeEntering(exercise_to_add_div);
