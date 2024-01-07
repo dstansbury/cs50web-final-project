@@ -413,12 +413,13 @@ def workouts(request, userID, workout_plan_id=None):
                             personal_best = PersonalBest.objects.filter(user=new_workout.user, exercise=new_exercise_in_workout.exercise).latest('date')
         
                             # if the weight in the set exceeds the personal best, set that as the personal best
-                            if set_weight > personal_best.weight:
+                            print(f"type of set_weight is {type(set_weight)}") 
+                            print(f"type of personal_best.weight is {type(personal_best.weight)}")
+                            if Decimal(set_weight) > personal_best.weight:
                                 new_personal_best = PersonalBest(
                                     user=new_workout.user,
                                     exercise=new_exercise_in_workout.exercise,
                                     weight=personal_best.weight,
-                                    reps=training_set.reps,
                                     date=datetime.now(),
                                 )
                                 new_personal_best.save()
