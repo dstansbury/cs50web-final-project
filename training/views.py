@@ -390,7 +390,7 @@ def workouts(request, userID, workout_plan_id=None):
 
                     for training_set in exercise_data["sets"]:
                         # convert lbs to kg so the DB only handles kg
-                        if training_set.unit == "lbs":
+                        if training_set.get("units") == "lbs":
                             set_weight = training_set.get("weight") * 0.45359237
                             set_unit = "kg" 
                         else:
@@ -407,21 +407,17 @@ def workouts(request, userID, workout_plan_id=None):
 
                         # Check if there is a personal best for the exercise
                         if PersonalBest.objects.filter(user=new_workout.user, exercise=new_exercise_in_workout.exercise).exists():
-                            # if yes, check if the weight in the set exceeds the personal best
+                            # if yes, get the current personal best, not a historical one
+                            # check if the weight in the set exceeds the personal best
                             # Get the PB for the exerise
-                            personal_best = PersonalBest.objects.get(user=new_workout.user, exercise=new_exercise_in_workout.exercise)
-                            # convert lbs to kg
-                            if personal_best.unit == "lbs":
-                                personal_best_weight_in_kg = personal_best.weight * 0.45359237
-                            else:
-                                personal_best_weight_in_kg = personal_best.weight
-
+                            personal_best = PersonalBest.objects.filter(user=new_workout.user, exercise=new_exercise_in_workout.exercise).latest('date')
+        
                             # if the weight in the set exceeds the personal best, set that as the personal best
-                            if set_weight > personal_best_weight_in_kg:
+                            if set_weight > personal_best.weight:
                                 new_personal_best = PersonalBest(
                                     user=new_workout.user,
                                     exercise=new_exercise_in_workout.exercise,
-                                    weight=personal_best_weight_in_kg,
+                                    weight=personal_best.weight,
                                     reps=training_set.reps,
                                     date=datetime.now(),
                                 )
@@ -429,11 +425,11 @@ def workouts(request, userID, workout_plan_id=None):
                                 print(f"new personal best saved: {personal_best}") 
                         else:
                             # if there is no matching personal best, then the current weight is the personal best
+                            # save the new personal best
                             new_personal_best = PersonalBest(
                                     user=new_workout.user,
                                     exercise=new_exercise_in_workout.exercise,
-                                    weight=personal_best_weight_in_kg,
-                                    reps=training_set.reps,
+                                    weight=set_weight,
                                     date=datetime.now(),
                                 )
                 # Return a success HTTP response
